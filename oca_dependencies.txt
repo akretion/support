@@ -1,0 +1,3 @@
+project
+rest-framework
+server-auth https://github.com/akretion/server-auth 10.0-old-auth-api-key
