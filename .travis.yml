@@ -25,7 +25,7 @@ jobs:
   include:
     - stage: linting
       name: "pre-commit"
-      python: "2.7"
+      python: "3.6"
       install: pip install pre-commit
       script: pre-commit run --all --show-diff-on-failure
       after_success:
