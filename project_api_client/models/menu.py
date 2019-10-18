@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # © 2015 David BEAL @ Akretion
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -24,9 +24,6 @@ class IrUiMenu(models.Model):
         if not account:
             _logger.error("No keychain support key specify, hide the menu")
             support_imd = self.env.ref("project_api_client.external_project")
-            menu_domain = [
-                ("parent_id", "=", False),
-                ("id", "!=", support_imd.id),
-            ]
+            menu_domain = [("parent_id", "=", False), ("id", "!=", support_imd.id)]
             res = self.search(menu_domain)
         return res

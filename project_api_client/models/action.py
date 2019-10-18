@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 # © 2015 David BEAL @ Akretion
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -17,9 +17,7 @@ class IrValues(models.Model):
     @api.model
     def get_actions(self, action_slot, model, res_id=False):
         """ Add an action to all Model objects of the ERP """
-        res = super(IrValues, self).get_actions(
-            action_slot, model, res_id=res_id
-        )
+        res = super(IrValues, self).get_actions(action_slot, model, res_id=res_id)
         if UNIQUE_ACTION_ID in [x[0] for x in res]:
             # Be careful the original fonction is cached in the ORM
             # this method will return a list (mutable object)
@@ -28,10 +26,7 @@ class IrValues(models.Model):
             # If the action is already here no need to add it again
             return res
         else:
-            if (
-                action_slot == "client_action_multi"
-                and model != "external.task"
-            ):
+            if action_slot == "client_action_multi" and model != "external.task":
                 action = self.set_external_task_action(model, res_id=res_id)
                 if action:
                     value = (UNIQUE_ACTION_ID, "external_project", action)

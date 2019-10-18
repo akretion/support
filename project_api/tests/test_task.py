@@ -94,9 +94,7 @@ class TestTask(TransactionComponentCase):
         for case, vals in data.items():
             service_name = vals["service_name"]
             method = vals["method"]
-            _logger.info(
-                "Run automatic test {}, {}".format(service_name, method)
-            )
+            _logger.info("Run automatic test {}, {}".format(service_name, method))
             service = self.work.component(usage=service_name)
             self._prepare_input(case, vals["input"])
             result = service.dispatch(method, params=vals["input"])

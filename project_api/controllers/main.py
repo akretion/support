@@ -6,9 +6,10 @@
 import logging
 
 from odoo import _
-from odoo.addons.base_rest.controllers import main
 from odoo.exceptions import AccessError
 from odoo.http import request
+
+from odoo.addons.base_rest.controllers import main
 
 _logger = logging.getLogger(__name__)
 

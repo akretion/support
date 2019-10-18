@@ -11,12 +11,7 @@
     "author": "Akretion",
     "website": "",
     "license": "AGPL-3",
-    "depends": [
-        "auth_api_key",
-        "base_rest",
-        "project",
-        "project_task_default_stage",
-    ],
+    "depends": ["auth_api_key", "base_rest", "project", "project_task_default_stage"],
     "data": ["views/project_view.xml", "views/partner_view.xml"],
     "demo": ["demo/partner_demo.xml", "demo/project_demo.xml"],
     "installable": True,

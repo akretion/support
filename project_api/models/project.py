@@ -33,9 +33,7 @@ class ProjectTask(models.Model):
         default=lambda self: self.env.user.partner_id.id,
         string="Create By",
     )
-    partner_id = fields.Many2one(
-        related="project_id.partner_id", readonly=True
-    )
+    partner_id = fields.Many2one(related="project_id.partner_id", readonly=True)
     user_id = fields.Many2one(default=False)
     assignee_id = fields.Many2one(
         "res.partner", compute="_compute_assignee", store=True
@@ -65,9 +63,7 @@ class ProjectTask(models.Model):
         ],
         string="Functional Area",
     )
-    customer_report = fields.Html(
-        compute="_compute_customer_report", store=True
-    )
+    customer_report = fields.Html(compute="_compute_customer_report", store=True)
 
     def _build_customer_report(self):
         # TODO we should find a better way
@@ -137,24 +133,17 @@ class ProjectTask(models.Model):
         if "user_id" in vals and self.project_id.subscribe_assigned_only:
             followers = self.message_follower_ids.mapped("partner_id")
             unsubscribe_users = self.env["res.users"].search(
-                [
-                    ("partner_id", "in", followers.ids),
-                    ("id", "!=", vals["user_id"]),
-                ]
+                [("partner_id", "in", followers.ids), ("id", "!=", vals["user_id"])]
             )
             self.message_unsubscribe_users(user_ids=unsubscribe_users.ids)
         return super(ProjectTask, self).write(vals)
 
     def message_auto_subscribe(self, updated_fields, values=None):
-        super(ProjectTask, self).message_auto_subscribe(
-            updated_fields, values=values
-        )
+        super(ProjectTask, self).message_auto_subscribe(updated_fields, values=values)
         if values.get("author_id"):
             self.message_subscribe([values["author_id"]], force=False)
         if values.get("assignee_customer_id"):
-            self.message_subscribe(
-                [values["assignee_customer_id"]], force=False
-            )
+            self.message_subscribe([values["assignee_customer_id"]], force=False)
         return True
 
     def message_get_suggested_recipients(self):
@@ -167,9 +156,7 @@ class ProjectTask(models.Model):
         # Automatically create a partner
         if not msg.get("author_id"):
             alias = tools.email_split(msg["to"])[0].split("@")[0]
-            project = self.env["project.project"].search(
-                [("alias_name", "=", alias)]
-            )
+            project = self.env["project.project"].search([("alias_name", "=", alias)])
             partner = self.env["res.partner"].create(
                 {
                     "parent_id": project.partner_id.id,
@@ -183,15 +170,11 @@ class ProjectTask(models.Model):
         custom_values.update(
             {"description": msg["body"], "author_id": msg["author_id"]}
         )
-        return super(ProjectTask, self).message_new(
-            msg, custom_values=custom_values
-        )
+        return super(ProjectTask, self).message_new(msg, custom_values=custom_values)
 
     def _read_group_stage_ids(self, stages, domain, order):
         project_ids = self._context.get("stage_from_project_ids")
         if project_ids:
             projects = self.env["project.project"].browse(project_ids)
             stages |= projects.mapped("type_ids")
-        return super(ProjectTask, self)._read_group_stage_ids(
-            stages, domain, order
-        )
+        return super(ProjectTask, self)._read_group_stage_ids(stages, domain, order)

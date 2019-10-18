@@ -9,6 +9,7 @@ import json
 from os import getenv, path
 
 import requests_mock
+
 from odoo.tests.common import TransactionCase
 
 DATA_PATH = path.join(path.dirname(path.abspath(__file__)), "data.json")
@@ -59,9 +60,7 @@ class TestTask(TransactionCase):
         method = self._get_method()
         if case not in data:
             data[case] = {}
-        data[case].update(
-            {"input": vals, "method": method, "service_name": "task"}
-        )
+        data[case].update({"input": vals, "method": method, "service_name": "task"})
         with open(DATA_PATH, "w") as f:
             f.write(json.dumps(data, indent=4, sort_keys=True))
 
@@ -131,10 +130,7 @@ class TestTask(TransactionCase):
             self._activate_mock(m)
             if LEARN:
                 task_ids = self._get_task_ids(
-                    [
-                        "project_api.project_task_1",
-                        "project_api.project_task_2",
-                    ]
+                    ["project_api.project_task_1", "project_api.project_task_2"]
                 )
             else:
                 task_ids = DATA[self._testMethodName]["input"]["ids"]
@@ -177,10 +173,7 @@ class TestTask(TransactionCase):
             self._activate_mock(m)
             if LEARN:
                 task_ids = self._get_task_ids(
-                    [
-                        "project_api.project_task_1",
-                        "project_api.project_task_2",
-                    ]
+                    ["project_api.project_task_1", "project_api.project_task_2"]
                 )
             else:
                 task_ids = DATA[self._testMethodName]["input"]["ids"]
@@ -201,10 +194,7 @@ class TestTask(TransactionCase):
             self._activate_mock(m)
             if LEARN:
                 task_ids = self._get_task_ids(
-                    [
-                        "project_api.project_task_1",
-                        "project_api.project_task_2",
-                    ]
+                    ["project_api.project_task_1", "project_api.project_task_2"]
                 )
             else:
                 task_ids = DATA[self._testMethodName]["input"]["ids"]
@@ -246,9 +236,7 @@ class TestTask(TransactionCase):
             # Ensure that there is not partner in the team
             support_team.child_ids.unlink()
             self._activate_mock(m)
-            self._activate_mock(
-                m, "test_read_support_author", "read_support_author"
-            )
+            self._activate_mock(m, "test_read_support_author", "read_support_author")
             if LEARN:
                 task_id = self._get_task_ids(["project_api.project_task_3"])[0]
                 messages = self.env["mail.message"].search(

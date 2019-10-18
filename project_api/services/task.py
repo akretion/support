@@ -8,10 +8,11 @@
 import json
 import logging
 
-from odoo.addons.base_rest.components.service import to_bool
-from odoo.addons.component.core import Component
 from odoo.exceptions import AccessError
 from odoo.tools.translate import _
+
+from odoo.addons.base_rest.components.service import to_bool
+from odoo.addons.component.core import Component
 
 _logger = logging.getLogger(__name__)
 
@@ -61,10 +62,7 @@ class ExternalTaskService(Component):
 
     def read(self, ids, fields, load):
         tasks = self.env["project.task"].search(
-            [
-                ("id", "in", ids),
-                ("project_id.partner_id", "=", self.partner.id),
-            ]
+            [("id", "in", ids), ("project_id.partner_id", "=", self.partner.id)]
         )
         tasks = tasks.read(fields=fields, load=load)
         if tasks:
@@ -78,9 +76,7 @@ class ExternalTaskService(Component):
                             ("subtype_id", "=", False),
                         ]
                     )
-                    task["message_ids"] = [
-                        "external/%s" % mid for mid in messages.ids
-                    ]
+                    task["message_ids"] = ["external/%s" % mid for mid in messages.ids]
                 if "author_id" in task:
                     task["author_id"] = self._map_partner_read_to_data(
                         task["author_id"]
@@ -90,9 +86,7 @@ class ExternalTaskService(Component):
                         task["assignee_id"]
                     )
                 if "tag_ids" in task:
-                    task["tag_ids"] = (
-                        task["tag_ids"] and task["tag_ids"][0] or False
-                    )
+                    task["tag_ids"] = task["tag_ids"] and task["tag_ids"][0] or False
                     if "color" in task:
                         if task["tag_ids"]:
                             task["color"] = (
@@ -123,14 +117,7 @@ class ExternalTaskService(Component):
         return project_ids
 
     def read_group(
-        self,
-        domain,
-        fields,
-        groupby,
-        offset=0,
-        limit=None,
-        orderby=False,
-        lazy=True,
+        self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True
     ):
         domain = [("project_id.partner_id", "=", self.partner.id)] + domain
         task_obj = self.env["project.task"]
@@ -138,9 +125,7 @@ class ExternalTaskService(Component):
             groupby[0] = "stage_id"
             fields[fields.index("stage_name")] = "stage_id"
             project_ids = self._get_all_project_ids_from_domain(domain)
-            task_obj = task_obj.with_context(
-                stage_from_project_ids=project_ids
-            )
+            task_obj = task_obj.with_context(stage_from_project_ids=project_ids)
         groups = task_obj.read_group(
             domain,
             fields,
@@ -170,22 +155,15 @@ class ExternalTaskService(Component):
     def write(self, ids, vals, author, assignee=None):
         author = self._get_partner(author)
         tasks = self.env["project.task"].search(
-            [
-                ("id", "in", ids),
-                ("project_id.partner_id", "=", self.partner.id),
-            ]
+            [("id", "in", ids), ("project_id.partner_id", "=", self.partner.id)]
         )
         if len(tasks) < len(ids):
-            raise AccessError(
-                _("You do not have the right to modify this records")
-            )
+            raise AccessError(_("You do not have the right to modify this records"))
         if assignee:
             vals["assignee_customer_id"] = self._get_partner(assignee).id
         if "tag_ids" in vals:
             vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
-        return tasks.with_context(force_message_author_id=author.id).write(
-            vals
-        )
+        return tasks.with_context(force_message_author_id=author.id).write(vals)
 
     def message_format(self, ids):
         allowed_task_ids = (
@@ -203,10 +181,7 @@ class ExternalTaskService(Component):
                     raise AccessError(_("You can not read this message"))
                 else:
                     message.update(
-                        {
-                            "model": "external.task",
-                            "id": "external/%s" % message["id"],
-                        }
+                        {"model": "external.task", "id": "external/%s" % message["id"]}
                     )
                     message["author_id"] = self._map_partner_read_to_data(
                         message["author_id"]
@@ -225,9 +200,7 @@ class ExternalTaskService(Component):
                 "update_date": partner.write_date or partner.create_date,
             }
         else:
-            raise AccessError(
-                _("You can not read information about this partner")
-            )
+            raise AccessError(_("You can not read information about this partner"))
 
     def get_message(self, params):
         messages = self.env["mail.message"].message_read(
@@ -291,9 +264,7 @@ class ExternalTaskService(Component):
             domain + [("message_type", "=", "email")], order="id ASC", limit=1
         )
         if not parent:
-            parent = self.env["mail.message"].search(
-                domain, order="id ASC", limit=1
-            )
+            parent = self.env["mail.message"].search(domain, order="id ASC", limit=1)
         message = self.env["mail.message"].create(
             {
                 "body": body,
@@ -400,10 +371,7 @@ class ExternalTaskService(Component):
     def _attachment_validator(self):
         return {
             "type": "dict",
-            "schema": {
-                "res_id": {"type": "integer"},
-                "db_datas": {"type": "string"},
-            },
+            "schema": {"res_id": {"type": "integer"}, "db_datas": {"type": "string"}},
         }
 
     def _validator_message_format(self):

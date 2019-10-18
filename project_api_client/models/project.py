@@ -9,6 +9,7 @@ import urllib
 
 import requests
 from lxml import etree
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
@@ -48,9 +49,7 @@ class ExternalTask(models.Model):
 
     name = fields.Char("Name")
     stage_name = fields.Char("Stage")
-    description = fields.Html(
-        "Description", default=lambda self: _(ISSUE_DESCRIPTION)
-    )
+    description = fields.Html("Description", default=lambda self: _(ISSUE_DESCRIPTION))
     message_ids = fields.One2many(
         comodel_name="external.message", inverse_name="res_id"
     )
@@ -60,16 +59,12 @@ class ExternalTask(models.Model):
     )
     date_deadline = fields.Datetime("Date deadline", readonly=True)
     author_id = fields.Many2one("res.partner", string="Author", readonly=True)
-    assignee_id = fields.Many2one(
-        "res.partner", string="Assignee name", readonly=True
-    )
+    assignee_id = fields.Many2one("res.partner", string="Assignee name", readonly=True)
     origin_name = fields.Char()
     origin_url = fields.Char()
     origin_db = fields.Char()
     origin_model = fields.Char()
-    project_id = fields.Selection(
-        selection=_get_select_project, string="Project"
-    )
+    project_id = fields.Selection(selection=_get_select_project, string="Project")
     color = fields.Integer(string="Color Index")
     tag_ids = fields.Selection(selection=_get_select_type, string="Type")
     attachment_ids = fields.One2many(
@@ -90,9 +85,7 @@ class ExternalTask(models.Model):
         url_key = self.get_url_key()
         url = "{}/project-api/task/{}".format(url_key["url"], method)
         headers = {"API-KEY": url_key["api_key"]}
-        user_error_message = _(
-            "There is an issue with support. Please send an email"
-        )
+        user_error_message = _("There is an issue with support. Please send an email")
         try:
             res = requests.post(url, headers=headers, json=params)
         except Exception as e:
@@ -101,9 +94,7 @@ class ExternalTask(models.Model):
         data = res.json()
         if isinstance(data, dict) and data.get("code", 0) >= 400:
             _logger.error(
-                "Error Support API : %s : %s",
-                data.get("name"),
-                data.get("description"),
+                "Error Support API : %s : %s", data.get("name"), data.get("description")
             )
             raise UserError(user_error_message)
         return data
@@ -153,11 +144,7 @@ class ExternalTask(models.Model):
 
     @api.multi
     def write(self, vals):
-        params = {
-            "ids": self.ids,
-            "vals": vals,
-            "author": self._get_author_info(),
-        }
+        params = {"ids": self.ids, "vals": vals, "author": self._get_author_info()}
         if vals.get("assignee_id"):
             partner = self.env["res.partner"].browse(vals["assignee_id"])
             if not partner.user_ids:
@@ -181,13 +168,9 @@ class ExternalTask(models.Model):
         )
         for task in tasks:
             if "author_id" in fields:
-                task["author_id"] = self._map_partner_data_to_id(
-                    task["author_id"]
-                )
+                task["author_id"] = self._map_partner_data_to_id(task["author_id"])
             if "assignee_id" in fields:
-                task["assignee_id"] = self._map_partner_data_to_id(
-                    task["assignee_id"]
-                )
+                task["assignee_id"] = self._map_partner_data_to_id(task["assignee_id"])
         return tasks
 
     @api.model
@@ -209,14 +192,7 @@ class ExternalTask(models.Model):
 
     @api.model
     def read_group(
-        self,
-        domain,
-        fields,
-        groupby,
-        offset=0,
-        limit=None,
-        orderby=False,
-        lazy=True,
+        self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True
     ):
         return self._call_odoo(
             "read_group",
@@ -271,10 +247,7 @@ class ExternalTask(models.Model):
         self, view_id=None, view_type=False, toolbar=False, submenu=False
     ):
         res = super(ExternalTask, self).fields_view_get(
-            view_id=view_id,
-            view_type=view_type,
-            toolbar=toolbar,
-            submenu=submenu,
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu
         )
         if view_type == "form":
             doc = etree.XML(res["arch"])
@@ -296,8 +269,7 @@ class ExternalTask(models.Model):
                 node.append(elem)
             node = doc.xpath("//filter[@name='my_task']")[0]
             node.attrib["domain"] = (
-                "[('assignee_id.customer_uid', '=', %s)]"
-                % self.env.user.partner_id.id
+                "[('assignee_id.customer_uid', '=', %s)]" % self.env.user.partner_id.id
             )
             res["arch"] = etree.tostring(doc, pretty_print=True)
         return res
@@ -313,9 +285,7 @@ class ExternalTask(models.Model):
             vals["action_id"] = self._context["from_action"]
         return vals
 
-    def message_partner_info_from_emails(
-        self, cr, uid, id, emails, link_mail=False, context=None
-    ):
+    def message_partner_info_from_emails(self, emails, link_mail=False):
         return []
 
 
@@ -382,9 +352,7 @@ class IrActionActWindows(models.Model):
         account = self.env["support.account"].suspend_security().retrieve()
         if not account:
             return
-        action_support = self.env.ref(
-            "project_api_client.action_helpdesk", False
-        )
+        action_support = self.env.ref("project_api_client.action_helpdesk", False)
         if action_support and action["id"] == action_support.id:
             self._set_origin_in_context(action)
         action_external_task = self.env.ref(
@@ -429,9 +397,7 @@ class ExternalAttachment(models.Model):
         url_key = self.env["external.task"].get_url_key()
         url = "{}/project-api/attachment/{}".format(url_key["url"], method)
         headers = {"API-KEY": url_key["api_key"]}
-        user_error_message = _(
-            "There is an issue with support. Please send an email"
-        )
+        user_error_message = _("There is an issue with support. Please send an email")
         try:
             res = requests.post(url, headers=headers, json=params)
         except Exception as e:
@@ -440,9 +406,7 @@ class ExternalAttachment(models.Model):
         data = res.json()
         if isinstance(data, dict) and data.get("code", 0) >= 400:
             _logger.error(
-                "Error Support API : %s : %s",
-                data.get("name"),
-                data.get("description"),
+                "Error Support API : %s : %s", data.get("name"), data.get("description")
             )
             raise UserError(user_error_message)
         return data
