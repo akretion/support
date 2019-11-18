@@ -7,7 +7,7 @@
     <field name="arch" type="xml">
         <field name="groups_id" position="after">
             <group name="support" string="Support">
-                <field name="can_be_used_for_internal_support"/>
+                <field name="internal_support"/>
             </group>
         </field>
     </field>

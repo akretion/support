@@ -11,7 +11,7 @@
                             <field name="id" class="oe_inline"/> -
                             <field name="name" placeholder="Task summary..." class="oe_inline" colspan="4"/>
                         </h1>
-                        <group col="12" attrs="{'invisible': [('id', '=', False)]}">
+                        <group attrs="{'invisible': [('id', '=', False)]}">
                             <group>
                                 <field name="project_id" readonly="1"/>
                                 <field name="tag_ids" readonly="1"/>
@@ -19,17 +19,13 @@
                                     name="assignee_id"
                                     readonly="1"
                                     domain="[
-                                        ('user_ids.can_be_used_for_internal_support', '=', True),
+                                        ('user_ids.internal_support', '=', True),
                                         ]"/>
                             </group>
                             <group>
                                 <field name="author_id" readonly="1"/>
                                 <field name="create_date" readonly="1"/>
-                            </group>
-                            <group>
                                 <field name="origin_url" readonly="1" widget="url" string="Url"/>
-                                <field name="origin_db" readonly="1" string="DB"/>
-                                <field name="origin_name" readonly="1" string="Record name"/>
                             </group>
                         </group>
                         <notebook>
@@ -83,6 +79,12 @@
                             </page>
                             <page name="customer_report" string="Report">
                                 <field name="customer_report"/>
+                            </page>
+                            <page string="Technical" name="technical">
+                                <group name="origin" string="Origin">
+                                    <field name="origin_db" readonly="1" string="DB"/>
+                                    <field name="origin_name" readonly="1" string="Record name"/>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>

@@ -9,4 +9,4 @@ from odoo import fields, models
 class ResUsers(models.Model):
     _inherit = "res.users"
 
-    can_be_used_for_internal_support = fields.Boolean(default=True)
+    internal_support = fields.Boolean(default=True)
