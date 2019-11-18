@@ -78,40 +78,6 @@ class ExternalTask(models.Model):
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("task", method, params)
 
-    def _get_support_partner_vals(self, support_uid):
-        vals = self._call_odoo("read_support_author", {"uid": support_uid})
-        return {
-            "name": vals["name"],
-            "support_last_update_date": vals["update_date"],
-            "image": vals["image"],
-            "support_uid": vals["uid"],
-            "parent_id": self.env.ref("project_api_client.support_team").id,
-        }
-
-    def _get_support_partner(self, data):
-        """ This method will return the partner info in the client database
-        If the partner is missing it will be created
-        If the partner information are obsolete their will be updated"""
-        partner = self.env["res.partner"].search(
-            [("support_uid", "=", str(data["uid"]))]
-        )
-        if not partner:
-            vals = self._get_support_partner_vals(data["uid"])
-            partner = self.env["res.partner"].create(vals)
-        elif partner.support_last_update_date < data["update_date"]:
-            vals = self._get_support_partner_vals(data["uid"])
-            partner.write(vals)
-        return partner
-
-    def _map_partner_data_to_id(self, data):
-        if not data:
-            return False
-        elif data["type"] in ("customer", "anonymous"):
-            return data["vals"]
-        else:
-            partner = self._get_support_partner(data)
-            return (partner.id, partner.name)
-
     @api.model
     def create(self, vals):
         vals = self._add_missing_default_values(vals)
@@ -145,11 +111,11 @@ class ExternalTask(models.Model):
         tasks = self._call_odoo(
             "read", {"ids": self.ids, "fields": fields, "load": load}
         )
+        partner_obj = self.env["res.partner"]
         for task in tasks:
-            if "author_id" in fields:
-                task["author_id"] = self._map_partner_data_to_id(task["author_id"])
-            if "assignee_id" in fields:
-                task["assignee_id"] = self._map_partner_data_to_id(task["assignee_id"])
+            for key in ["author_id", "assignee_id"]:
+                if key in fields:
+                    task[key] = partner_obj._get_local_id_name(task[key])
         return tasks
 
     @api.model
@@ -217,7 +183,7 @@ class ExternalTask(models.Model):
         messages = self._call_odoo("message_format", {"ids": external_ids})
         for message in messages:
             if "author_id" in message:
-                message["author_id"] = self._map_partner_data_to_id(
+                message["author_id"] = self.env["res.partner"]._get_local_id_name(
                     message["author_id"]
                 )
         return messages

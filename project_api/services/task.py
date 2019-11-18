@@ -189,19 +189,6 @@ class ExternalTaskService(Component):
             return messages
         return []
 
-    def read_support_author(self, uid):
-        """All res.user are exposed to this read only api"""
-        partner = self.env["res.partner"].browse(uid)
-        if partner.sudo().user_ids:
-            return {
-                "name": partner.name,
-                "uid": uid,
-                "image": partner.image,
-                "update_date": partner.write_date or partner.create_date,
-            }
-        else:
-            raise AccessError(_("You can not read information about this partner"))
-
     def get_message(self, params):
         messages = self.env["mail.message"].message_read(
             ids=json.loads(params["ids"]),

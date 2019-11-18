@@ -16,12 +16,29 @@
             <field name="model">support.account</field>
             <field name="arch" type="xml">
                 <form>
-                    <group>
-                        <field name="name" />
-                        <field name="url" />
-                        <field name="api_key" />
-                        <field name="company_id" />
-                    </group>
+                    <header>
+                        <button
+                            name="confirm_connection"
+                            type="object"
+                            string="Test and Confirm Connection"
+                            attrs="{'invisible': [('state', '=', 'confirmed')]}"
+                            />
+                        <button
+                            name="unconfirm_connection"
+                            type="object"
+                            string="Unactive Connection"
+                            attrs="{'invisible': [('state', '=', 'not_confirmed')]}"
+                            />
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name" />
+                            <field name="url" />
+                            <field name="api_key" />
+                            <field name="company_id" />
+                        </group>
+                    </sheet>
                 </form>
             </field>
         </record>

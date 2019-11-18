@@ -19,10 +19,33 @@ class SupportAccount(models.Model):
     _name = "support.account"
     _description = "Support account"
 
-    name = fields.Char()
-    url = fields.Char()
-    api_key = fields.Char()
+    name = fields.Char(required=True)
+    url = fields.Char(required=True)
+    api_key = fields.Char(required=True)
     company_id = fields.Many2one(comodel_name="res.company")
+    state = fields.Selection(
+        [("not_confirmed", "Not Confirmed"), ("confirmed", "Confirmed")],
+        default="not_confirmed",
+    )
+
+    def _sync_support_partner(self):
+        for support_uid in self._process_call_odoo("partner", "search"):
+            data = self._process_call_odoo("partner", "read", {"uid": support_uid})
+            self.env["res.partner"]._get_support_partner(data)
+        return True
+
+    def confirm_connection(self):
+        try:
+            self._process_call_odoo("connection", "test")
+        except Exception as e:
+            raise UserError(_("Fail to connect, %s") % e)
+        self.state = "confirmed"
+        self._sync_support_partner()
+        return True
+
+    def unconfirm_connection(self):
+        self.state = "not_confirmed"
+        return True
 
     def _get(self):
         return self.browse(self._get_id_for_company(self.env.user.company_id.id))
@@ -43,11 +66,14 @@ class SupportAccount(models.Model):
         self._get_id_for_company.clear_cache(self.env[self._name])
         return super(SupportAccount, self).write(vals)
 
-    @api.model
     def _call_odoo(self, path, method, params):
         account = self._get()
-        url = "{}/project-api/{}/{}".format(account.url, path, method)
-        headers = {"API-KEY": account.api_key}
+        return account._process_call_odoo(path, method, params)
+
+    @api.model
+    def _process_call_odoo(self, path, method, params=None):
+        url = "{}/project-api/{}/{}".format(self.url, path, method)
+        headers = {"API-KEY": self.api_key}
         try:
             res = requests.post(url, headers=headers, json=params)
         except Exception as e:
