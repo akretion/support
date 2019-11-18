@@ -7,7 +7,6 @@
 import logging
 import urllib
 
-import requests
 from lxml import etree
 
 from odoo import _, api, fields, models
@@ -18,18 +17,19 @@ _logger = logging.getLogger(__name__)
 
 
 ISSUE_DESCRIPTION = _(
-    u"""What is not working:
+    u"""<h4>What is not working ? </h4>
 </br>
 </br>
 </br>
 </br>
-How this should work:
+<h4>How this should work ?</h4>
 """
 )
 
 
 class ExternalTask(models.Model):
     _name = "external.task"
+    _description = "external.task"
 
     def _get_select_project(self):
         # solve issue during installation and test
@@ -74,30 +74,9 @@ class ExternalTask(models.Model):
     customer_report = fields.Html(readonly=True)
     customer_kanban_report = fields.Html(readonly=True)
 
-    def get_url_key(self):
-        account = self.env["support.account"]
-        retrieve = account.suspend_security().retrieve
-        account = retrieve()[0]
-        return {"url": account.url, "api_key": account.api_key}
-
     @api.model
     def _call_odoo(self, method, params):
-        url_key = self.get_url_key()
-        url = "{}/project-api/task/{}".format(url_key["url"], method)
-        headers = {"API-KEY": url_key["api_key"]}
-        user_error_message = _("There is an issue with support. Please send an email")
-        try:
-            res = requests.post(url, headers=headers, json=params)
-        except Exception as e:
-            _logger.error("Error when calling odoo %s", e)
-            raise UserError(user_error_message)
-        data = res.json()
-        if isinstance(data, dict) and data.get("code", 0) >= 400:
-            _logger.error(
-                "Error Support API : %s : %s", data.get("name"), data.get("description")
-            )
-            raise UserError(user_error_message)
-        return data
+        return self.env["support.account"]._call_odoo("task", method, params)
 
     def _get_support_partner_vals(self, support_uid):
         vals = self._call_odoo("read_support_author", {"uid": support_uid})
@@ -112,7 +91,7 @@ class ExternalTask(models.Model):
     def _get_support_partner(self, data):
         """ This method will return the partner info in the client database
         If the partner is missing it will be created
-        If the partner information are obsolet their will be updated"""
+        If the partner information are obsolete their will be updated"""
         partner = self.env["res.partner"].search(
             [("support_uid", "=", str(data["uid"]))]
         )
@@ -249,15 +228,13 @@ class ExternalTask(models.Model):
         res = super(ExternalTask, self).fields_view_get(
             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu
         )
+        doc = etree.XML(res["arch"])
         if view_type == "form":
-            doc = etree.XML(res["arch"])
             for node in doc.xpath("//field[@name='message_ids']"):
                 options = safe_eval(node.get("options", "{}"))
                 options.update({"display_log_button": False})
                 node.set("options", repr(options))
-            res["arch"] = etree.tostring(doc)
-        if view_type == "search":
-            doc = etree.XML(res["arch"])
+        elif view_type == "search":
             node = doc.xpath("//search")[0]
             for project_id, project_name in self._get_select_project():
                 elem = etree.Element(
@@ -267,11 +244,13 @@ class ExternalTask(models.Model):
                     domain="[('project_id', '=', %s)]" % project_id,
                 )
                 node.append(elem)
-            node = doc.xpath("//filter[@name='my_task']")[0]
-            node.attrib["domain"] = (
-                "[('assignee_id.customer_uid', '=', %s)]" % self.env.user.partner_id.id
-            )
-            res["arch"] = etree.tostring(doc, pretty_print=True)
+            node = doc.xpath("//filter[@name='my_task']")
+            if node:
+                node[0].attrib["domain"] = (
+                    "[('assignee_id.customer_uid', '=', %s)]"
+                    % self.env.user.partner_id.id
+                )
+        res["arch"] = etree.tostring(doc, pretty_print=True)
         return res
 
     @api.model
@@ -291,6 +270,7 @@ class ExternalTask(models.Model):
 
 class ExternalMessage(models.Model):
     _name = "external.message"
+    _description = "external.message"
 
     res_id = fields.Many2one(comodel_name="external.task")
 
@@ -349,7 +329,7 @@ class IrActionActWindows(models.Model):
 
     @api.model
     def _update_action(self, action):
-        account = self.env["support.account"].suspend_security().retrieve()
+        account = self.env["support.account"]._get()
         if not account:
             return
         action_support = self.env.ref("project_api_client.action_helpdesk", False)
@@ -370,6 +350,7 @@ class IrActionActWindows(models.Model):
 
 class ExternalAttachment(models.Model):
     _name = "external.attachment"
+    _description = "external.attachment"
 
     res_id = fields.Many2one(comodel_name="external.task")
     name = fields.Char()
@@ -394,19 +375,4 @@ class ExternalAttachment(models.Model):
 
     @api.model
     def _call_odoo(self, method, params):
-        url_key = self.env["external.task"].get_url_key()
-        url = "{}/project-api/attachment/{}".format(url_key["url"], method)
-        headers = {"API-KEY": url_key["api_key"]}
-        user_error_message = _("There is an issue with support. Please send an email")
-        try:
-            res = requests.post(url, headers=headers, json=params)
-        except Exception as e:
-            _logger.error("Error when calling odoo %s", e)
-            raise UserError(user_error_message)
-        data = res.json()
-        if isinstance(data, dict) and data.get("code", 0) >= 400:
-            _logger.error(
-                "Error Support API : %s : %s", data.get("name"), data.get("description")
-            )
-            raise UserError(user_error_message)
-        return data
+        return self.env["support.account"]._call_odoo("attachment", method, params)

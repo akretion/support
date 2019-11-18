@@ -11,7 +11,7 @@
     "author": "Akretion",
     "website": "",
     "license": "AGPL-3",
-    "depends": ["keychain", "base_suspend_security", "mail"],
+    "depends": ["mail"],
     "data": [
         "security/group.xml",
         "security/ir.model.access.csv",
@@ -19,7 +19,7 @@
         "views/account_view.xml",
         "data/partner_data.xml",
     ],
-    "demo": ["demo/keychain_demo.xml"],
+    "demo": ["demo/account_support_demo.xml"],
     "installable": True,
     "application": True,
 }

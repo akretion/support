@@ -12,7 +12,7 @@ This module add a new entry "support" to allow to interact with your integrator
 Configuration
 =============
 
-Add your support keychain
+Add your support account
 
 
 Testing Tips

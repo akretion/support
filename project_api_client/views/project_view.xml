@@ -79,7 +79,7 @@
                                 </group>
                                 <div class="oe_clear"/>
                             </page>
-                            <page name="customer_report" string="Customer Report">
+                            <page name="customer_report" string="Report">
                                 <field name="customer_report"/>
                             </page>
                         </notebook>
@@ -121,6 +121,12 @@
             <field name="arch" type="xml">
                 <tree string="External Task">
                     <field name="name"/>
+                    <field name="stage_name"/>
+                    <field name="author_id"/>
+                    <field name="priority"/>
+                    <field name="date_deadline"/>
+                    <field name="to_invoice"/>
+                    <field name="create_date"/>
                 </tree>
             </field>
         </record>
@@ -133,7 +139,7 @@
                     <separator/>
                     <filter string="My task" name="my_task"/>
                     <separator/>
-                    <filter string="Stage" context="{'group_by': 'stage_name'}" icon="terp-partner"/>
+                    <filter string="Stage" context="{'group_by': 'stage_name'}"/>
                     <separator/>
                 </search>
             </field>
@@ -222,6 +228,7 @@
             id="external_project"
             name="Support"
             sequence="100"
+            web_icon="project_api_client/static/description/icon.png"
             groups="project_api_client.group_support_user"/>
 
 </odoo>

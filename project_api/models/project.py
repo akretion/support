@@ -18,6 +18,9 @@ class ProjectProject(models.Model):
         help="When a user get assigned, unscubscribe automaticaly other users",
     )
 
+    def _get_customer_project_name(self):
+        return self.customer_project_name or self.name
+
 
 class ProjectTask(models.Model):
     _inherit = "project.task"
@@ -65,9 +68,14 @@ class ProjectTask(models.Model):
     )
     customer_report = fields.Html(compute="_compute_customer_report", store=True)
 
+    priority = fields.Selection([("0", "Low"), ("1", "Normal"), ("2", "High")])
+
     def _build_customer_report(self):
-        # TODO we should find a better way
-        # Implement your own template in your custom module
+        """This method allow you to return an html that will be show on client side
+        This avoid having too much logic and too much module with dependency on client
+        side.
+        You just need to hack whatever you want in this html on server side and then
+        all of your customer will see it"""
         return ""
 
     def _compute_customer_report(self):

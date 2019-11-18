@@ -17,9 +17,8 @@ class ExternalAttachmentService(Component):
     def partner(self):
         return self.work.partner
 
+    # pylint: disable=W8106
     def read(self, ids, fields, load):
-        # Super is used only to resolve pylint error
-        super(ExternalAttachmentService, self).read(ids, fields, load)
         tasks = self.env["project.task"].search(
             [("project_id.partner_id", "=", self.partner.id)]
         )

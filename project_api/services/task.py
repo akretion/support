@@ -282,13 +282,15 @@ class ExternalTaskService(Component):
         return message.id
 
     def project_list(self):
+        result = []
         helpdesk = self.partner.help_desk_project_id
+        if helpdesk:
+            result.append((helpdesk.id, helpdesk._get_customer_project_name()))
         projects = self.env["project.project"].search(
             [("partner_id", "=", self.partner.id), ("id", "!=", helpdesk.id)]
         )
-        return [(helpdesk.id, helpdesk.customer_project_name)] + [
-            (p.id, p.customer_project_name) for p in projects
-        ]
+        result += [(p.id, p._get_customer_project_name()) for p in projects]
+        return result
 
     def type_list(self):
         projects = self.partner.help_desk_project_id

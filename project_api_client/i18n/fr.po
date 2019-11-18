@@ -297,11 +297,6 @@ msgid "ir.values"
 msgstr "ir.values"
 
 #. module: project_api_client
-#: model:ir.model,name:project_api_client.model_keychain_account
-msgid "keychain.account"
-msgstr "keychain.account"
-
-#. module: project_api_client
 #: model:ir.ui.view,arch_db:project_api_client.view_external_task_kanban
 msgid "oe_kanban_text_red"
 msgstr "oe_kanban_text_red"
