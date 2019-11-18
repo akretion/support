@@ -16,6 +16,7 @@
         "security/group.xml",
         "security/ir.model.access.csv",
         "views/project_view.xml",
+        "views/res_users_view.xml",
         "views/account_view.xml",
         "data/partner_data.xml",
     ],
