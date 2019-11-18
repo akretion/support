@@ -6,10 +6,16 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook/page[last()]" position="after">
-                <page string="Support" name="support">
-                    <group name="helpdesk" string="Helpdesk parameters">
+                <page string="Support" name="Helpdesk parameters">
+                    <group name="helpdesk">
                         <field name="project_auth_api_key_id"/>
-                        <field name="help_desk_project_id"/>
+                        <field
+                            name="help_desk_project_id"
+                            attrs="{
+                                'required': [('project_auth_api_key_id', '!=', False)],
+                                'invisible': [('project_auth_api_key_id', '=', False)],
+                                }"
+                            />
                     </group>
                 </page>
             </xpath>

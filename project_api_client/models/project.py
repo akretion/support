@@ -47,7 +47,7 @@ class ExternalTask(models.Model):
         else:
             return []
 
-    name = fields.Char("Name")
+    name = fields.Char("Name", required=True)
     stage_name = fields.Char("Stage")
     description = fields.Html("Description", default=lambda self: _(ISSUE_DESCRIPTION))
     message_ids = fields.One2many(
@@ -368,10 +368,9 @@ class ExternalAttachment(models.Model):
 
     @api.multi
     def read(self, fields=None, load="_classic_read"):
-        tasks = self._call_odoo(
+        return self._call_odoo(
             "read", {"ids": self.ids, "fields": fields, "load": load}
         )
-        return tasks
 
     @api.model
     def _call_odoo(self, method, params):

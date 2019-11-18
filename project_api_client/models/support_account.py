@@ -7,7 +7,7 @@ import logging
 
 import requests
 
-from odoo import _, api, fields, models
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -24,12 +24,24 @@ class SupportAccount(models.Model):
     api_key = fields.Char()
     company_id = fields.Many2one(comodel_name="res.company")
 
-    # TODO cache me
     def _get(self):
-        account = self.sudo().search([("company_id", "=", self.env.user.company_id.id)])
+        return self.browse(self._get_id_for_company(self.env.user.company_id.id))
+
+    @tools.ormcache("company_id")
+    def _get_id_for_company(self, company_id):
+        account = self.sudo().search([("company_id", "=", company_id)])
         if not account:
             account = self.sudo().search([("company_id", "=", False)])
-        return account
+        return account.id
+
+    @api.model
+    def create(self, vals):
+        self._get_id_for_company.clear_cache(self.env[self._name])
+        return super(SupportAccount, self).create(vals)
+
+    def write(self, vals):
+        self._get_id_for_company.clear_cache(self.env[self._name])
+        return super(SupportAccount, self).write(vals)
 
     @api.model
     def _call_odoo(self, path, method, params):
