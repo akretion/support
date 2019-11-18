@@ -28,6 +28,7 @@ class ResPartner(models.Model):
             "image": data["image"],
             "support_uid": data["uid"],
             "parent_id": self.env.ref("project_api_client.support_team").id,
+            "company_id": False,
         }
 
     def _get_support_partner(self, data):

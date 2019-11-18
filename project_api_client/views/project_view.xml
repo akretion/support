@@ -11,18 +11,19 @@
                             <field name="id" class="oe_inline"/> -
                             <field name="name" placeholder="Task summary..." class="oe_inline" colspan="4"/>
                         </h1>
-                        <group attrs="{'invisible': [('id', '=', False)]}">
-                            <group>
+                        <group>
+                            <group name="project" attrs="{'invisible': [('id', '=', False)]}">
                                 <field name="project_id" readonly="1"/>
                                 <field name="tag_ids" readonly="1"/>
                                 <field
                                     name="assignee_id"
                                     readonly="1"
+                                    options="{'no_create': True}"
                                     domain="[
                                         ('user_ids.internal_support', '=', True),
                                         ]"/>
                             </group>
-                            <group>
+                            <group name="info" attrs="{'invisible': [('id', '=', False)]}">
                                 <field name="author_id" readonly="1"/>
                                 <field name="create_date" readonly="1"/>
                                 <field name="origin_url" readonly="1" widget="url" string="Url"/>
@@ -117,6 +118,9 @@
                 <field name="assignee_id" position="attributes">
                     <attribute name="readonly">0</attribute>
                 </field>
+                <group name="project" position="attributes">
+                    <attribute name="attrs"></attribute>
+                </group>
             </field>
         </record>
 

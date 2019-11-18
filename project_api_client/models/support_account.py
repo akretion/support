@@ -27,6 +27,13 @@ class SupportAccount(models.Model):
         [("not_confirmed", "Not Confirmed"), ("confirmed", "Confirmed")],
         default="not_confirmed",
     )
+    config = fields.Serialized()
+
+    def _sync_configuration(self):
+        self.config = {
+            "project": self._process_call_odoo("task", "project_list", {}),
+            "type": self._process_call_odoo("task", "type_list", {}),
+        }
 
     def _sync_support_partner(self):
         for support_uid in self._process_call_odoo("partner", "search"):
@@ -41,6 +48,7 @@ class SupportAccount(models.Model):
             raise UserError(_("Fail to connect, %s") % e)
         self.state = "confirmed"
         self._sync_support_partner()
+        self._sync_configuration()
         return True
 
     def unconfirm_connection(self):
@@ -52,22 +60,38 @@ class SupportAccount(models.Model):
 
     @tools.ormcache("company_id")
     def _get_id_for_company(self, company_id):
-        account = self.sudo().search([("company_id", "=", company_id)])
-        if not account:
-            account = self.sudo().search([("company_id", "=", False)])
-        return account.id
+        for c_id in [company_id, False]:
+            account = self.sudo().search(
+                [("company_id", "=", c_id), ("state", "=", "confirmed")]
+            )
+            if account:
+                return account.id
+        return False
+
+    def _get_config(self):
+        return self._get_config_for_company(self.env.user.company_id.id)
+
+    @tools.ormcache("company_id")
+    def _get_config_for_company(self, company_id):
+        account_id = self._get_id_for_company(company_id)
+        account = self.sudo().browse(account_id)
+        return account.config
+
+    def _clear_account_cache(self):
+        self._get_id_for_company.clear_cache(self.env[self._name])
+        self._get_config_for_company.clear_cache(self.env[self._name])
 
     @api.model
     def create(self, vals):
-        self._get_id_for_company.clear_cache(self.env[self._name])
+        self._clear_account_cache()
         return super(SupportAccount, self).create(vals)
 
     def write(self, vals):
-        self._get_id_for_company.clear_cache(self.env[self._name])
+        self._clear_account_cache()
         return super(SupportAccount, self).write(vals)
 
     def _call_odoo(self, path, method, params):
-        account = self._get()
+        account = self.sudo()._get()
         return account._process_call_odoo(path, method, params)
 
     @api.model

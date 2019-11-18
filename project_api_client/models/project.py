@@ -32,20 +32,17 @@ class ExternalTask(models.Model):
     _description = "external.task"
 
     def _get_select_project(self):
-        # solve issue during installation and test
-        # If we have an uid it's a real call from webclient
-        if self._context.get("uid"):
-            return self._call_odoo("project_list", {})
-        else:
-            return []
+        config = self.env["support.account"]._get_config()
+        return config.get("project", [])
+
+    def _get_default_project(self):
+        projects = self._get_select_project()
+        if projects:
+            return projects[0][0]
 
     def _get_select_type(self):
-        # solve issue during installation and test
-        # If we have an uid it's a real call from webclient
-        if self._context.get("uid"):
-            return self._call_odoo("type_list", {})
-        else:
-            return []
+        config = self.env["support.account"]._get_config()
+        return config.get("type", [])
 
     name = fields.Char("Name", required=True)
     stage_name = fields.Char("Stage")
@@ -64,7 +61,12 @@ class ExternalTask(models.Model):
     origin_url = fields.Char()
     origin_db = fields.Char()
     origin_model = fields.Char()
-    project_id = fields.Selection(selection=_get_select_project, string="Project")
+    project_id = fields.Selection(
+        selection=_get_select_project,
+        string="Project",
+        default=_get_default_project,
+        required=True,
+    )
     color = fields.Integer(string="Color Index")
     tag_ids = fields.Selection(selection=_get_select_type, string="Type")
     attachment_ids = fields.One2many(
