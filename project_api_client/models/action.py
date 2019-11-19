@@ -39,8 +39,8 @@ class IrValues(models.Model):
         return {
             "id": action.id,
             "name": _("Create a Ticket"),
-            "res_model": u"external.task",
+            "res_model": "external.task",
             "src_model": model,
-            "type": u"ir.actions.act_window",
+            "type": "ir.actions.act_window",
             "target": "current",
         }
