@@ -52,6 +52,6 @@
         </record>
 
         <menuitem id="support_account_menu" name="Support account"
-                  parent="base.menu_custom"
+                  parent="base.menu_ir_property"
                   action="support_account_list_action"/>
 </odoo>
