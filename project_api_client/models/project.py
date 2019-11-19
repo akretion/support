@@ -282,14 +282,15 @@ class IrActionActWindows(models.Model):
         action_id = self._context.get("params", {}).get("action")
         _id = self._context.get("active_id")
         model = self._context.get("active_model")
+        params = {}
         if _id and model:
             record = self.env[model].browse(_id)
             context["default_origin_name"] = record.display_name
             context["default_origin_model"] = model
+            params["model"] = model
         if action_id and _id:
-            path = urllib.urlencode(
-                {"view_type": "form", "action_id": action_id, "id": _id}
-            )
+            params.update({"view_type": "form", "action_id": action_id, "id": _id})
+            path = urllib.urlencode(params)
             context["default_origin_url"] = "{}#{}".format(base_url, path)
         action["context"] = context
 
