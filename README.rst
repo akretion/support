@@ -14,13 +14,13 @@ TODO
 Move to OCA
 
 
-Simplify test:
+Simplify tests:
 
-Test are a little complexe. For now you have to
+The current testing process is a bit complex. For now you have to:
 
-- run the test in "learning" mode for project_api_client then project_api this will generate json file base on automatic mocked call
-- then you can run the test normally
+- run the tests in "learning" mode for project_api_client then project_api this will generate json file base on automatic mocked call
+- then you can run the tests normally
 
-This is not really easy to debug, but it's the simpliets solution found for now
+This is not really easy to debug, but it's the simpliets solution found soo far.
 
-If we have a better idea it will be great to propose it.
+If you have a better idea it will be great to propose it...
