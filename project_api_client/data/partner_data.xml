@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<openerp>
+<data>
 
     <record id="support_team" model="res.partner">
         <field name="name">Akretion Support</field>
@@ -7,4 +8,5 @@
         <field name="image" type="base64" file="project_api_client/static/img/akretion-logo.png"/>
     </record>
 
-</odoo>
+</data>
+</openerp>

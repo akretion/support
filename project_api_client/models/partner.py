@@ -3,7 +3,7 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from openerp import fields, models
 
 
 class ResPartner(models.Model):
@@ -35,6 +35,7 @@ class ResPartner(models.Model):
         """ This method will return the local partner used for the support
         If the partner is missing it will be created
         If the partner information are obsolete their will be updated"""
+        self = self.with_context(bin_size=False)
         partner = self.env["res.partner"].search(
             [("support_uid", "=", str(data["uid"]))]
         )

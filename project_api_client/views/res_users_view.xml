@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<openerp>
+<data>
 
 <record id="res_users_view_form" model="ir.ui.view">
     <field name="model">res.users</field>
@@ -13,4 +14,5 @@
     </field>
 </record>
 
-</odoo>
+</data>
+</openerp>

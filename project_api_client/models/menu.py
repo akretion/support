@@ -25,5 +25,5 @@ class IrUiMenu(models.Model):
             _logger.error("No account support key specify, hide the menu")
             support_imd = self.env.ref("project_api_client.external_project")
             menu_domain = [("parent_id", "=", False), ("id", "!=", support_imd.id)]
-            res = self.search(menu_domain)
+            res = self.search(menu_domain).ids
         return res

@@ -7,8 +7,8 @@ import logging
 
 import requests
 
-from odoo import _, api, fields, models, tools
-from odoo.exceptions import UserError
+from openerp import _, api, fields, models, tools
+from openerp.exceptions import Warning as UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -41,6 +41,7 @@ class SupportAccount(models.Model):
             self.env["res.partner"]._get_support_partner(data)
         return True
 
+    @api.multi
     def confirm_connection(self):
         try:
             self._process_call_odoo("connection", "test")
@@ -51,6 +52,7 @@ class SupportAccount(models.Model):
         self._sync_configuration()
         return True
 
+    @api.multi
     def unconfirm_connection(self):
         self.state = "not_confirmed"
         return True
@@ -58,7 +60,7 @@ class SupportAccount(models.Model):
     def _get(self):
         return self.browse(self._get_id_for_company(self.env.user.company_id.id))
 
-    @tools.ormcache("company_id")
+    @tools.ormcache(skiparg=1)
     def _get_id_for_company(self, company_id):
         for c_id in [company_id, False]:
             account = self.sudo().search(
@@ -71,11 +73,11 @@ class SupportAccount(models.Model):
     def _get_config(self):
         return self._get_config_for_company(self.env.user.company_id.id)
 
-    @tools.ormcache("company_id")
+    @tools.ormcache(skiparg=1)
     def _get_config_for_company(self, company_id):
         account_id = self._get_id_for_company(company_id)
         account = self.sudo().browse(account_id)
-        return account.config
+        return account.config or {}
 
     def _clear_account_cache(self):
         self._get_id_for_company.clear_cache(self.env[self._name])
@@ -86,6 +88,7 @@ class SupportAccount(models.Model):
         self._clear_account_cache()
         return super(SupportAccount, self).create(vals)
 
+    @api.multi
     def write(self, vals):
         self._clear_account_cache()
         return super(SupportAccount, self).write(vals)

@@ -1,2 +1,3 @@
 # -*- coding: utf-8 -*-
-from . import test_task
+# inactive test on version 8
+#from . import test_task

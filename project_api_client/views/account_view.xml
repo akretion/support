@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
+<openerp>
+<data>
         <record model="ir.ui.view" id="support_account_tree">
             <field name="model">support.account</field>
             <field name="arch" type="xml">
@@ -54,4 +55,5 @@
         <menuitem id="support_account_menu" name="Support account"
                   parent="base.menu_ir_property"
                   action="support_account_list_action"/>
-</odoo>
+</data>
+</openerp>
