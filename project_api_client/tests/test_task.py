@@ -41,6 +41,7 @@ class TestTask(TransactionCase):
         self.env.user.image = self._get_image("partner-customer-image.png")
         self.demo_user = self.env.ref("base.user_demo")
         self.demo_user.image = self._get_image("partner-customer-image.png")
+        self.env.ref("project_api_client.support_api_key").state = "confirmed"
 
     def _get_method(self):
         return self._testMethodName.split("__")[0].replace("test_", "")
@@ -54,20 +55,22 @@ class TestTask(TransactionCase):
             ids.append(res_id)
         return ids
 
-    def _update_json_data(self, vals):
+    def _update_json_data(self, vals, method=None, service_name="task"):
         data = get_data()
         case = self._testMethodName
-        method = self._get_method()
+        method = method or self._get_method()
         if case not in data:
             data[case] = {}
-        data[case].update({"input": vals, "method": method, "service_name": "task"})
+        data[case].update(
+            {"input": vals, "method": method, "service_name": service_name}
+        )
         with open(DATA_PATH, "w") as f:
             f.write(json.dumps(data, indent=4, sort_keys=True))
 
-    def _activate_mock(self, m, case=None, method=None):
+    def _activate_mock(self, m, case=None, method=None, endpoint="task"):
         case = case or self._testMethodName
         method = method or self._get_method()
-        url = "http://localhost:8069/project-api/task/%s" % (method)
+        url = "http://localhost:8069/project-api/%s/%s" % (endpoint, method)
         if LEARN:
             result = {}  # we do not care
         else:
@@ -201,7 +204,7 @@ class TestTask(TransactionCase):
             res = (
                 self.env["external.task"]
                 .browse(task_ids)
-                .write({"assignee_id": self.demo_user.partner_id.id})
+                .write({"assignee_customer_id": self.demo_user.partner_id.id})
             )
             request_input = m.request_history[0].json()
             if LEARN:
@@ -212,17 +215,19 @@ class TestTask(TransactionCase):
 
     def test_read_support_author(self):
         with requests_mock.Mocker() as m:
-            self._activate_mock(m)
+            self._activate_mock(m, method="read", endpoint="partner")
             if LEARN:
                 uid = self.env.user.partner_id.id
             else:
                 uid = DATA["test_read_support_author"]["input"]["uid"]
-            res = self.env["external.task"]._call_odoo(
-                "read_support_author", {"uid": uid}
+            res = self.env["support.account"]._call_odoo(
+                "partner", "read", {"uid": uid}
             )
             request_input = m.request_history[0].json()
             if LEARN:
-                self._update_json_data(request_input)
+                self._update_json_data(
+                    request_input, method="read", service_name="partner"
+                )
             else:
                 self._check_input(request_input)
                 self.assertEqual(res["uid"], uid)
@@ -236,7 +241,9 @@ class TestTask(TransactionCase):
             # Ensure that there is not partner in the team
             support_team.child_ids.unlink()
             self._activate_mock(m)
-            self._activate_mock(m, "test_read_support_author", "read_support_author")
+            self._activate_mock(
+                m, "test_read_support_author", method="read", endpoint="partner"
+            )
             if LEARN:
                 task_id = self._get_task_ids(["project_api.project_task_3"])[0]
                 messages = self.env["mail.message"].search(

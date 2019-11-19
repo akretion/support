@@ -99,7 +99,7 @@ class ExternalTask(models.Model):
         vals["author"] = self._get_author_info()
         if not vals.get("model_reference", False):
             vals["model_reference"] = ""
-        self._get_assignee_customer(vals, vals.pop("assignee_customer_id", None))
+        self._add_assignee_customer(vals, vals.pop("assignee_customer_id", None))
         task_id = self._call_odoo("create", vals)
         return self.browse(task_id)
 
