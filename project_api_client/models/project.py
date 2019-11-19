@@ -56,7 +56,12 @@ class ExternalTask(models.Model):
     )
     date_deadline = fields.Datetime("Date deadline", readonly=True)
     author_id = fields.Many2one("res.partner", string="Author", readonly=True)
-    assignee_id = fields.Many2one("res.partner", string="Assignee name", readonly=True)
+    assignee_supplier_id = fields.Many2one(
+        "res.partner", string="Resp. Externe", readonly=True
+    )
+    assignee_customer_id = fields.Many2one(
+        "res.partner", string="Resp. Interne", readonly=True
+    )
     origin_name = fields.Char()
     origin_url = fields.Char()
     origin_db = fields.Char()
@@ -80,24 +85,28 @@ class ExternalTask(models.Model):
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("task", method, params)
 
+    def _add_assignee_customer(self, vals, assignee_customer_id):
+        if assignee_customer_id:
+            partner = self.env["res.partner"].browse(assignee_customer_id)
+            if not partner.user_ids:
+                raise UserError(_("You can only assign ticket to your users"))
+            else:
+                vals["assignee_customer"] = self._get_partner_info(partner)
+
     @api.model
     def create(self, vals):
         vals = self._add_missing_default_values(vals)
         vals["author"] = self._get_author_info()
         if not vals.get("model_reference", False):
             vals["model_reference"] = ""
+        self._get_assignee_customer(vals, vals.pop("assignee_customer_id", None))
         task_id = self._call_odoo("create", vals)
         return self.browse(task_id)
 
     @api.multi
     def write(self, vals):
         params = {"ids": self.ids, "vals": vals, "author": self._get_author_info()}
-        if vals.get("assignee_id"):
-            partner = self.env["res.partner"].browse(vals["assignee_id"])
-            if not partner.user_ids:
-                raise UserError(_("You can only assign ticket to your users"))
-            else:
-                params["assignee"] = self._get_partner_info(partner)
+        self._add_assignee_customer(params, vals.pop("assignee_customer_id", None))
         return self._call_odoo("write", params)
 
     @api.multi
@@ -115,7 +124,7 @@ class ExternalTask(models.Model):
         )
         partner_obj = self.env["res.partner"]
         for task in tasks:
-            for key in ["author_id", "assignee_id"]:
+            for key in ["author_id", "assignee_customer_id", "assignee_supplier_id"]:
                 if key in fields:
                     task[key] = partner_obj._get_local_id_name(task[key])
         return tasks
@@ -166,7 +175,7 @@ class ExternalTask(models.Model):
         return {
             "uid": partner.id,
             "name": partner.name,
-            "image": partner.image_small,
+            "image": partner.image_small or None,
             "email": partner.email or "",
             "mobile": partner.mobile or "",
             "phone": partner.phone or "",

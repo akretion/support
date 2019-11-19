@@ -18,17 +18,26 @@
         <field name="model">project.task</field>
         <field name="inherit_id" ref="project.view_task_form2"/>
         <field name="arch" type="xml">
+            <field name="user_id" position="replace"/>
             <field name="project_id" position="after">
-                <field
-                    name="author_id"
-                    domain="['|', ('parent_id', '=', partner_id), ('user_ids', '!=', False)]"/>
-                <field name="assignee_customer_id"/>
+                <field name="author_id"
+                       domain="['|', ('parent_id', '=', partner_id), ('user_ids', '!=', False)]"/>
             </field>
+            <notebook position="before">
+                <group>
+                    <group name="assign">
+                       <field name="user_id" string="Resp. Interne"/>
+                       <field name="assignee_customer_id" string="Resp. Externe"/>
+                    </group>
+                    <group name="origin">
+                        <field name="origin_url" readonly="1" widget="url" string="Url"/>
+                        <field name="origin_db" readonly="1" string="DB"/>
+                        <field name="origin_name" readonly="1" string="Record"/>
+                    </group>
+                </group>
+            </notebook>
             <field name="tag_ids" position="after">
                 <field name="functional_area"/>
-                <field name="origin_url" readonly="1" widget="url" string="Url"/>
-                <field name="origin_db" readonly="1" string="DB"/>
-                <field name="origin_name" readonly="1" string="Record name"/>
             </field>
             <field name="description" position="after">
                 <separator string="Technical Description" colspan="4"/>

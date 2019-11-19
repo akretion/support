@@ -38,11 +38,11 @@ class ProjectTask(models.Model):
     )
     partner_id = fields.Many2one(related="project_id.partner_id", readonly=True)
     user_id = fields.Many2one(default=False)
-    assignee_id = fields.Many2one(
-        "res.partner", compute="_compute_assignee", store=True
+    assignee_supplier_id = fields.Many2one(
+        "res.partner", related="user_id.partner_id", store=True
     )
     assignee_customer_id = fields.Many2one(
-        "res.partner", string="Assignee To Customer", track_visibility="always"
+        "res.partner", string="Customer", track_visibility="always"
     )
     origin_name = fields.Char()
     origin_url = fields.Char()
@@ -67,6 +67,9 @@ class ProjectTask(models.Model):
         string="Functional Area",
     )
     customer_report = fields.Html(compute="_compute_customer_report", store=True)
+    customer_kanban_report = fields.Html(
+        compute="_compute_customer_kanban_report", store=True
+    )
 
     priority = fields.Selection([("0", "Low"), ("1", "Normal"), ("2", "High")])
 
@@ -78,16 +81,21 @@ class ProjectTask(models.Model):
         all of your customer will see it"""
         return ""
 
+    def _build_customer_kanban_report(self):
+        """This method allow you to return an html that will be show on client side
+        This avoid having too much logic and too much module with dependency on client
+        side.
+        You just need to hack whatever you want in this html on server side and then
+        all of your customer will see it"""
+        return ""
+
     def _compute_customer_report(self):
         for record in self:
             record.customer_report = record._build_customer_report()
 
-    @api.depends("user_id", "assignee_customer_id")
-    def _compute_assignee(self):
+    def _compute_customer_kanban_report(self):
         for record in self:
-            record.assignee_id = (
-                record.assignee_customer_id or record.user_id.partner_id
-            )
+            record.customer_kanban_report = record._build_customer_kanban_report()
 
     @api.depends("stage_id")
     def _compute_stage_name(self):

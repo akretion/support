@@ -77,14 +77,14 @@ class ExternalTaskService(Component):
                         ]
                     )
                     task["message_ids"] = ["external/%s" % mid for mid in messages.ids]
-                if "author_id" in task:
-                    task["author_id"] = self._map_partner_read_to_data(
-                        task["author_id"]
-                    )
-                if "assignee_id" in task:
-                    task["assignee_id"] = self._map_partner_read_to_data(
-                        task["assignee_id"]
-                    )
+                for key in [
+                    "author_id",
+                    "assignee_customer_id",
+                    "assignee_supplier_id",
+                ]:
+
+                    if key in task:
+                        task[key] = self._map_partner_read_to_data(task[key])
                 if "tag_ids" in task:
                     task["tag_ids"] = task["tag_ids"] and task["tag_ids"][0] or False
                     if "color" in task:
@@ -141,9 +141,12 @@ class ExternalTaskService(Component):
                 group["stage_name_count"] = group.pop("stage_id_count")
         return groups
 
-    def create(self, **params):
+    def create(self, assignee_customer=None, **params):
+        if assignee_customer:
+            params["assignee_customer_id"] = self._get_partner(assignee_customer).id
         partner = self._get_partner(params.pop("author"))
-        params["project_id"] = self.partner.help_desk_project_id.id
+        if not params.get("project_id"):
+            params["project_id"] = self.partner.help_desk_project_id.id
         params["author_id"] = partner.id
         task = (
             self.env["project.task"]
@@ -152,15 +155,15 @@ class ExternalTaskService(Component):
         )
         return task.id
 
-    def write(self, ids, vals, author, assignee=None):
+    def write(self, ids, vals, author, assignee_customer=None):
         author = self._get_partner(author)
         tasks = self.env["project.task"].search(
             [("id", "in", ids), ("project_id.partner_id", "=", self.partner.id)]
         )
         if len(tasks) < len(ids):
             raise AccessError(_("You do not have the right to modify this records"))
-        if assignee:
-            vals["assignee_customer_id"] = self._get_partner(assignee).id
+        if assignee_customer:
+            vals["assignee_customer_id"] = self._get_partner(assignee_customer).id
         if "tag_ids" in vals:
             vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
         return tasks.with_context(force_message_author_id=author.id).write(vals)
@@ -335,6 +338,7 @@ class ExternalTaskService(Component):
             "author": self._partner_validator(),
             "attachment_ids": {"type": "list"},
             "functional_area": {"type": "string"},
+            "assignee_customer": self._partner_validator(),
         }
 
     def _validator_write(self):
@@ -354,7 +358,7 @@ class ExternalTaskService(Component):
                 },
             },
             "author": self._partner_validator(),
-            "assignee": self._partner_validator(),
+            "assignee_customer": self._partner_validator(),
         }
 
     def _attachment_validator(self):
