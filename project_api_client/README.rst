@@ -6,7 +6,7 @@
 Project API client
 =========================
 
-This module add a new entry "support" to allow to interact with your integrator
+This module adds a new menu entry "support" to allow you to interact with your integrator
 
 
 Configuration

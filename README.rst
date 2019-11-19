@@ -1,14 +1,12 @@
 Support Project
 ================
 
-This module are used and develop by Akretion to give the best support to their customer.
+These modules are used and developped by Akretion to support our customers.
 
-Basically we have 2 modules.
+Basically we have 2 modules:
 
-One that expose an API in our ERP and add some extra feature
-
-One that is installed into our customer ERP and read/write data into our ERP throught the API
-
+* project_api that exposes an API in our ERP and adds some extra features
+* project_api_client that is installed in our customer ERP's and interact with our ERP through the API
 
 TODO
 ======

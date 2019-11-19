@@ -6,7 +6,7 @@
 Project API
 ==============
 
-This module add a restricted json-rpc like API for exposing your project customer
+This module adds a restricted json-rpc like API for exposing your project customer
 into the ERP of your customer
 
 Contributors
