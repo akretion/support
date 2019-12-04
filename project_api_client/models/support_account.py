@@ -56,7 +56,9 @@ class SupportAccount(models.Model):
         return True
 
     def _get(self):
-        return self.browse(self._get_id_for_company(self.env.user.company_id.id))
+        return self.sudo().browse(
+            self._get_id_for_company(self.env.user.company_id.id)
+        )
 
     @tools.ormcache("company_id")
     def _get_id_for_company(self, company_id):
@@ -91,7 +93,7 @@ class SupportAccount(models.Model):
         return super(SupportAccount, self).write(vals)
 
     def _call_odoo(self, path, method, params):
-        account = self.sudo()._get()
+        account = self._get()
         return account._process_call_odoo(path, method, params)
 
     @api.model
