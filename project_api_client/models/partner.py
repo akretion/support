@@ -22,9 +22,13 @@ class ResPartner(models.Model):
             data = self.env["support.account"]._call_odoo(
                 "partner", "read", {"uid": data["uid"]}
             )
+        #Compatibility v10-v12
+        update_date = data["update_date"]
+        if isinstance(update_date, str):
+            update_date = fields.Datetime.from_string(update_date)
         return {
             "name": data["name"],
-            "support_last_update_date": data["update_date"],
+            "support_last_update_date": update_date,
             "image": data["image"],
             "support_uid": data["uid"],
             "parent_id": self.env.ref("project_api_client.support_team").id,
@@ -38,10 +42,14 @@ class ResPartner(models.Model):
         partner = self.env["res.partner"].search(
             [("support_uid", "=", str(data["uid"]))]
         )
+        #Compatibility v10-v12
+        update_date = data["update_date"]
+        if isinstance(update_date, str):
+            update_date = fields.Datetime.from_string(update_date)
         if not partner:
             vals = self._get_support_partner_vals(data)
             partner = self.env["res.partner"].create(vals)
-        elif partner.support_last_update_date < data["update_date"]:
+        elif partner.support_last_update_date < update_date:
             vals = self._get_support_partner_vals(data)
             partner.write(vals)
         return partner

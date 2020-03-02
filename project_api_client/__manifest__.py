@@ -11,7 +11,7 @@
     "author": "Akretion",
     "website": "",
     "license": "AGPL-3",
-    "depends": ["mail"],
+    "depends": ["mail", "base_sparse_field"],
     "data": [
         "security/group.xml",
         "security/ir.model.access.csv",

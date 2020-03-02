@@ -81,6 +81,9 @@ class ExternalTask(models.Model):
     customer_report = fields.Html(readonly=True)
     customer_kanban_report = fields.Html(readonly=True)
 
+
+    message_attachment_count = fields.Integer('Attachment Count')
+
     @api.model
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("task", method, params)
@@ -127,6 +130,8 @@ class ExternalTask(models.Model):
             for key in ["author_id", "assignee_customer_id", "assignee_supplier_id"]:
                 if key in fields:
                     task[key] = partner_obj._get_local_id_name(task[key])
+            if 'project_id' in fields:
+                task['project_id'] = task['project_id'][0]
         return tasks
 
     @api.model
@@ -258,7 +263,7 @@ class MailMessage(models.Model):
     @api.multi
     def message_format(self):
         ids = self.ids
-        if ids and isinstance(ids[0], (str, unicode)) and "external" in ids[0]:
+        if ids and isinstance(ids[0], str) and "external" in ids[0]:
             external_ids = [int(mid.replace("external/", "")) for mid in ids]
             return self.env["external.task"].message_get(external_ids)
         else:
@@ -267,7 +272,7 @@ class MailMessage(models.Model):
     @api.multi
     def set_message_done(self):
         for _id in self.ids:
-            if isinstance(_id, (str, unicode)) and "external" in _id:
+            if isinstance(_id, str) and "external" in _id:
                 return True
         else:
             return super(MailMessage, self).set_message_done()
@@ -290,7 +295,7 @@ class IrActionActWindows(models.Model):
             params["model"] = model
         if action_id and _id:
             params.update({"view_type": "form", "action_id": action_id, "id": _id})
-            path = urllib.urlencode(params)
+            path = urllib.parse.urlencode(params)
             context["default_origin_url"] = "{}#{}".format(base_url, path)
         action["context"] = context
 
@@ -335,7 +340,7 @@ class ExternalAttachment(models.Model):
     datas = fields.Binary()
     res_model = fields.Char(default="project.task")
     datas_fname = fields.Char()
-    type = fields.Char()
+    type = fields.Char(default='binary')
     mimetype = fields.Char()
     color = fields.Integer("Color Index")
 
@@ -353,3 +358,8 @@ class ExternalAttachment(models.Model):
     @api.model
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("attachment", method, params)
+
+    @api.multi
+    @api.returns('self')
+    def exists(self):
+        return self.browse(self._call_odoo("exists", {"ids": self.ids}))

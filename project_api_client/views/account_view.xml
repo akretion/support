@@ -51,7 +51,7 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <menuitem id="support_account_menu" name="Support account"
+        <menuitem id="support_account_menu"
                   parent="base.menu_ir_property"
                   action="support_account_list_action"/>
 </odoo>

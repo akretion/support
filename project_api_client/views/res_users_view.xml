@@ -5,11 +5,11 @@
     <field name="model">res.users</field>
     <field name="inherit_id" ref="base.view_users_form" />
     <field name="arch" type="xml">
-        <field name="groups_id" position="after">
+        <group name="messaging" position="before">
             <group name="support" string="Support">
                 <field name="internal_support"/>
             </group>
-        </field>
+        </group>
     </field>
 </record>
 
