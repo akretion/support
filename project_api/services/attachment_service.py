@@ -34,6 +34,9 @@ class ExternalAttachmentService(Component):
             return attachments
         return []
 
+    def exists(self, ids):
+        return self.env["ir.attachment"].browse(ids).exists().ids
+
     # Validator
     def _validator_read(self):
         return {
@@ -41,4 +44,9 @@ class ExternalAttachmentService(Component):
             "fields": {"type": "list"},
             "load": {"type": "string"},
             "context": {"type": "dict"},
+        }
+
+    def _validator_exists(self):
+        return {
+            "ids": {"type": "list"},
         }
