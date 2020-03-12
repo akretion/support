@@ -239,7 +239,7 @@
             id="external_project"
             name="Support"
             sequence="100"
-            web_icon="project_api_client/static/description/icon.png"
+            web_icon="project_api_client,static/description/icon.png"
             groups="project_api_client.group_support_user"/>
 
 </odoo>

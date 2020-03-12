@@ -12,7 +12,14 @@ This module adds a new menu entry "support" to allow you to interact with your i
 Configuration
 =============
 
-Add your support account
+- According settings done in project_api in the other instance, add your account in Configuration > Technical > Parameters > Support Accounts
+- Apply to choosen users the Support group : `Support User` or `Support Manager`
+  
+
+Usage
+=====
+
+Refresh web page and click on Support menu
 
 
 Testing Tips

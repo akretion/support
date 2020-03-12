@@ -47,6 +47,4 @@ class ExternalAttachmentService(Component):
         }
 
     def _validator_exists(self):
-        return {
-            "ids": {"type": "list"},
-        }
+        return {"ids": {"type": "list"}}

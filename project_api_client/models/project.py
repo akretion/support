@@ -278,7 +278,8 @@ class IrActionActWindows(models.Model):
 
     def _set_origin_in_context(self, action):
         context = {"default_origin_db": self._cr.dbname}
-        base_url = self.env["ir.config_parameter"].get_param("web.base.url")
+        ICP = self.env["ir.config_parameter"].sudo()
+        base_url = ICP.get_param("web.base.url")
         action_id = self._context.get("params", {}).get("action")
         _id = self._context.get("active_id")
         model = self._context.get("active_model")
