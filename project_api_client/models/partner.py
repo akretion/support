@@ -22,7 +22,7 @@ class ResPartner(models.Model):
             data = self.env["support.account"]._call_odoo(
                 "partner", "read", {"uid": data["uid"]}
             )
-        #Compatibility v10-v12
+        # Compatibility v10-v12
         update_date = data["update_date"]
         if isinstance(update_date, str):
             update_date = fields.Datetime.from_string(update_date)
@@ -42,7 +42,7 @@ class ResPartner(models.Model):
         partner = self.env["res.partner"].search(
             [("support_uid", "=", str(data["uid"]))]
         )
-        #Compatibility v10-v12
+        # Compatibility v10-v12
         update_date = data["update_date"]
         if isinstance(update_date, str):
             update_date = fields.Datetime.from_string(update_date)

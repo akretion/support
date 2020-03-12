@@ -148,7 +148,7 @@ class ExternalTaskService(Component):
         if not params.get("project_id"):
             params["project_id"] = self.partner.help_desk_project_id.id
         params["author_id"] = partner.id
-        if params.get('tag_ids'):
+        if params.get("tag_ids"):
             params["tag_ids"] = [(6, 0, [params["tag_ids"]])]
         task = (
             self.env["project.task"]

@@ -81,8 +81,7 @@ class ExternalTask(models.Model):
     customer_report = fields.Html(readonly=True)
     customer_kanban_report = fields.Html(readonly=True)
 
-
-    message_attachment_count = fields.Integer('Attachment Count')
+    message_attachment_count = fields.Integer("Attachment Count")
 
     @api.model
     def _call_odoo(self, method, params):
@@ -130,8 +129,8 @@ class ExternalTask(models.Model):
             for key in ["author_id", "assignee_customer_id", "assignee_supplier_id"]:
                 if key in fields:
                     task[key] = partner_obj._get_local_id_name(task[key])
-            if 'project_id' in fields:
-                task['project_id'] = task['project_id'][0]
+            if "project_id" in fields:
+                task["project_id"] = task["project_id"][0]
         return tasks
 
     @api.model
@@ -341,7 +340,7 @@ class ExternalAttachment(models.Model):
     datas = fields.Binary()
     res_model = fields.Char(default="project.task")
     datas_fname = fields.Char()
-    type = fields.Char(default='binary')
+    type = fields.Char(default="binary")
     mimetype = fields.Char()
     color = fields.Integer("Color Index")
 
@@ -361,6 +360,6 @@ class ExternalAttachment(models.Model):
         return self.env["support.account"]._call_odoo("attachment", method, params)
 
     @api.multi
-    @api.returns('self')
+    @api.returns("self")
     def exists(self):
         return self.browse(self._call_odoo("exists", {"ids": self.ids}))
