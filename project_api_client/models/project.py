@@ -80,8 +80,8 @@ class ExternalTask(models.Model):
     to_invoice = fields.Boolean(readonly=True)
     customer_report = fields.Html(readonly=True)
     customer_kanban_report = fields.Html(readonly=True)
-
     message_attachment_count = fields.Integer("Attachment Count")
+    planned_hours = fields.Float(string="Planned hours")
 
     @api.model
     def _call_odoo(self, method, params):
