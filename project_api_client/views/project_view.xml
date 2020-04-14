@@ -28,6 +28,7 @@
                                 <field name="author_id" readonly="1"/>
                                 <field name="create_date" readonly="1"/>
                                 <field name="origin_url" readonly="1" widget="url" string="Url"/>
+                                <field name="planned_hours" widget="float_time" readonly="1"/>
                             </group>
                         </group>
                         <notebook>

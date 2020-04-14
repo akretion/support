@@ -259,6 +259,11 @@ msgid "Url"
 msgstr "Url"
 
 #. module: project_api_client
+#: model:ir.model.fields,field_description:project_api_client.field_external_task_planned_hours
+msgid "Planned hours"
+msgstr "Heures prévues"
+
+#. module: project_api_client
 #: code:addons/project_api_client/models/project.py:17
 #, python-format
 msgid "What is not working:\n"
