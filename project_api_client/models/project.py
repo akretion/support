@@ -54,7 +54,7 @@ class ExternalTask(models.Model):
     priority = fields.Selection(
         [("0", "Low"), ("1", "Normal"), ("2", "High")], default="1"
     )
-    date_deadline = fields.Datetime("Date deadline", readonly=True)
+    date_deadline = fields.Date("Date deadline", readonly=True)
     author_id = fields.Many2one("res.partner", string="Author", readonly=True)
     assignee_supplier_id = fields.Many2one(
         "res.partner", string="Resp. Externe", readonly=True
