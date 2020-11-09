@@ -12,7 +12,6 @@ class ProjectProject(models.Model):
     customer_project_name = fields.Char(
         help="Name that will appear on customer support menu", index=True
     )
-    tag_ids = fields.Many2many("project.tags", string="Tags")
     subscribe_assigned_only = fields.Boolean(
         string="Subscribe assigned only",
         help="When a user get assigned, unscubscribe automaticaly other users",
@@ -36,7 +35,7 @@ class ProjectTask(models.Model):
         default=lambda self: self.env.user.partner_id.id,
         string="Create By",
     )
-    partner_id = fields.Many2one(related="project_id.partner_id", readonly=True)
+    partner_id = fields.Many2one(related="project_id.partner_id", readonly=True, store=True)
     user_id = fields.Many2one(default=False)
     assignee_supplier_id = fields.Many2one(
         "res.partner", related="user_id.partner_id", store=True

@@ -10,6 +10,7 @@ import logging
 
 from odoo.exceptions import AccessError
 from odoo.tools.translate import _
+from odoo import fields as odoo_fields
 
 from odoo.addons.base_rest.components.service import to_bool
 from odoo.addons.component.core import Component
@@ -40,10 +41,11 @@ class ExternalTaskService(Component):
                     "vals": (partner.customer_uid, partner.name),
                 }
             elif partner.user_ids:
+                update_date = partner.write_date or partner.create_date
                 return {
                     "type": "support",
                     "uid": partner.id,
-                    "update_date": partner.write_date or partner.create_date,
+                    "update_date": odoo_fields.Datetime.to_string(update_date),
                 }
             else:
                 return {"type": "anonymous", "vals": (0, partner.name)}
@@ -67,6 +69,8 @@ class ExternalTaskService(Component):
         tasks = tasks.read(fields=fields, load=load)
         if tasks:
             for task in tasks:
+                if "create_date" in task:
+                    task["create_date"] = odoo_fields.Datetime.to_string(task["create_date"])
                 if "message_ids" in task:
                     messages = self.env["mail.message"].search(
                         [
@@ -137,7 +141,7 @@ class ExternalTaskService(Component):
         )
         if groupby[0] == "stage_id":
             for group in groups:
-                group["stage_name"] = group.pop("stage_id")[1]
+                group["stage_name"] = group.pop("stage_id")[0]
                 group["stage_name_count"] = group.pop("stage_id_count")
         return groups
 
@@ -191,6 +195,8 @@ class ExternalTaskService(Component):
                     message["author_id"] = self._map_partner_read_to_data(
                         message["author_id"]
                     )
+                if "date" in message:
+                    message["date"] = odoo_fields.Datetime.to_string(message["date"])
             return messages
         return []
 

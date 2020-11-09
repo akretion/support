@@ -6,14 +6,14 @@
 {
     "name": "Project API",
     "summary": "Expose a json-rpc like API on top of base_rest",
-    "version": "10.0.1.0.0",
+    "version": "12.0.1.0.0",
     "category": "Project Management",
     "author": "Akretion",
     "website": "",
     "license": "AGPL-3",
-    "depends": ["auth_api_key", "base_rest", "project", "project_task_default_stage"],
+    "depends": ["auth_api_key", "base_rest", "project", "project_task_default_stage", "project_tag"],
     "data": ["views/project_view.xml", "views/partner_view.xml"],
     "demo": ["demo/partner_demo.xml", "demo/project_demo.xml"],
-    "installable": False,
+    "installable": True,
     "application": True,
 }

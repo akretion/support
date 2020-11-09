@@ -48,8 +48,9 @@ class TestTask(TransactionComponentCase):
 
     def _get_image(self, name):
         image_path = path.dirname(path.abspath(__file__))
-        f = open(path.join(image_path, "static", name))
-        return base64.b64encode(f.read())
+        image_path = path.join(image_path, "static", name)
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode('utf-8')
 
     def _update_json_data(self, case, vals):
         data = get_data()
@@ -98,6 +99,7 @@ class TestTask(TransactionComponentCase):
             _logger.info("Run automatic test {}, {}".format(service_name, method))
             service = self.work.component(usage=service_name)
             self._prepare_input(case, vals["input"])
+
             result = service.dispatch(method, params=vals["input"])
             if LEARN:
                 self._update_json_data(case, result)

@@ -4,6 +4,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import fields, models
+import base64
 
 
 class ResPartner(models.Model):
@@ -26,10 +27,14 @@ class ResPartner(models.Model):
         update_date = data["update_date"]
         if isinstance(update_date, str):
             update_date = fields.Datetime.from_string(update_date)
+        image = data["image"]
+        if isinstance(image, str):
+            image = image.encode()
+            image = base64.b64decode(image)
         return {
             "name": data["name"],
             "support_last_update_date": update_date,
-            "image": data["image"],
+            "image": image,
             "support_uid": data["uid"],
             "parent_id": self.env.ref("project_api_client.support_team").id,
             "company_id": False,
