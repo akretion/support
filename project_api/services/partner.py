@@ -6,9 +6,11 @@
 # pylint: disable=consider-merging-classes-inherited
 
 import logging
-
+import base64
 from odoo.exceptions import AccessError
 from odoo.tools.translate import _
+from odoo import fields
+import json
 
 from odoo.addons.component.core import Component
 
@@ -33,12 +35,16 @@ class ExternalTaskService(Component):
         """All res.user are exposed to this read only api"""
         partner = self.env["res.partner"].browse(uid)
         if partner.sudo().user_ids:
-            return {
+            image = partner.image
+            image = base64.b64encode(image)
+            update_date = partner.write_date or partner.create_date
+            res = {
                 "name": partner.name,
                 "uid": uid,
-                "image": partner.image,
-                "update_date": partner.write_date or partner.create_date,
+                "image": image.decode(),
+                "update_date": fields.Datetime.to_string(update_date),
             }
+            return res
         else:
             raise AccessError(_("You can not read information about this partner"))
 

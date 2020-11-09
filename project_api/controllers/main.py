@@ -21,10 +21,10 @@ class ExternalTaskController(main.RestController):
 
     @classmethod
     def _get_partner_from_request(cls):
-        auth_api_key = getattr(request, "auth_api_key", None)
-        if auth_api_key:
+        auth_api_key_id = getattr(request, "auth_api_key_id", None)
+        if auth_api_key_id:
             partner = request.env["res.partner"].search(
-                [("project_auth_api_key_id", "=", auth_api_key.id)]
+                [("project_auth_api_key_id", "=", auth_api_key_id)]
             )
             if partner:
                 return partner
