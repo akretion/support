@@ -35,13 +35,15 @@ class ExternalTaskService(Component):
         """All res.user are exposed to this read only api"""
         partner = self.env["res.partner"].browse(uid)
         if partner.sudo().user_ids:
-            image = partner.image
-            image = base64.b64encode(image)
+            image = False
+            if partner.image and not isinstance(str, type(partner.image)):
+                image = partner.image
+                image = base64.b64encode(image).decode()
             update_date = partner.write_date or partner.create_date
             res = {
                 "name": partner.name,
                 "uid": uid,
-                "image": image.decode(),
+                "image": image,
                 "update_date": fields.Datetime.to_string(update_date),
             }
             return res
