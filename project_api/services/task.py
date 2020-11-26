@@ -141,7 +141,7 @@ class ExternalTaskService(Component):
         )
         if groupby[0] == "stage_id":
             for group in groups:
-                group["stage_name"] = group.pop("stage_id")[0]
+                group["stage_name"] = group.pop("stage_id")[1]._value
                 group["stage_name_count"] = group.pop("stage_id_count")
         return groups
 
