@@ -30,7 +30,6 @@ class ResPartner(models.Model):
         image = data["image"]
         if isinstance(image, str):
             image = image.encode()
-            image = base64.b64decode(image)
         return {
             "name": data["name"],
             "support_last_update_date": update_date,
