@@ -172,6 +172,9 @@ class ExternalTaskService(Component):
             vals["assignee_customer_id"] = self._get_partner(assignee_customer).id
         if "tag_ids" in vals:
             vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
+        # Replace field name for write because attachment_ids already exists natively
+        if "attachment_ids" in vals:
+            vals["support_attachment_ids"] = vals["attachment_ids"]
         return tasks.with_context(force_message_author_id=author.id).write(vals)
 
     def message_format(self, ids):

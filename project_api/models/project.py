@@ -48,7 +48,7 @@ class ProjectTask(models.Model):
     origin_db = fields.Char()
     origin_model = fields.Char()
     technical_description = fields.Html()
-    attachment_ids = fields.One2many(
+    support_attachment_ids = fields.One2many(
         comodel_name="ir.attachment",
         inverse_name="res_id",
         domain=[("res_model", "=", "project.task")],

@@ -5,6 +5,7 @@
 # pylint: disable=consider-merging-classes-inherited
 
 from odoo.addons.component.core import Component
+from odoo import fields as odoo_fields
 
 
 class ExternalAttachmentService(Component):
@@ -31,8 +32,17 @@ class ExternalAttachmentService(Component):
         )
         attachments = attachments.read(fields=fields, load=load)
         if attachments:
+            for attachment in attachments:
+                if "datas" in attachment:
+                    attachment["datas"] = attachment["datas"].decode("utf-8")
+                for date_field in ["write_date", "create_date"]:
+                    if date_field in attachment:
+                        attachment[date_field] = odoo_fields.Datetime.to_string(attachment[date_field])
             return attachments
         return []
+
+    def exists(self, ids):
+        return self.env["ir.attachment"].browse(ids).exists().ids
 
     # Validator
     def _validator_read(self):
@@ -42,3 +52,6 @@ class ExternalAttachmentService(Component):
             "load": {"type": "string"},
             "context": {"type": "dict"},
         }
+
+    def _validator_exists(self):
+        return {"ids": {"type": "list"}}

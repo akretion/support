@@ -11,6 +11,7 @@ from odoo.exceptions import AccessError
 from odoo.tools.translate import _
 from odoo import fields
 import json
+from odoo.http import request
 
 from odoo.addons.component.core import Component
 
@@ -35,10 +36,9 @@ class ExternalTaskService(Component):
         """All res.user are exposed to this read only api"""
         partner = self.env["res.partner"].browse(uid)
         if partner.sudo().user_ids:
-            image = False
-            if partner.image and not isinstance(str, type(partner.image)):
-                image = partner.image
-                image = base64.b64encode(image).decode()
+            image = partner.image
+            if image and not isinstance(str, type(image)):
+                image = image.decode('utf-8')
             update_date = partner.write_date or partner.create_date
             res = {
                 "name": partner.name,
