@@ -1,8 +1,7 @@
+# -*- coding: utf-8 -*-
 # Copyright 2018 Akretion (http://www.akretion.com).
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-
-import base64
 
 from odoo import fields, models
 
@@ -18,7 +17,7 @@ class ResPartner(models.Model):
     ]
 
     def _get_support_partner_vals(self, data):
-        if "image" not in data:
+        if "image_1920" not in data:
             # in case that we have partial data we retrieve the full one
             data = self.env["support.account"]._call_odoo(
                 "partner", "read", {"uid": data["uid"]}
@@ -33,7 +32,7 @@ class ResPartner(models.Model):
         return {
             "name": data["name"],
             "support_last_update_date": update_date,
-            "image": image,
+            "image_1920": image,
             "support_uid": data["uid"],
             "parent_id": self.env.ref("project_api_client.support_team").id,
             "company_id": False,

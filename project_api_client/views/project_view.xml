@@ -192,8 +192,8 @@
                                     <field name="priority" widget="priority"/>
                                 </div>
                                 <div class="oe_kanban_bottom_right">
-                                    <img t-if="record.assignee_customer_id" t-att-src="kanban_image('res.partner', 'image_small', record.assignee_customer_id.raw_value)" t-att-alt="record.assignee_customer_id.value" t-att-title="record.assignee_customer_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
-                                    <img t-if="record.assignee_supplier_id" t-att-src="kanban_image('res.partner', 'image_small', record.assignee_supplier_id.raw_value)" t-att-alt="record.assignee_supplier_id.value" t-att-title="record.assignee_supplier_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
+                                    <img t-if="record.assignee_customer_id" t-att-src="kanban_image('res.partner', 'image_128', record.assignee_customer_id.raw_value)" t-att-alt="record.assignee_customer_id.value" t-att-title="record.assignee_customer_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
+                                    <img t-if="record.assignee_supplier_id" t-att-src="kanban_image('res.partner', 'image_128', record.assignee_supplier_id.raw_value)" t-att-alt="record.assignee_supplier_id.value" t-att-title="record.assignee_supplier_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
                                 </div>
                             </div>
                             </div>

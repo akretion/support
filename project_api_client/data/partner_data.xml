@@ -4,7 +4,7 @@
     <record id="support_team" model="res.partner">
         <field name="name">Akretion Support</field>
         <field name="is_company" eval="True"/>
-        <field name="image" type="base64" file="project_api_client/static/img/akretion-logo.png"/>
+        <field name="image_1920" type="base64" file="project_api_client/static/img/akretion-logo.png"/>
     </record>
 
 </odoo>

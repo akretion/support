@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2016 Akretion (http://www.akretion.com)
 # Benoit Guillot <benoit.guillot@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
@@ -173,7 +174,7 @@ class ExternalTask(models.Model):
         return {
             "uid": partner.id,
             "name": partner.name,
-            "image": partner.image_small or None,
+            "image": partner.image_1920 or None,
             "email": partner.email or "",
             "mobile": partner.mobile or "",
             "phone": partner.phone or "",
@@ -349,6 +350,5 @@ class ExternalAttachment(models.Model):
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("attachment", method, params)
 
-    @api.returns("self")
     def exists(self):
         return self.browse(self._call_odoo("exists", {"ids": self.ids}))
