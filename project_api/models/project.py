@@ -35,7 +35,9 @@ class ProjectTask(models.Model):
         default=lambda self: self.env.user.partner_id.id,
         string="Create By",
     )
-    partner_id = fields.Many2one(related="project_id.partner_id", readonly=True, store=True)
+    partner_id = fields.Many2one(
+        related="project_id.partner_id", readonly=True, store=True
+    )
     user_id = fields.Many2one(default=False)
     assignee_supplier_id = fields.Many2one(
         "res.partner", related="user_id.partner_id", store=True

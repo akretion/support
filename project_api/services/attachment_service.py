@@ -4,8 +4,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 # pylint: disable=consider-merging-classes-inherited
 
-from odoo.addons.component.core import Component
 from odoo import fields as odoo_fields
+
+from odoo.addons.component.core import Component
 
 
 class ExternalAttachmentService(Component):
@@ -37,7 +38,9 @@ class ExternalAttachmentService(Component):
                     attachment["datas"] = attachment["datas"].decode("utf-8")
                 for date_field in ["write_date", "create_date"]:
                     if date_field in attachment:
-                        attachment[date_field] = odoo_fields.Datetime.to_string(attachment[date_field])
+                        attachment[date_field] = odoo_fields.Datetime.to_string(
+                            attachment[date_field]
+                        )
             return attachments
         return []
 

@@ -8,9 +8,9 @@
 import json
 import logging
 
+from odoo import fields as odoo_fields
 from odoo.exceptions import AccessError
 from odoo.tools.translate import _
-from odoo import fields as odoo_fields
 
 from odoo.addons.base_rest.components.service import to_bool
 from odoo.addons.component.core import Component
@@ -70,7 +70,9 @@ class ExternalTaskService(Component):
         if tasks:
             for task in tasks:
                 if "create_date" in task:
-                    task["create_date"] = odoo_fields.Datetime.to_string(task["create_date"])
+                    task["create_date"] = odoo_fields.Datetime.to_string(
+                        task["create_date"]
+                    )
                 if "message_ids" in task:
                     messages = self.env["mail.message"].search(
                         [
