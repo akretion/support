@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016 Akretion (http://www.akretion.com)
 # Benoit Guillot <benoit.guillot@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
@@ -105,21 +104,17 @@ class ExternalTask(models.Model):
         task_id = self._call_odoo("create", vals)
         return self.browse(task_id)
 
-    @api.multi
     def write(self, vals):
         params = {"ids": self.ids, "vals": vals, "author": self._get_author_info()}
         self._add_assignee_customer(params, vals.pop("assignee_customer_id", None))
         return self._call_odoo("write", params)
 
-    @api.multi
     def unlink(self):
         return True
 
-    @api.multi
     def copy(self, default):
         return self
 
-    @api.multi
     def read(self, fields=None, load="_classic_read"):
         tasks = self._call_odoo(
             "read", {"ids": self.ids, "fields": fields, "load": load}
@@ -167,7 +162,6 @@ class ExternalTask(models.Model):
             },
         )
 
-    @api.multi
     def message_get_suggested_recipients(self):
         result = {task.id: [] for task in self}
         return result
@@ -185,7 +179,6 @@ class ExternalTask(models.Model):
             "phone": partner.phone or "",
         }
 
-    @api.multi
     def message_post(self, body="", **kwargs):
         mid = self._call_odoo(
             "message_post",
@@ -259,7 +252,6 @@ class ExternalMessage(models.Model):
 class MailMessage(models.Model):
     _inherit = "mail.message"
 
-    @api.multi
     def message_format(self):
         ids = self.ids
         if ids and isinstance(ids[0], str) and "external" in ids[0]:
@@ -268,7 +260,6 @@ class MailMessage(models.Model):
         else:
             return super(MailMessage, self).message_format()
 
-    @api.multi
     def set_message_done(self):
         for _id in self.ids:
             if isinstance(_id, str) and "external" in _id:
@@ -349,7 +340,6 @@ class ExternalAttachment(models.Model):
         if self.datas_fname:
             self.name = self.datas_fname
 
-    @api.multi
     def read(self, fields=None, load="_classic_read"):
         return self._call_odoo(
             "read", {"ids": self.ids, "fields": fields, "load": load}
@@ -359,7 +349,6 @@ class ExternalAttachment(models.Model):
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("attachment", method, params)
 
-    @api.multi
     @api.returns("self")
     def exists(self):
         return self.browse(self._call_odoo("exists", {"ids": self.ids}))
