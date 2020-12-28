@@ -14,9 +14,8 @@ class IrActions(models.Model):
     def get_bindings(self, model_name):
         """ Add an action to all Model objects of the ERP """
         res = super(IrActions, self).get_bindings(model_name)
-        user_groups = self.env.user.groups_id
-        action = self.env.ref("project_api_client.action_helpdesk")
-        action_groups = getattr(action, "groups_id", ())
-        if action_groups and action_groups & user_groups:
-            res["action"].append(action.read()[0])
+        if self.env.user.has_group("project_api_client.group_support_user"):
+            xml_id = "project_api_client.action_helpdesk"
+            if xml_id not in [act.get("xml_id") for act in res["action"]]:
+                res["action"].append(self.env.ref(xml_id).sudo().read()[0])
         return res
