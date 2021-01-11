@@ -16,16 +16,6 @@ from odoo.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
 
 
-ISSUE_DESCRIPTION = _(
-    u"""<h4>What is not working ? </h4>
-</br>
-</br>
-</br>
-</br>
-<h4>How this should work ?</h4>
-"""
-)
-
 
 class ExternalTask(models.Model):
     _name = "external.task"
@@ -46,7 +36,7 @@ class ExternalTask(models.Model):
 
     name = fields.Char("Name", required=True)
     stage_name = fields.Char("Stage")
-    description = fields.Html("Description", default=lambda self: _(ISSUE_DESCRIPTION))
+    description = fields.Html("Description")
     message_ids = fields.One2many(
         comodel_name="external.message", inverse_name="res_id"
     )
@@ -279,15 +269,16 @@ class IrActionActWindows(models.Model):
         action_id = self._context.get("params", {}).get("action")
         _id = self._context.get("active_id")
         model = self._context.get("active_model")
-        params = {}
         if _id and model:
             record = self.env[model].browse(_id)
             context["default_origin_name"] = record.display_name
             context["default_origin_model"] = model
-            params["model"] = model
-        if action_id and _id:
-            params.update({"view_type": "form", "action_id": action_id, "id": _id})
-            path = urllib.parse.urlencode(params)
+            path = urllib.parse.urlencode({
+                "view_type": "form",
+                "model": model,
+                "id": _id,
+                "cids": ",".join(str(x) for x in self.env.companies.ids),
+                })
             context["default_origin_url"] = "{}#{}".format(base_url, path)
         action["context"] = context
 
