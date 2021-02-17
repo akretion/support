@@ -267,19 +267,16 @@ class ExternalTaskService(Component):
         )
         if not parent:
             parent = self.env["mail.message"].search(domain, order="id ASC", limit=1)
-        message = self.env["mail.message"].create(
-            {
-                "body": body,
-                "model": "project.task",
-                "attachment_ids": [],
-                "res_id": _id,
-                "parent_id": parent.id,
-                "subtype_id": self.env.ref("mail.mt_comment").id,
-                "author_id": partner.id,
-                "message_type": "comment",
-                "partner_ids": [],
-                "subject": False,
-            }
+        task = self.env["project.task"].browse(_id)
+        message = task.message_post(
+            body=body,
+            attachment_ids=[],
+            parent_id=parent.id,
+            subtype="mail.mt_comment",
+            author_id=partner.id,
+            message_type="comment",
+            partner_ids=[],
+            subject=_(""),
         )
         return message.id
 
