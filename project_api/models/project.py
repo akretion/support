@@ -35,7 +35,9 @@ class ProjectTask(models.Model):
         default=lambda self: self.env.user.partner_id.id,
         string="Create By",
     )
-    partner_id = fields.Many2one(related="project_id.partner_id", readonly=True, store=True)
+    partner_id = fields.Many2one(
+        related="project_id.partner_id", readonly=True, store=True
+    )
     user_id = fields.Many2one(default=False)
     assignee_supplier_id = fields.Many2one(
         "res.partner", related="user_id.partner_id", store=True
@@ -150,7 +152,8 @@ class ProjectTask(models.Model):
             unsubscribe_users = self.env["res.users"].search(
                 [("partner_id", "in", followers.ids), ("id", "!=", vals["user_id"])]
             )
-            self.message_unsubscribe_users(user_ids=unsubscribe_users.ids)
+            partner_ids = [user.partner_id.id for user in unsubscribe_users]
+            self.message_unsubscribe(partner_ids=partner_ids)
         return super(ProjectTask, self).write(vals)
 
     def message_auto_subscribe(self, updated_fields, values=None):
