@@ -5,13 +5,14 @@
 # pylint: disable=W8106
 # pylint: disable=consider-merging-classes-inherited
 
-import logging
 import base64
-from odoo.exceptions import AccessError
-from odoo.tools.translate import _
-from odoo import fields
 import json
+import logging
+
+from odoo import fields
+from odoo.exceptions import AccessError
 from odoo.http import request
+from odoo.tools.translate import _
 
 from odoo.addons.component.core import Component
 
@@ -38,7 +39,7 @@ class ExternalTaskService(Component):
         if partner.sudo().user_ids:
             image = partner.image
             if image and not isinstance(str, type(image)):
-                image = image.decode('utf-8')
+                image = image.decode("utf-8")
             update_date = partner.write_date or partner.create_date
             res = {
                 "name": partner.name,

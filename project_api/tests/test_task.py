@@ -50,7 +50,7 @@ class TestTask(TransactionComponentCase):
         image_path = path.dirname(path.abspath(__file__))
         image_path = path.join(image_path, "static", name)
         with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode('utf-8')
+            return base64.b64encode(img_file.read()).decode("utf-8")
 
     def _update_json_data(self, case, vals):
         data = get_data()
