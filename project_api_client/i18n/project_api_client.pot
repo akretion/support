@@ -4,13 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.0\n"
+"Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-13 17:12+0000\n"
-"PO-Revision-Date: 2019-01-13 17:12+0000\n"
-"Last-Translator: <>\n"
+"Last-Translator: \n"
 "Language-Team: \n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -29,7 +26,7 @@ msgstr ""
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "Add a Description..."
-msgstr "Saisir une description..."
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.actions.act_window,help:project_api_client.action_view_external_task
@@ -38,8 +35,6 @@ msgid ""
 "treat them. If you cant' create an issue contact your Adminstrator to check "
 "External task configuration."
 msgstr ""
-"Un ticket créé depuis votre ERP créera un ticket dans le l'ERP de votre "
-"integrateur. En cas de soucis veuillez contacter votre Responsable"
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__api_key
@@ -64,18 +59,18 @@ msgstr ""
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__author_id
 msgid "Author"
-msgstr "Auteur"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.actions.act_window,help:project_api_client.action_view_external_task
 msgid "Click to add an issue."
-msgstr "Cliquer pour créer un ticket."
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__color
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__color
 msgid "Color Index"
-msgstr "Couleur"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__company_id
@@ -100,12 +95,12 @@ msgstr ""
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__create_date
 msgid "Create Date"
-msgstr "Date de création"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.actions.act_window,name:project_api_client.action_helpdesk
 msgid "Create a Ticket"
-msgstr "Créer un ticket de support"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__create_uid
@@ -113,14 +108,14 @@ msgstr "Créer un ticket de support"
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__create_uid
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__create_uid
 msgid "Created by"
-msgstr "Créé par"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__create_date
 #: model:ir.model.fields,field_description:project_api_client.field_external_message__create_date
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__create_date
 msgid "Created on"
-msgstr "Créé le"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__customer_kanban_report
@@ -135,7 +130,7 @@ msgstr ""
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "DB"
-msgstr "DB"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__datas
@@ -150,18 +145,18 @@ msgstr ""
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__date_deadline
 msgid "Date deadline"
-msgstr "Date deadline"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_kanban
 msgid "Delete"
-msgstr "Supprimer"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__description
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "Description"
-msgstr "Description"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__display_name
@@ -175,7 +170,7 @@ msgstr "Description"
 #: model:ir.model.fields,field_description:project_api_client.field_res_users__display_name
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__display_name
 msgid "Display Name"
-msgstr "Nom affiché"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_kanban
@@ -185,18 +180,18 @@ msgstr ""
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_kanban
 msgid "Edit Task"
-msgstr "Editer la ticket"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_search
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_tree
 msgid "External Task"
-msgstr "Ticket"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.actions.act_window,name:project_api_client.action_view_external_task
 msgid "External task"
-msgstr "Ticket"
+msgstr ""
 
 #. module: project_api_client
 #: code:addons/project_api_client/models/support_account.py:0
@@ -207,7 +202,7 @@ msgstr ""
 #. module: project_api_client
 #: model:ir.model.fields.selection,name:project_api_client.selection__external_task__priority__2
 msgid "High"
-msgstr "Haute"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__id
@@ -221,13 +216,12 @@ msgstr "Haute"
 #: model:ir.model.fields,field_description:project_api_client.field_res_users__id
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_res_users__internal_support
-#, fuzzy
 msgid "Internal Support"
-msgstr "Support"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment____last_update
@@ -241,7 +235,7 @@ msgstr "Support"
 #: model:ir.model.fields,field_description:project_api_client.field_res_users____last_update
 #: model:ir.model.fields,field_description:project_api_client.field_support_account____last_update
 msgid "Last Modified on"
-msgstr "Dernière Modification le"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__write_uid
@@ -249,7 +243,7 @@ msgstr "Dernière Modification le"
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__write_uid
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__write_uid
 msgid "Last Updated by"
-msgstr "Dernière mise à jour par"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__write_date
@@ -257,12 +251,12 @@ msgstr "Dernière mise à jour par"
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__write_date
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__write_date
 msgid "Last Updated on"
-msgstr "Dernière mise à jour le"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields.selection,name:project_api_client.selection__external_task__priority__0
 msgid "Low"
-msgstr "Basse"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_ir_ui_menu
@@ -273,7 +267,7 @@ msgstr ""
 #: model:ir.model,name:project_api_client.model_mail_message
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__message_ids
 msgid "Message"
-msgstr "Message"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__mimetype
@@ -290,12 +284,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__name
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__name
 msgid "Name"
-msgstr "Nom"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields.selection,name:project_api_client.selection__external_task__priority__1
 msgid "Normal"
-msgstr "Normal"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields.selection,name:project_api_client.selection__support_account__state__not_confirmed
@@ -304,72 +298,64 @@ msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
-#, fuzzy
 msgid "Origin"
-msgstr "DB d'origine"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__origin_db
-#, fuzzy
 msgid "Origin Db"
-msgstr "DB d'origine"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__origin_model
-#, fuzzy
 msgid "Origin Model"
-msgstr "Modèle d'origine"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__origin_name
-#, fuzzy
 msgid "Origin Name"
-msgstr "Nom de l'origine"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__origin_url
-#, fuzzy
 msgid "Origin Url"
-msgstr "Url de l'origine"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__planned_hours
 msgid "Planned hours"
-msgstr "Heures prévues"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__priority
 msgid "Priority"
-msgstr "Priorité"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__project_id
 msgid "Project"
-msgstr "Projet"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "Record name"
-msgstr "Nom de l'enregistrement"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
-#, fuzzy
 msgid "Report"
-msgstr "Support"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__res_id
 #: model:ir.model.fields,field_description:project_api_client.field_external_message__res_id
-#, fuzzy
 msgid "Res"
-msgstr "Res id"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__res_model
-#, fuzzy
 msgid "Res Model"
-msgstr "Res id"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__assignee_supplier_id
@@ -385,7 +371,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__stage_name
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_search
 msgid "Stage"
-msgstr "Étape"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__state
@@ -397,27 +383,24 @@ msgstr ""
 #: model:ir.ui.menu,name:project_api_client.external_project
 #: model_terms:ir.ui.view,arch_db:project_api_client.res_users_view_form
 msgid "Support"
-msgstr "Support"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.actions.act_window,name:project_api_client.support_account_list_action
 #: model:ir.ui.menu,name:project_api_client.support_account_menu
-#, fuzzy
 msgid "Support Accounts"
-msgstr "Support uid"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_res_partner__support_last_update_date
 #: model:ir.model.fields,field_description:project_api_client.field_res_users__support_last_update_date
-#, fuzzy
 msgid "Support Last Update Date"
-msgstr "Support last update date"
+msgstr ""
 
 #. module: project_api_client
 #: model:res.groups,name:project_api_client.group_support_manager
-#, fuzzy
 msgid "Support Manager"
-msgstr "Support"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.module.category,description:project_api_client.module_support
@@ -432,31 +415,28 @@ msgstr ""
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_res_partner__support_uid
 #: model:ir.model.fields,field_description:project_api_client.field_res_users__support_uid
-#, fuzzy
 msgid "Support Uid"
-msgstr "Support uid"
+msgstr ""
 
 #. module: project_api_client
 #: model:res.groups,name:project_api_client.group_support_user
-#, fuzzy
 msgid "Support User"
-msgstr "Support"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_support_account
-#, fuzzy
 msgid "Support account"
-msgstr "Support uid"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "Task"
-msgstr "Tache"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "Task summary..."
-msgstr "Résumé de la tache"
+msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
@@ -482,7 +462,7 @@ msgstr ""
 #: code:addons/project_api_client/models/support_account.py:0
 #, python-format
 msgid "There is an issue with support. Please send an email"
-msgstr "Un soucis est apparue, veuillez contacter le support par email"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__to_invoice
@@ -504,7 +484,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_api_client.field_support_account__url
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_form
 msgid "Url"
-msgstr "Url"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_res_users
@@ -519,24 +499,23 @@ msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_external_attachment
-#, fuzzy
 msgid "external.attachment"
-msgstr "external.task"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_external_message
 msgid "external.message"
-msgstr "external.message"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_external_task
 msgid "external.task"
-msgstr "external.task"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_ir_values
 msgid "ir.values"
-msgstr "ir.values"
+msgstr ""
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_keychain_account
@@ -546,37 +525,4 @@ msgstr ""
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_kanban
 msgid "oe_kanban_text_red"
-msgstr "oe_kanban_text_red"
-
-#~ msgid "Assignee name"
-#~ msgstr "Assigné à"
-
-#~ msgid "Message ids"
-#~ msgstr "Messages"
-
-#~ msgid "Model to task creation"
-#~ msgstr "Creation de ticket"
-
-#~ msgid "Partner"
-#~ msgstr "Partenaire"
-
-#~ msgid ""
-#~ "What is not working:\n"
-#~ "</br>\n"
-#~ "</br>\n"
-#~ "</br>\n"
-#~ "</br>\n"
-#~ "How this should work:\n"
-#~ msgstr ""
-#~ "Ce qui ne va pas:\n"
-#~ "</br>\n"
-#~ "</br>\n"
-#~ "</br>\n"
-#~ "</br>\n"
-#~ "Voilà comment cela devrait fonctionner:\n"
-
-#~ msgid "ir.actions.act_window"
-#~ msgstr "ir.actions.act_window"
-
-#~ msgid "remote.object"
-#~ msgstr "remote.object"
+msgstr ""
