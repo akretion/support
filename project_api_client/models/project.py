@@ -16,7 +16,6 @@ from odoo.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
 
 
-
 class ExternalTask(models.Model):
     _name = "external.task"
     _description = "external.task"
@@ -212,7 +211,7 @@ class ExternalTask(models.Model):
             node = doc.xpath("//filter[@name='my_task']")
             if node:
                 node[0].attrib["domain"] = (
-                    "[('assignee_id.customer_uid', '=', %s)]"
+                    "[('assignee_customer_id.customer_uid', '=', %s)]"
                     % self.env.user.partner_id.id
                 )
         res["arch"] = etree.tostring(doc, pretty_print=True)
@@ -266,19 +265,20 @@ class IrActionActWindows(models.Model):
         context = {"default_origin_db": self._cr.dbname}
         ICP = self.env["ir.config_parameter"].sudo()
         base_url = ICP.get_param("web.base.url")
-        action_id = self._context.get("params", {}).get("action")
         _id = self._context.get("active_id")
         model = self._context.get("active_model")
         if _id and model:
             record = self.env[model].browse(_id)
             context["default_origin_name"] = record.display_name
             context["default_origin_model"] = model
-            path = urllib.parse.urlencode({
-                "view_type": "form",
-                "model": model,
-                "id": _id,
-                "cids": ",".join(str(x) for x in self.env.companies.ids),
-                })
+            path = urllib.parse.urlencode(
+                {
+                    "view_type": "form",
+                    "model": model,
+                    "id": _id,
+                    "cids": ",".join(str(x) for x in self.env.companies.ids),
+                }
+            )
             context["default_origin_url"] = "{}#{}".format(base_url, path)
         action["context"] = context
 
