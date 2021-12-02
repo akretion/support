@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
     <record model="ir.module.category" id="module_support">
@@ -9,15 +9,17 @@
 
     <record id="group_support_user" model="res.groups">
         <field name="name">Support User</field>
-        <field name="category_id" ref="module_support"/>
+        <field name="category_id" ref="module_support" />
         <field name="comment">The user can create, read the ticket support.</field>
     </record>
 
     <record id="group_support_manager" model="res.groups">
         <field name="name">Support Manager</field>
-        <field name="category_id" ref="module_support"/>
-        <field name="comment">The user can manage the ticket, change the state, change the project.</field>
-        <field name="implied_ids" eval="[(4, ref('group_support_user'))]"/>
+        <field name="category_id" ref="module_support" />
+        <field
+            name="comment"
+        >The user can manage the ticket, change the state, change the project.</field>
+        <field name="implied_ids" eval="[(4, ref('group_support_user'))]" />
     </record>
 
 </odoo>

@@ -69,7 +69,7 @@ class TestTask(TransactionCase):
     def _activate_mock(self, m, case=None, method=None, endpoint="task"):
         case = case or self._testMethodName
         method = method or self._get_method()
-        url = "http://localhost:8069/project-api/%s/%s" % (endpoint, method)
+        url = "http://localhost:8069/project-api/{}/{}".format(endpoint, method)
         if LEARN:
             result = {}  # we do not care
         else:

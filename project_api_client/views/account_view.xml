@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
         <record model="ir.ui.view" id="support_account_tree">
             <field name="model">support.account</field>
@@ -18,18 +18,18 @@
                 <form>
                     <header>
                         <button
-                            name="confirm_connection"
-                            type="object"
-                            string="Test and Confirm Connection"
-                            attrs="{'invisible': [('state', '=', 'confirmed')]}"
-                            />
+                        name="confirm_connection"
+                        type="object"
+                        string="Test and Confirm Connection"
+                        attrs="{'invisible': [('state', '=', 'confirmed')]}"
+                    />
                         <button
-                            name="unconfirm_connection"
-                            type="object"
-                            string="Unactive Connection"
-                            attrs="{'invisible': [('state', '=', 'not_confirmed')]}"
-                            />
-                        <field name="state" widget="statusbar"/>
+                        name="unconfirm_connection"
+                        type="object"
+                        string="Unactive Connection"
+                        attrs="{'invisible': [('state', '=', 'not_confirmed')]}"
+                    />
+                        <field name="state" widget="statusbar" />
                     </header>
                     <sheet>
                         <group>
@@ -50,7 +50,9 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <menuitem id="support_account_menu"
-                  parent="base.menu_ir_property"
-                  action="support_account_list_action"/>
+        <menuitem
+        id="support_account_menu"
+        parent="base.menu_ir_property"
+        action="support_account_list_action"
+    />
 </odoo>

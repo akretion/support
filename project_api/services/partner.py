@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
 # Copyright 2019 Akretion (http://www.akretion.com).
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 # pylint: disable=W8106
 # pylint: disable=consider-merging-classes-inherited
 
-import base64
-import json
 import logging
 
 from odoo import fields
 from odoo.exceptions import AccessError
-from odoo.http import request
 from odoo.tools.translate import _
 
 from odoo.addons.component.core import Component
