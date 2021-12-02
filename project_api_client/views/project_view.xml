@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
         <record id="view_external_task_form" model="ir.ui.view">
@@ -7,49 +7,87 @@
                 <form string="Task">
                     <sheet string="Task">
                         <h1>
-                            <field name="priority" widget="priority" readonly="1"/>
-                            <field name="id" class="oe_inline"/> -
-                            <field name="name" placeholder="Task summary..." class="oe_inline" colspan="4"/>
+                            <field name="priority" widget="priority" readonly="1" />
+                            <field name="id" class="oe_inline" /> -
+                            <field
+                            name="name"
+                            placeholder="Task summary..."
+                            class="oe_inline"
+                            colspan="4"
+                        />
                         </h1>
                         <group>
-                            <group name="project" attrs="{'invisible': [('id', '=', False)]}">
-                                <field name="project_id" readonly="1"/>
-                                <field name="tag_ids" readonly="1"/>
+                            <group
+                            name="project"
+                            attrs="{'invisible': [('id', '=', False)]}"
+                        >
+                                <field name="project_id" readonly="1" />
+                                <field name="tag_ids" readonly="1" />
                                 <field
-                                    name="assignee_customer_id"
-                                    readonly="1"
-                                    options="{'no_create': True}"
-                                    domain="[('user_ids.internal_support', '=', True)]"/>
-                                <field name="assignee_supplier_id" readonly="1"/>
+                                name="assignee_customer_id"
+                                readonly="1"
+                                options="{'no_create': True}"
+                                domain="[('user_ids.internal_support', '=', True)]"
+                            />
+                                <field name="assignee_supplier_id" readonly="1" />
                             </group>
-                            <group name="info" attrs="{'invisible': [('id', '=', False)]}">
-                                <field name="author_id" readonly="1"/>
-                                <field name="create_date" readonly="1"/>
-                                <field name="origin_url" readonly="1" widget="url" string="Url"/>
-                                <field name="planned_hours" widget="float_time" readonly="1"/>
+                            <group
+                            name="info"
+                            attrs="{'invisible': [('id', '=', False)]}"
+                        >
+                                <field name="author_id" readonly="1" />
+                                <field name="create_date" readonly="1" />
+                                <field
+                                name="origin_url"
+                                readonly="1"
+                                widget="url"
+                                string="Url"
+                            />
+                                <field
+                                name="planned_hours"
+                                widget="float_time"
+                                readonly="1"
+                            />
                             </group>
                         </group>
                         <notebook>
                             <page string="Description">
-                                <field name="description" placeholder="Add a Description..." colspan="4"/>
+                                <field
+                                name="description"
+                                placeholder="Add a Description..."
+                                colspan="4"
+                            />
                                 <group string="Attachments" colspan="4">
                                     <field name="attachment_ids" nolabel="1">
                                         <tree>
-                                            <field name="name" invisible="1"/>
-                                            <field name="datas" filename="datas_fname"/>
-                                            <field name="datas_fname" invisible="1"/>
+                                            <field name="name" invisible="1" />
+                                            <field
+                                            name="datas"
+                                            filename="datas_fname"
+                                        />
+                                            <field name="datas_fname" invisible="1" />
                                         </tree>
                                         <kanban>
-                                            <field name="id"/>
-                                            <field name="datas_fname"/>
-                                            <field name="name"/>
+                                            <field name="id" />
+                                            <field name="datas_fname" />
+                                            <field name="name" />
                                             <templates>
                                                 <t t-name="kanban-box">
-                                                    <div class="oe_kanban_global_area o_kanban_attachment oe_kanban_global_click">
+                                                    <div
+                                                    class="oe_kanban_global_area o_kanban_attachment oe_kanban_global_click"
+                                                >
                                                         <div class="o_kanban_details">
-                                                            <div class="o_kanban_details_wrapper">
-                                                                <div t-att-title="record.datas_fname.raw_value" class="o_kanban_record_title">
-                                                                    <field name="datas_fname" class="o_text_overflow"/>
+                                                            <div
+                                                            class="o_kanban_details_wrapper"
+                                                        >
+                                                                <div
+                                                                t-att-title="record.datas_fname.raw_value"
+                                                                class="o_kanban_record_title"
+                                                            >
+                                                                    <field
+                                                                    name="datas_fname"
+                                                                    class="o_text_overflow"
+                                                                />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -58,33 +96,46 @@
                                             </templates>
                                         </kanban>
                                         <form>
-                                            <field name="datas" filename="datas_fname"/>
-                                            <field name="datas_fname" invisible="1"/>
-                                            <field name="name" invisible="1"/>
-                                            <field name="res_model" invisible="1"/>
+                                            <field
+                                            name="datas"
+                                            filename="datas_fname"
+                                        />
+                                            <field name="datas_fname" invisible="1" />
+                                            <field name="name" invisible="1" />
+                                            <field name="res_model" invisible="1" />
                                         </form>
                                     </field>
                                 </group>
-                                <div class="oe_clear"/>
+                                <div class="oe_clear" />
                             </page>
                             <page name="customer_report" string="Report">
-                                <field name="customer_report"/>
+                                <field name="customer_report" />
                             </page>
                             <page string="Technical" name="technical">
                                 <group name="origin" string="Origin">
-                                    <field name="origin_db" readonly="1" string="DB"/>
-                                    <field name="origin_name" readonly="1" string="Record name"/>
+                                    <field name="origin_db" readonly="1" string="DB" />
+                                    <field
+                                    name="origin_name"
+                                    readonly="1"
+                                    string="Record name"
+                                />
                                 </group>
                             </page>
                         </notebook>
                     </sheet>
                     <div class="oe_chatter">
                         <style type="text/css" media="screen">
-                            .fa-paperclip {visibility: hidden;}
-                            .fa-pencil-square-o {visibility: hidden;}
-                            .o_thread_message_star {visibility: hidden;}
-                        </style>
-                        <field name="message_ids" widget="mail_thread"/>
+.fa-paperclip {
+    visibility: hidden;
+}
+.fa-pencil-square-o {
+    visibility: hidden;
+}
+.o_thread_message_star {
+    visibility: hidden;
+}
+                    </style>
+                        <field name="message_ids" widget="mail_thread" />
                     </div>
                 </form>
             </field>
@@ -92,8 +143,11 @@
 
         <record id="view_external_task_manager_form" model="ir.ui.view">
             <field name="model">external.task</field>
-            <field name="inherit_id" ref="view_external_task_form"/>
-            <field name="groups_id" eval="[(4, ref('project_api_client.group_support_manager'))]"/>
+            <field name="inherit_id" ref="view_external_task_form" />
+            <field
+            name="groups_id"
+            eval="[(4, ref('project_api_client.group_support_manager'))]"
+        />
             <field name="arch" type="xml">
                 <field name="priority" position="attributes">
                     <attribute name="readonly">0</attribute>
@@ -108,7 +162,7 @@
                     <attribute name="readonly">0</attribute>
                 </field>
                 <group name="project" position="attributes">
-                    <attribute name="attrs"></attribute>
+                    <attribute name="attrs" />
                 </group>
             </field>
         </record>
@@ -117,13 +171,13 @@
             <field name="model">external.task</field>
             <field name="arch" type="xml">
                 <tree string="External Task">
-                    <field name="name"/>
-                    <field name="stage_name"/>
-                    <field name="author_id"/>
-                    <field name="priority"/>
-                    <field name="date_deadline"/>
-                    <field name="to_invoice"/>
-                    <field name="create_date"/>
+                    <field name="name" />
+                    <field name="stage_name" />
+                    <field name="author_id" />
+                    <field name="priority" />
+                    <field name="date_deadline" />
+                    <field name="to_invoice" />
+                    <field name="create_date" />
                 </tree>
             </field>
         </record>
@@ -132,13 +186,16 @@
             <field name="model">external.task</field>
             <field name="arch" type="xml">
                 <search string="External Task">
-                    <field name="name"/>
-                    <separator/>
-                    <filter string="My task" name="my_task"/>
-                    <separator/>
-                    <filter string="Stage" name="stage"
-                            context="{'group_by': 'stage_name'}"/>
-                    <separator/>
+                    <field name="name" />
+                    <separator />
+                    <filter string="My task" name="my_task" />
+                    <separator />
+                    <filter
+                    string="Stage"
+                    name="stage"
+                    context="{'group_by': 'stage_name'}"
+                />
+                    <separator />
                 </search>
             </field>
         </record>
@@ -146,58 +203,115 @@
         <record model="ir.ui.view" id="view_external_task_kanban">
             <field name="model">external.task</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="stage_name" >
-                    <field name="name"/>
-                    <field name="stage_name"/>
-                    <field name="color"/>
-                    <field name="priority"/>
-                    <field name="date_deadline"/>
-                    <field name="assignee_customer_id"/>
-                    <field name="assignee_supplier_id"/>
-                    <field name="tag_ids"/>
-                    <field name="customer_kanban_report"/>
-                    <field name="id"/>
-                    <field name="create_date"/>
+                <kanban default_group_by="stage_name">
+                    <field name="name" />
+                    <field name="stage_name" />
+                    <field name="color" />
+                    <field name="priority" />
+                    <field name="date_deadline" />
+                    <field name="assignee_customer_id" />
+                    <field name="assignee_supplier_id" />
+                    <field name="tag_ids" />
+                    <field name="customer_kanban_report" />
+                    <field name="id" />
+                    <field name="create_date" />
                     <templates>
                     <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                        <div
+                            t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click"
+                        >
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_headings">
-                                        <strong class="o_kanban_record_title"><field name="id"/> - <field name="name"/></strong><br/>
-                                        <small class="o_kanban_record_subtitle text-muted">
-                                            <t t-if="record.date_deadline.raw_value and record.date_deadline.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
-                                            <span t-attf-class="#{red || ''}"><i><field name="date_deadline"/></i></span>
-                                            <span><field name="create_date"/></span>
+                                        <strong class="o_kanban_record_title"><field
+                                                name="id"
+                                            /> - <field name="name" /></strong><br />
+                                        <small
+                                            class="o_kanban_record_subtitle text-muted"
+                                        >
+                                            <t
+                                                t-if="record.date_deadline.raw_value and record.date_deadline.raw_value lt (new Date())"
+                                                t-set="red"
+                                            >oe_kanban_text_red</t>
+                                            <span t-attf-class="#{red || ''}"><i><field
+                                                        name="date_deadline"
+                                                    /></i></span>
+                                            <span><field name="create_date" /></span>
                                         </small>
                                     </div>
-                                    <div class="o_dropdown_kanban dropdown" groups="base.group_user">
-                                        <a role="button" class="dropdown-toggle o-no-caret btn" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
-                                            <span class="fa fa-ellipsis-v"/>
+                                    <div
+                                        class="o_dropdown_kanban dropdown"
+                                        groups="base.group_user"
+                                    >
+                                        <a
+                                            role="button"
+                                            class="dropdown-toggle o-no-caret btn"
+                                            data-toggle="dropdown"
+                                            data-display="static"
+                                            href="#"
+                                            aria-label="Dropdown menu"
+                                            title="Dropdown menu"
+                                        >
+                                            <span class="fa fa-ellipsis-v" />
                                         </a>
                                         <div class="dropdown-menu" role="menu">
-                                            <a t-if="widget.editable" role="menuitem" type="edit" class="dropdown-item">Edit Task</a>
-                                            <a t-if="widget.deletable" role="menuitem" type="delete" class="dropdown-item">Delete</a>
-                                            <div role="separator" class="dropdown-divider"></div>
-                                            <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                            <a
+                                                t-if="widget.editable"
+                                                role="menuitem"
+                                                type="edit"
+                                                class="dropdown-item"
+                                            >Edit Task</a>
+                                            <a
+                                                t-if="widget.deletable"
+                                                role="menuitem"
+                                                type="delete"
+                                                class="dropdown-item"
+                                            >Delete</a>
+                                            <div
+                                                role="separator"
+                                                class="dropdown-divider"
+                                            />
+                                            <ul
+                                                class="oe_kanban_colorpicker"
+                                                data-field="color"
+                                            />
                                         </div>
                                     </div>
                                 </div>
-                                <t t-raw="record.customer_kanban_report.value"/>
-                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
-                                    <field name="tag_ids"/>
+                                <t t-raw="record.customer_kanban_report.value" />
+                                <div
+                                    class="oe_kanban_footer_left"
+                                    style="margin-top:5px;"
+                                >
+                                    <field name="tag_ids" />
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
-                                    <field name="priority" widget="priority"/>
+                                    <field name="priority" widget="priority" />
                                 </div>
                                 <div class="oe_kanban_bottom_right">
-                                    <img t-if="record.assignee_customer_id" t-att-src="kanban_image('res.partner', 'image_128', record.assignee_customer_id.raw_value)" t-att-alt="record.assignee_customer_id.value" t-att-title="record.assignee_customer_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
-                                    <img t-if="record.assignee_supplier_id" t-att-src="kanban_image('res.partner', 'image_128', record.assignee_supplier_id.raw_value)" t-att-alt="record.assignee_supplier_id.value" t-att-title="record.assignee_supplier_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
+                                    <img
+                                            t-if="record.assignee_customer_id"
+                                            t-att-src="kanban_image('res.partner', 'image_128', record.assignee_customer_id.raw_value)"
+                                            t-att-alt="record.assignee_customer_id.value"
+                                            t-att-title="record.assignee_customer_id.value"
+                                            width="24"
+                                            height="24"
+                                            class="oe_kanban_avatar pull-right"
+                                        />
+                                    <img
+                                            t-if="record.assignee_supplier_id"
+                                            t-att-src="kanban_image('res.partner', 'image_128', record.assignee_supplier_id.raw_value)"
+                                            t-att-alt="record.assignee_supplier_id.value"
+                                            t-att-title="record.assignee_supplier_id.value"
+                                            width="24"
+                                            height="24"
+                                            class="oe_kanban_avatar pull-right"
+                                        />
                                 </div>
                             </div>
                             </div>
-                            <div class="oe_clear"></div>
+                            <div class="oe_clear" />
                         </div>
                     </t>
                     </templates>
@@ -209,14 +323,17 @@
             <field name="name">Create a Ticket</field>
             <field name="res_model">external.task</field>
             <field name="view_mode">form</field>
-            <field name="groups_id" eval="[(4, ref('project_api_client.group_support_user'))]"/>
+            <field
+            name="groups_id"
+            eval="[(4, ref('project_api_client.group_support_user'))]"
+        />
         </record>
 
         <record id="action_view_external_task" model="ir.actions.act_window">
             <field name="name">External task</field>
             <field name="res_model">external.task</field>
             <field name="view_mode">kanban,tree,form</field>
-            <field name="search_view_id" ref="view_external_task_search"/>
+            <field name="search_view_id" ref="view_external_task_search" />
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
                 Click to add an issue.
@@ -226,11 +343,13 @@
             </field>
         </record>
 
-        <menuitem action="action_view_external_task"
-            id="external_project"
-            name="Support"
-            sequence="100"
-            web_icon="project_api_client,static/description/icon.png"
-            groups="project_api_client.group_support_user"/>
+        <menuitem
+        action="action_view_external_task"
+        id="external_project"
+        name="Support"
+        sequence="100"
+        web_icon="project_api_client,static/description/icon.png"
+        groups="project_api_client.group_support_user"
+    />
 
 </odoo>

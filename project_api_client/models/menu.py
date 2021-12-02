@@ -13,7 +13,7 @@ class IrUiMenu(models.Model):
 
     @api.model
     def get_user_roots(self):
-        """ Exclude 'Support' menu from displayed menu
+        """Exclude 'Support' menu from displayed menu
 
         :return: the root menu ids
         :rtype: list(int)

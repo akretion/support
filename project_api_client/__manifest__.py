@@ -8,7 +8,7 @@
     "version": "14.0.1.0.0",
     "category": "Project Management",
     "author": "Akretion",
-    "website": "",
+    "website": "https://github.com/akretion/support",
     "license": "AGPL-3",
     "depends": ["mail", "base_sparse_field"],
     "data": [
