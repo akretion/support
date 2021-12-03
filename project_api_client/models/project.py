@@ -162,7 +162,7 @@ class ExternalTask(models.Model):
         return {
             "uid": partner.id,
             "name": partner.name,
-            "image": partner.image_1920 or None,
+            "image": partner.image_1920.decode("utf-8") if partner.image_1920 else None,
             "email": partner.email or "",
             "mobile": partner.mobile or "",
             "phone": partner.phone or "",
