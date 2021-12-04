@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Akretion (http://www.akretion.com).
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
@@ -39,7 +38,7 @@ class ResPartner(models.Model):
         }
 
     def _get_support_partner(self, data):
-        """ This method will return the local partner used for the support
+        """This method will return the local partner used for the support
         If the partner is missing it will be created
         If the partner information are obsolete their will be updated"""
         partner = self.env["res.partner"].search(
