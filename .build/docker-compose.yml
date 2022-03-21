@@ -1,0 +1,63 @@
+version: "3.9"
+services:
+  db:
+    user: "${UID}:${UID}"
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD=odoo
+    image: postgres:13
+    volumes:
+      - .db/:/var/lib/postgresql/data
+  odoo-server:
+    environment:
+      LOCAL_USER_ID: $UID
+      DB_USER: odoo
+      DB_HOST: db
+      DB_PASSWORD: odoo
+      DB_NAME: dbserver
+      DEMO: "True"
+      WORKERS: 0
+      SERVER_WIDE_MODULES: web
+      ADDITIONAL_ODOO_RC: |-
+        encryption_key_dev=-Zlvw8hr_MHSkS8PLhDpQjtqYDZT-6npSgIeOGA8FUE=
+    build:
+      context: ..
+      dockerfile: .build/Dockerfile
+      args:
+        VERSION: $SERVER_VERSION
+        MODULE: project_api
+    links:
+      - db
+    #volumes:
+    #  - ../project_api_client:./odoo/addons/project_api_client
+    ports:
+      - 9069:8069
+  odoo-client:
+    environment:
+      LOCAL_USER_ID: $UID
+      DB_USER: odoo
+      DB_HOST: db
+      DB_PASSWORD: odoo
+      DB_NAME: dbclient
+      DEMO: "True"
+      WORKERS: 0
+      SERVER_WIDE_MODULES: web
+      ADDITIONAL_ODOO_RC: |-
+        encryption_key_dev=-Zlvw8hr_MHSkS8PLhDpQjtqYDZT-6npSgIeOGA8FUE=
+    build:
+      context: ..
+      dockerfile: .build/Dockerfile
+      args:
+        VERSION: $CLIENT_VERSION
+        MODULE: project_api_client
+    depends_on:
+      - db
+      - odoo-server
+    volumes:
+      - ../project_api_client:/odoo/addons/project_api_client
+    ports:
+      - 9169:8069
+    labels:
+      - "docky.help=http://localhost:9169"
+      - "docky.main.service=True"

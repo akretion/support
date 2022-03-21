@@ -1,0 +1,19 @@
+#!/bin/python
+import ast
+import os
+import subprocess
+
+module = os.environ.get("MODULE")
+version = os.environ.get("VERSION")
+path = f"/odoo/addons/setup/{module}"
+
+with open(f"/odoo/addons/{module}/__manifest__.py") as manifest:
+    data = ast.literal_eval(manifest.read())
+    if data["installable"] and data["version"][0:4] == version:
+        print(f"Install local dev version of {module}")
+        cmd = f"pip install -e {path}"
+    else:
+        print(f"Install stable version of {module}")
+        cmd = "install-module-stable"
+
+subprocess.run(cmd, check=True, shell=True)
