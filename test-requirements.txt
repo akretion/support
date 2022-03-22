@@ -1,1 +1,2 @@
 requests-mock
+odoo12-addon-base_rest==12.0.2.1.1
