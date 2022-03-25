@@ -75,5 +75,6 @@ docs/_build/
 !static/lib/
 
 # Project Specific
-.build/.db
-./build/work
+tools/.db
+tools/work
+tools/.env
