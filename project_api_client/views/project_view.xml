@@ -60,7 +60,7 @@
                                 <group string="Attachments" colspan="4">
                                     <field name="attachment_ids" nolabel="1">
                                         <tree>
-                                            <field name="name" invisible="1" />
+                                            <field name="name" />
                                             <field
                                             name="datas"
                                             filename="datas_fname"
@@ -122,19 +122,28 @@
                                 </group>
                             </page>
                         </notebook>
-                    </sheet>
-                    <div class="oe_chatter">
                         <style type="text/css" media="screen">
+.o_ChatterTopbar_rightSection {
+    visibility: hidden;
+}
+.o_ChatterTopbar_buttonLogNote {
+    visibility: hidden;
+}
+.o_Composer_buttonFullComposer {
+    visibility: hidden;
+}
 .fa-paperclip {
     visibility: hidden;
 }
-.fa-pencil-square-o {
+.o_Message_commandStar {
     visibility: hidden;
 }
-.o_thread_message_star {
-    visibility: hidden;
+.o_ComposerTextInput_textarea {
+    min-height: 200px;
 }
                     </style>
+                    </sheet>
+                    <div class="oe_chatter">
                         <field name="message_ids" widget="mail_thread" />
                     </div>
                 </form>

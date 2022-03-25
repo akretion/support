@@ -9,6 +9,8 @@ import requests
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 
+from odoo.addons.base_sparse_field.models.fields import Serialized
+
 _logger = logging.getLogger(__name__)
 
 ERROR_MESSAGE = _("There is an issue with support. Please send an email")
@@ -26,7 +28,7 @@ class SupportAccount(models.Model):
         [("not_confirmed", "Not Confirmed"), ("confirmed", "Confirmed")],
         default="not_confirmed",
     )
-    config = fields.Serialized()
+    config = Serialized()
 
     def _sync_configuration(self):
         self.config = {
