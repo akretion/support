@@ -76,3 +76,4 @@ docs/_build/
 
 # Project Specific
 .build/.db
+./build/work
