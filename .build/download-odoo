@@ -1,6 +1,0 @@
-#!/bin/bash -x
-
-wget https://github.com/odoo/odoo/archive/$VERSION.zip -O /tmp/odoo.zip
-unzip /tmp/odoo.zip -d /tmp/
-mv /tmp/odoo-$VERSION /odoo/src
-rm -rf /tmp/odoo.zip

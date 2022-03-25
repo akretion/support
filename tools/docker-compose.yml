@@ -1,21 +1,15 @@
 version: "3.9"
 services:
-  db:
-    user: "${UID}:${UID}"
+  postgres:
     environment:
       - POSTGRES_USER=odoo
-      - POSTGRES_DB=db
       - POSTGRES_PASSWORD=odoo
     image: postgres:13
     volumes:
       - .db/:/var/lib/postgresql/data
   odoo-server:
     environment:
-      LOCAL_USER_ID: $UID
-      DB_USER: odoo
-      DB_HOST: db
-      DB_PASSWORD: odoo
-      DB_NAME: dbserver
+      PGDATABASE: dbserver
       DEMO: "True"
       WORKERS: 0
       SERVER_WIDE_MODULES: web
@@ -23,21 +17,17 @@ services:
         encryption_key_dev=-Zlvw8hr_MHSkS8PLhDpQjtqYDZT-6npSgIeOGA8FUE=
     build:
       context: ..
-      dockerfile: .build/Dockerfile
+      dockerfile: tools/Dockerfile
       args:
         VERSION: $SERVER_VERSION
         MODULE: project_api
     depends_on:
-      - db
+      - postgres
     volumes:
       - odoo-server:/data/odoo
   odoo-client:
     environment:
-      LOCAL_USER_ID: $UID
-      DB_USER: odoo
-      DB_HOST: db
-      DB_PASSWORD: odoo
-      DB_NAME: dbclient
+      PGDATABASE: dbclient
       DEMO: "True"
       WORKERS: 0
       SERVER_WIDE_MODULES: web
@@ -45,12 +35,12 @@ services:
         encryption_key_dev=-Zlvw8hr_MHSkS8PLhDpQjtqYDZT-6npSgIeOGA8FUE=
     build:
       context: ..
-      dockerfile: .build/Dockerfile
+      dockerfile: tools/Dockerfile
       args:
         VERSION: $CLIENT_VERSION
         MODULE: project_api_client
     depends_on:
-      - db
+      - postgres
       - odoo-server
     volumes:
       - odoo-client:/data/odoo
