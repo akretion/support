@@ -25,6 +25,9 @@ class TestTask(SavepointCase):
         cls.demo_user.image_1920 = cls.image
         cls.env.ref("project_api_client.support_api_key").confirm_connection()
         cls.task = cls.env["external.task"].search(domain=[["name", "=", "Migration"]])
+        cls.read_only_task = cls.env["external.task"].search(
+            domain=[["name", "=", "Integrate Modules"]]
+            )
 
     def assertTaskFieldEqual(self, task, field, value):
         # Note task.<field> do not work as we didn't have implemented
@@ -105,7 +108,7 @@ class TestTask(SavepointCase):
         # Ensure that there is not partner in the team
         support_team.child_ids.unlink()
         res = self.env["mail.message"].message_fetch(
-            [("res_id", "=", self.task.id), ("model", "=", "external.task")]
+            [("res_id", "=", self.read_only_task.id), ("model", "=", "external.task")]
         )
         self.assertEqual(len(res), 2)
         self.assertEqual(len(support_team.child_ids), 1)

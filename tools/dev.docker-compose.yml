@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  postgres:
+    user: "${UID}:${UID}"
+  odoo-server:
+    #volumes:
+      #- ./work/support/project_api:/odoo/support/project_api
+    ports:
+      - 9069:8069
+  odoo-client:
+    volumes:
+      - ../project_api_client:/odoo/addons/project_api_client
+    ports:
+      - 9169:8069
+    labels:
+      - "docky.help=http://localhost:9169"
+      - "docky.main.service=True"

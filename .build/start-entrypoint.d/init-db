@@ -1,6 +1,0 @@
-#!/bin/bash
-set -euxo pipefail
-
-echo "Init database"
-click-odoo-update --if-exists -d  $DB_NAME --i18n-overwrite
-click-odoo-initdb --unless-exists -n $DB_NAME -m $MODULE

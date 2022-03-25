@@ -24,9 +24,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Build
-        run: .github/build
-      - name: Init Database
-        run: .github/init-db
-      - name: Run Test
-        run: .github/run
+        run: ./tools/build
+      - name: Init Server Database
+        run: ./tools/start-server init-db
+      - name: Init Client Database
+        run: ./tools/start-client init-db
+      - name: Run Client Test
+        run: ./tools/start-client run-test
       - uses: codecov/codecov-action@v2
