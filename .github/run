@@ -1,5 +1,0 @@
-#!/bin/bash
-set -euxo pipefail
-
-cd .build
-docker-compose run --rm --service-ports --use-aliases odoo-client odoo -i project_api_client --stop-after-init --test-enable

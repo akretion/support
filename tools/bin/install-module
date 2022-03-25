@@ -1,4 +1,6 @@
 #!/bin/python
+# pylint: disable=print-used
+
 import ast
 import os
 import subprocess
@@ -17,3 +19,17 @@ with open(f"/odoo/addons/{module}/__manifest__.py") as manifest:
         cmd = "install-module-stable"
 
 subprocess.run(cmd, check=True, shell=True)
+
+if module == "project_api_client":
+    db_name = "dbclient"
+else:
+    db_name = "dbserver"
+
+CONFIG = f"""
+[options]
+dbfilter={db_name}
+db_name={db_name}
+"""
+
+with open(f"/etc/odoo.cfg", "w") as config:
+    config.write(CONFIG)

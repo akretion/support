@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Ensure that we run the next cmd into the same directory
+# as the current file path
+cd $(dirname $(realpath $0))
+
+docker-compose run --rm --service-ports --use-aliases odoo-server bash $@
