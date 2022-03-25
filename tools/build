@@ -4,4 +4,5 @@ set -euxo pipefail
 # Ensure that we run the next cmd into the same directory
 # as the current file path
 cd $(dirname $(realpath $0))
+export LOCAL_UID=$(id --user)
 docker-compose build

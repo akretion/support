@@ -2,4 +2,5 @@
 set -euxo pipefail
 
 echo "Run test"
-odoo -i project_api_client --stop-after-init --test-enable
+cd /odoo/addons
+unbuffer coverage run --include "*" --branch $(which odoo) -i project_api_client --stop-after-init --test-enable
