@@ -6,8 +6,9 @@ services:
       - POSTGRES_PASSWORD=odoo
     image: postgres:13
     volumes:
-      - .db/:/var/lib/postgresql/data
+      - db/:/var/lib/postgresql/data
   odoo-server:
+    user: "${LOCAL_UID}:${LOCAL_UID}"
     environment:
       PGDATABASE: dbserver
       DEMO: "True"
@@ -21,11 +22,14 @@ services:
       args:
         VERSION: $SERVER_VERSION
         MODULE: project_api
+        LOCAL_UID: $LOCAL_UID
     depends_on:
       - postgres
     volumes:
       - odoo-server:/data/odoo
+      - ../:/odoo/addons
   odoo-client:
+    user: "${LOCAL_UID}:${LOCAL_UID}"
     environment:
       PGDATABASE: dbclient
       DEMO: "True"
@@ -39,11 +43,14 @@ services:
       args:
         VERSION: $CLIENT_VERSION
         MODULE: project_api_client
+        LOCAL_UID: $LOCAL_UID
     depends_on:
       - postgres
       - odoo-server
     volumes:
       - odoo-client:/data/odoo
+      - ../:/odoo/addons
 volumes:
   odoo-server:
   odoo-client:
+  db:

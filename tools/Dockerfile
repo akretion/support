@@ -1,6 +1,8 @@
 ARG VERSION
 FROM ghcr.io/oca/oca-ci/py3.6-odoo${VERSION}:latest
 
+ARG LOCAL_UID
+RUN useradd --shell /bin/bash -u ${LOCAL_UID} -o -c "" -m odoo
 
 COPY tools/requirement.txt /odoo/requirement.txt
 RUN pip install -r /odoo/requirement.txt
