@@ -9,6 +9,7 @@ import logging
 
 from odoo import fields as odoo_fields
 from odoo.exceptions import AccessError
+from odoo.osv import expression
 from odoo.tools.translate import _
 
 from odoo.addons.base_rest.components.service import to_bool
@@ -193,9 +194,7 @@ class ExternalTaskService(Component):
                 ):
                     raise AccessError(_("You can not read this message"))
                 else:
-                    message.update(
-                        {"model": "external.task", "id": "external/%s" % message["id"]}
-                    )
+                    message.update({"model": "external.task", "id": message["id"]})
                     message["author_id"] = self._map_partner_read_to_data(
                         message["author_id"]
                     )
@@ -216,6 +215,20 @@ class ExternalTaskService(Component):
         if messages:
             return messages
         return []
+
+    # This endpoint is used for v14+
+    def message_fetch(self, domain, limit):
+        domain = expression.AND(
+            [
+                domain,
+                [
+                    ("subtype_id", "!=", self.env.ref("mail.mt_note").id),
+                    ("model", "=", "project.task"),
+                ],
+            ]
+        )
+        messages = self.env["mail.message"].search(domain)
+        return self.message_format(messages.ids)
 
     def _get_partner(self, data):
         domain = [("parent_id", "=", self.partner.id)]
@@ -395,6 +408,12 @@ class ExternalTaskService(Component):
             "_id": {"type": "integer"},
             "body": {"type": "string"},
             "author": self._partner_validator(),
+        }
+
+    def _validator_message_fetch(self):
+        return {
+            "domain": {"type": "list"},
+            "limit": {"type": "integer"},
         }
 
     def _partner_validator(self):
