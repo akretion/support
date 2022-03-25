@@ -5,4 +5,5 @@ set -euxo pipefail
 # as the current file path
 cd $(dirname $(realpath $0))
 
+export LOCAL_UID=$(id --user)
 docker-compose run --rm --service-ports --use-aliases odoo-server bash $@
