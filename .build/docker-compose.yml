@@ -27,12 +27,10 @@ services:
       args:
         VERSION: $SERVER_VERSION
         MODULE: project_api
-    links:
+    depends_on:
       - db
-    #volumes:
-    #  - ../project_api_client:./odoo/addons/project_api_client
-    ports:
-      - 9069:8069
+    volumes:
+      - odoo-server:/data/odoo
   odoo-client:
     environment:
       LOCAL_USER_ID: $UID
@@ -55,9 +53,7 @@ services:
       - db
       - odoo-server
     volumes:
-      - ../project_api_client:/odoo/addons/project_api_client
-    ports:
-      - 9169:8069
-    labels:
-      - "docky.help=http://localhost:9169"
-      - "docky.main.service=True"
+      - odoo-client:/data/odoo
+volumes:
+  odoo-server:
+  odoo-client:
