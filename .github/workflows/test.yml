@@ -1,0 +1,32 @@
+name: test Odoo addons
+
+on:
+  pull_request:
+    branches:
+      - "12.0*"
+  push:
+    branches:
+      - "12.0*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        server_version: ["12.0"]
+        client_version: ["14.0"]
+    env:
+      SERVER_VERSION: ${{ matrix.server_version }}
+      CLIENT_VERSION: ${{ matrix.client_version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Build
+        run: .github/build
+      - name: Init Database
+        run: .github/init-db
+      - name: Run Test
+        run: .github/run
+      - uses: codecov/codecov-action@v2
