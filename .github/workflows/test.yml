@@ -31,4 +31,6 @@ jobs:
         run: ./tools/start-client init-db
       - name: Run Client Test
         run: ./tools/start-client run-test
+      - name: Convert Coverage file
+        run: ./tools/start-client convert-coverage
       - uses: codecov/codecov-action@v2
