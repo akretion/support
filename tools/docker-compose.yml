@@ -31,7 +31,7 @@ services:
   odoo-client:
     user: "${LOCAL_UID}:${LOCAL_UID}"
     environment:
-      PGDATABASE: dbclient
+      PGDATABASE: "dbclient_${CLIENT_VERSION}"
       DEMO: "True"
       WORKERS: 0
       SERVER_WIDE_MODULES: web
