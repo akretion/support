@@ -151,7 +151,7 @@ class ExternalTask(models.Model):
             },
         )
 
-    def message_get_suggested_recipients(self):
+    def _message_get_suggested_recipients(self):
         result = {task.id: [] for task in self}
         return result
 
@@ -178,6 +178,16 @@ class ExternalTask(models.Model):
     @api.model
     def message_get(self, external_ids):
         messages = self._call_odoo("message_format", {"ids": external_ids})
+        for message in messages:
+            if "author_id" in message:
+                message["author_id"] = self.env["res.partner"]._get_local_id_name(
+                    message["author_id"]
+                )
+        return messages
+
+    @api.model
+    def message_fetch(self, domain, limit):
+        messages = self._call_odoo("message_fetch", {"domain": domain, "limit": limit})
         for message in messages:
             if "author_id" in message:
                 message["author_id"] = self.env["res.partner"]._get_local_id_name(
@@ -240,6 +250,16 @@ class ExternalMessage(models.Model):
 
 class MailMessage(models.Model):
     _inherit = "mail.message"
+
+    @api.model
+    def message_fetch(self, domain, limit=20, moderated_channel_ids=None):
+        if any(["external.task" in item for item in domain]):
+            new_domain = [item for item in domain if "external.task" not in item]
+            return self.env["external.task"].message_fetch(new_domain, limit=limit)
+        else:
+            return super().message_fetch(
+                domain, limit=limit, moderated_channel_ids=moderated_channel_ids
+            )
 
     def message_format(self):
         ids = self.ids

@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euxo pipefail
+
+echo "Init database"
+click-odoo-update --if-exists -d  $PGDATABASE --i18n-overwrite
+click-odoo-initdb --unless-exists -n $PGDATABASE -m $MODULE
