@@ -5,4 +5,18 @@ set -euxo pipefail
 # as the current file path
 cd $(dirname $(realpath $0))
 export LOCAL_UID=$(id --user)
+if [ -f ".env" ];
+then
+    echo "Dev mode use .env"
+    source .env
+fi
+
+if [[ "8.0 10.0" =~ (^|[[:space:]])$CLIENT_VERSION($|[[:space:]]) ]]
+then
+    echo "vieux python"
+    export CLIENT_PYTHON_VERSION=2.7
+else
+    export CLIENT_PYTHON_VERSION=3.6
+fi
+
 docker-compose build
