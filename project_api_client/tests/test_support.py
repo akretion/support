@@ -107,9 +107,9 @@ class TestTask(SavepointCase):
         support_team = self.env.ref("project_api_client.support_team")
         # Ensure that there is not partner in the team
         support_team.child_ids.unlink()
-        res = self.env["mail.message"].message_fetch(
-            [("res_id", "=", self.read_only_task.id), ("model", "=", "external.task")]
-        )
+        res = self.env["mail.message"].browse(
+            self.read_only_task.message_ids.ids
+            ).message_format()
         self.assertEqual(len(res), 2)
         self.assertEqual(len(support_team.child_ids), 1)
 
@@ -136,6 +136,7 @@ class TestTask(SavepointCase):
         )
         _id = self.task.read(["attachment_ids"])[0]["attachment_ids"][-1]
         status, headers, content = self.env["ir.http"].binary_content(
+            env=self.env,
             model="external.attachment",
             id=_id,
             field="datas",
