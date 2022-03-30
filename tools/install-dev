@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euxo pipefail
+# Ensure that we run the next cmd into the same directory
+# as the current file path
+cd $(dirname $(realpath $0))
+mkdir work -p
+
+cd work
+versions='12.0'
+for version in $versions
+do
+   mkdir $version -p
+   git clone https://github.com/akretion/support $version/support -b $version
+done
