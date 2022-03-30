@@ -1,0 +1,38 @@
+#!/bin/python
+# pylint: disable=print-used
+
+import ast
+import os
+import subprocess
+
+module = os.environ.get("MODULE")
+version = os.environ.get("VERSION")
+path = f"/odoo/addons/setup/{module}"
+
+with open(f"/odoo/addons/{module}/__manifest__.py") as manifest:
+    data = ast.literal_eval(manifest.read())
+    if data["installable"] and data["version"][0:4] == version:
+        print(f"Install local dev version of {module}")
+        subprocess.run(f"pip install -e {path}", check=True, shell=True)
+        if os.path.exists("/odoo/addons/test-requirements.txt"):
+            subprocess.run(
+                "pip install -r /odoo/addons/test-requirements.txt",
+                check=True,
+                shell=True)
+    else:
+        print(f"Install stable version of {module}")
+        subprocess.run("install-module-stable", check=True, shell=True)
+
+if module == "project_api_client":
+    db_name = f"dbclient_{version}"
+else:
+    db_name = "dbserver"
+
+CONFIG = f"""
+[options]
+dbfilter={db_name}
+db_name={db_name}
+"""
+
+with open(f"/etc/odoo.cfg", "w") as config:
+    config.write(CONFIG)

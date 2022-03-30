@@ -73,3 +73,8 @@ docs/_build/
 
 # OCA rules
 !static/lib/
+
+# Project Specific
+tools/.db
+tools/work
+tools/.env
