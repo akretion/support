@@ -1,0 +1,2 @@
+click-odoo-contrib
+pytest-odoo
