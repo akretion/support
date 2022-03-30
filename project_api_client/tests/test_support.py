@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2019 Akretion (http://www.akretion.com).
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
@@ -18,7 +19,7 @@ class TestTask(SavepointCase):
 
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
+        super(TestTask, cls).setUpClass()
         cls.image = cls._get_image("partner-customer-image.png")
         cls.env.user.image_1920 = cls.image
         cls.demo_user = cls.env.ref("base.user_demo")
@@ -107,9 +108,9 @@ class TestTask(SavepointCase):
         support_team = self.env.ref("project_api_client.support_team")
         # Ensure that there is not partner in the team
         support_team.child_ids.unlink()
-        res = self.env["mail.message"].message_fetch(
-            [("res_id", "=", self.read_only_task.id), ("model", "=", "external.task")]
-        )
+        res = self.env["mail.message"].browse(
+            self.read_only_task.message_ids.ids
+            ).message_format()
         self.assertEqual(len(res), 2)
         self.assertEqual(len(support_team.child_ids), 1)
 
@@ -135,12 +136,5 @@ class TestTask(SavepointCase):
             }
         )
         _id = self.task.read(["attachment_ids"])[0]["attachment_ids"][-1]
-        status, headers, content = self.env["ir.http"].binary_content(
-            model="external.attachment",
-            id=_id,
-            field="datas",
-            filename_field="datas_fname",
-            download=True,
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(content, self.image)
+        attachment = self.env["external.attachment"].browse(_id).read(["datas"])[0]
+        self.assertEqual(attachment["datas"], self.image)

@@ -5,7 +5,7 @@
         <record id="support_api_key" model="support.account">
             <field name="name">My support API KEY</field>
             <field name="api_key">12345</field>
-            <field name="url">http://localhost:8069</field>
+            <field name="url">http://odoo-server:8069</field>
         </record>
 
     </data>
