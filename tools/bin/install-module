@@ -5,34 +5,40 @@ import ast
 import os
 import subprocess
 
+try:
+    subprocess.run
+    def run(cmd):
+        subprocess.run(cmd, check=True, shell=True)
+except AttributeError:
+    # python2.7
+    def run(cmd):
+        subprocess.call(cmd, shell=True)
+
 module = os.environ.get("MODULE")
 version = os.environ.get("VERSION")
-path = f"/odoo/addons/setup/{module}"
+path = "/odoo/addons/setup/" + module
 
-with open(f"/odoo/addons/{module}/__manifest__.py") as manifest:
+with open("/odoo/addons/" + module + "/__manifest__.py") as manifest:
     data = ast.literal_eval(manifest.read())
     if data["installable"] and data["version"][0:4] == version:
-        print(f"Install local dev version of {module}")
-        subprocess.run(f"pip install -e {path}", check=True, shell=True)
+        print("Install local dev version of "+ module)
+        run("pip install -e "+ path)
         if os.path.exists("/odoo/addons/test-requirements.txt"):
-            subprocess.run(
-                "pip install -r /odoo/addons/test-requirements.txt",
-                check=True,
-                shell=True)
+            run("pip install -r /odoo/addons/test-requirements.txt")
     else:
-        print(f"Install stable version of {module}")
-        subprocess.run("install-module-stable", check=True, shell=True)
+        print("Install stable version of " + module)
+        run("install-module-stable")
 
 if module == "project_api_client":
-    db_name = f"dbclient_{version}"
+    db_name = "dbclient_" + version
 else:
     db_name = "dbserver"
 
-CONFIG = f"""
+CONFIG = """
 [options]
-dbfilter={db_name}
-db_name={db_name}
-"""
+dbfilter=%s
+db_name=%s
+""" % (db_name, db_name)
 
-with open(f"/etc/odoo.cfg", "w") as config:
+with open("/etc/odoo.cfg", "w") as config:
     config.write(CONFIG)
