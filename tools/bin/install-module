@@ -17,10 +17,15 @@ except AttributeError:
 module = os.environ.get("MODULE")
 version = os.environ.get("VERSION")
 path = "/odoo/addons/setup/" + module
+if version == "8.0":
+    manifest_name = "/__openerp__.py"
+else:
+    manifest_name = "/__manifest__.py"
 
-with open("/odoo/addons/" + module + "/__manifest__.py") as manifest:
+
+with open("/odoo/addons/" + module + manifest_name) as manifest:
     data = ast.literal_eval(manifest.read())
-    if data["installable"] and data["version"][0:4] == version:
+    if data["installable"] and data["version"][0:4] == version or data["version"][0:3] == version:
         print("Install local dev version of "+ module)
         run("pip install -e "+ path)
         if os.path.exists("/odoo/addons/test-requirements.txt"):
