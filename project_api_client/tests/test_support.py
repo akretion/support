@@ -7,7 +7,7 @@
 import base64
 from os import path
 
-from odoo.tests.common import SavepointCase
+from openerp.tests.common import SavepointCase
 
 
 class TestTask(SavepointCase):
@@ -108,9 +108,11 @@ class TestTask(SavepointCase):
         support_team = self.env.ref("project_api_client.support_team")
         # Ensure that there is not partner in the team
         support_team.child_ids.unlink()
-        res = self.env["mail.message"].browse(
-            self.read_only_task.message_ids.ids
-            ).message_format()
+        res = self.env["mail.message"].message_read(
+            self.read_only_task.message_ids.ids, [
+                ("model", "=", "external.task"),
+                ("res_id", "=", self.read_only_task.id)
+                ])
         self.assertEqual(len(res), 2)
         self.assertEqual(len(support_team.child_ids), 1)
 
