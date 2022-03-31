@@ -23,16 +23,21 @@ else:
     manifest_name = "/__manifest__.py"
 
 
-with open("/odoo/addons/" + module + manifest_name) as manifest:
-    data = ast.literal_eval(manifest.read())
-    if data["installable"] and data["version"][0:4] == version or data["version"][0:3] == version:
-        print("Install local dev version of "+ module)
-        run("pip install -e "+ path)
-        if os.path.exists("/odoo/addons/test-requirements.txt"):
-            run("pip install -r /odoo/addons/test-requirements.txt")
-    else:
-        print("Install stable version of " + module)
-        run("install-module-stable")
+installed = False
+manifest_path = "/odoo/addons/" + module + manifest_name
+if os.path.exists(manifest_path):
+    with open(manifest_path) as manifest:
+        data = ast.literal_eval(manifest.read())
+        if data["installable"] and data["version"][0:4] == version or data["version"][0:3] == version:
+            print("Install local dev version of "+ module)
+            run("pip install -e "+ path)
+            if os.path.exists("/odoo/addons/test-requirements.txt"):
+                run("pip install -r /odoo/addons/test-requirements.txt")
+                installed = True
+
+if not installed:
+    print("Install stable version of " + module)
+    run("install-module-stable")
 
 if module == "project_api_client":
     db_name = "dbclient_" + version
