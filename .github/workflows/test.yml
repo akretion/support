@@ -6,7 +6,7 @@ on:
       - "14.0*"
   push:
     branches:
-      - "14.0*"
+      - "14.0"
 
 jobs:
   test:
@@ -27,6 +27,8 @@ jobs:
         run: ./tools/build
       - name: Init Server Database
         run: ./tools/start-server init-db
+      - name: Start Server in Background
+        run: ./tools/start-server-deamon
       - name: Init Client Database
         run: ./tools/start-client init-db
       - name: Run Client Test

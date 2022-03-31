@@ -2,7 +2,7 @@ version: "3.9"
 services:
   odoo-server:
     volumes:
-      - ./work/support/project_api:/odoo/support/project_api
+      - ./work/${SERVER_VERSION}/support/project_api:/odoo/support/project_api
     ports:
       - 9069:8069
   odoo-client:

@@ -21,6 +21,7 @@ services:
       dockerfile: tools/Dockerfile
       args:
         VERSION: $SERVER_VERSION
+        PYTHON_VERSION: 3.6
         MODULE: project_api
         LOCAL_UID: $LOCAL_UID
     depends_on:
@@ -31,7 +32,7 @@ services:
   odoo-client:
     user: "${LOCAL_UID}:${LOCAL_UID}"
     environment:
-      PGDATABASE: dbclient
+      PGDATABASE: "dbclient_${CLIENT_VERSION}"
       DEMO: "True"
       WORKERS: 0
       SERVER_WIDE_MODULES: web
@@ -42,11 +43,11 @@ services:
       dockerfile: tools/Dockerfile
       args:
         VERSION: $CLIENT_VERSION
+        PYTHON_VERSION: $CLIENT_PYTHON_VERSION
         MODULE: project_api_client
         LOCAL_UID: $LOCAL_UID
     depends_on:
       - postgres
-      - odoo-server
     volumes:
       - odoo-client:/data/odoo
       - ../:/odoo/addons
