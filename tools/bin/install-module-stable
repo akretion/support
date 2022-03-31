@@ -1,0 +1,9 @@
+#!/bin/bash -x
+
+git clone https://github.com/akretion/support -b $VERSION /odoo/support
+pip install -e /odoo/support/setup/$MODULE
+
+if [ -f "/odoo/support/test-requirements.txt" ];
+then
+   pip install -r /odoo/support/test-requirements.txt
+fi

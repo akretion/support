@@ -1,0 +1,38 @@
+name: test Odoo addons
+
+on:
+  pull_request:
+    branches:
+      - "8.0*"
+  push:
+    branches:
+      - "8.0*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        server_version: ["12.0"]
+        client_version: ["8.0"]
+    env:
+      SERVER_VERSION: ${{ matrix.server_version }}
+      CLIENT_VERSION: ${{ matrix.client_version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Build
+        run: ./tools/build
+      - name: Init Server Database
+        run: ./tools/start-server init-db
+      - name: Start Server in Background
+        run: ./tools/start-server-deamon
+      - name: Init Client Database
+        run: ./tools/start-client init-db
+      - name: Run Client Test
+        run: ./tools/start-client run-test
+      - name: Convert Coverage file
+        run: ./tools/start-client convert-coverage
+      - uses: codecov/codecov-action@v2
