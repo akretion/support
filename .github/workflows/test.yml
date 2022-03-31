@@ -6,7 +6,7 @@ on:
       - "12.0*"
   push:
     branches:
-      - "12.0*"
+      - "12.0"
 
 jobs:
   test:
@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         server_version: ["12.0"]
-        client_version: ["12.0", "14.0"]
+        client_version: ["8.0", "10.0", "12.0", "14.0"]
     env:
       SERVER_VERSION: ${{ matrix.server_version }}
       CLIENT_VERSION: ${{ matrix.client_version }}
@@ -27,6 +27,8 @@ jobs:
         run: ./tools/build
       - name: Init Server Database
         run: ./tools/start-server init-db
+      - name: Start Server in Background
+        run: ./tools/start-server-deamon
       - name: Init Client Database
         run: ./tools/start-client init-db
       - name: Run Client Test

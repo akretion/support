@@ -1,5 +1,6 @@
 ARG VERSION
-FROM ghcr.io/oca/oca-ci/py3.6-odoo${VERSION}:latest
+ARG PYTHON_VERSION
+FROM ghcr.io/oca/oca-ci/py${PYTHON_VERSION}-odoo${VERSION}:latest
 
 ARG LOCAL_UID
 RUN useradd --shell /bin/bash -u ${LOCAL_UID} -o -c "" -m odoo
