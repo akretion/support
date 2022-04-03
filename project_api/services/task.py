@@ -28,6 +28,9 @@ class ExternalTaskService(Component):
     def partner(self):
         return self.work.partner
 
+    def version_before(self, version):
+        return self.env.context["version"] < version
+
     def _map_partner_read_to_data(self, partner_read):
         if not partner_read or not partner_read[0]:
             # partner_read[0] can have the value 0 when their is not
@@ -91,17 +94,18 @@ class ExternalTaskService(Component):
 
                     if key in task:
                         task[key] = self._map_partner_read_to_data(task[key])
-                if "tag_ids" in task:
-                    task["tag_ids"] = task["tag_ids"] and task["tag_ids"][0] or False
-                    if "color" in task:
-                        if task["tag_ids"]:
-                            task["color"] = (
-                                self.env["project.tags"]
-                                .search([("id", "=", task["tag_ids"])])
-                                .color
-                            )
-                        else:
-                            task["color"] = 0
+                if self.version_before("2.0"):
+                    if "tag_ids" in task:
+                        task["tag_ids"] = task["tag_ids"] and task["tag_ids"][0] or False
+                        if "color" in task:
+                            if task["tag_ids"]:
+                                task["color"] = (
+                                    self.env["project.tags"]
+                                    .search([("id", "=", task["tag_ids"])])
+                                    .color
+                                )
+                            else:
+                                task["color"] = 0
             return tasks
         return []
 
@@ -127,7 +131,8 @@ class ExternalTaskService(Component):
     ):
         domain = [("project_id.partner_id", "=", self.partner.id)] + domain
         task_obj = self.env["project.task"]
-        if "stage_name" in groupby[0]:
+        group_by_stage_name = "stage_name" in groupby[0]
+        if group_by_stage_name:
             groupby[0] = "stage_id"
             fields[fields.index("stage_name")] = "stage_id"
             project_ids = self._get_all_project_ids_from_domain(domain)
@@ -141,10 +146,14 @@ class ExternalTaskService(Component):
             orderby=orderby,
             lazy=lazy,
         )
-        if groupby[0] == "stage_id":
+        if group_by_stage_name:
             for group in groups:
                 group["stage_name"] = group.pop("stage_id")[1]._value
                 group["stage_name_count"] = group.pop("stage_id_count")
+        # TODO find a better way to resolve lazy value
+        for group in groups:
+            if "stage_id" in group:
+                group["stage_id"] = (group["stage_id"][0], group["stage_id"][1]._value)
         return groups
 
     def create(self, assignee_customer=None, **params):
@@ -154,8 +163,9 @@ class ExternalTaskService(Component):
         if not params.get("project_id"):
             params["project_id"] = self.partner.help_desk_project_id.id
         params["author_id"] = partner.id
-        if params.get("tag_ids"):
-            params["tag_ids"] = [(6, 0, [params["tag_ids"]])]
+        if self.version_before("2.0"):
+            if params.get("tag_ids"):
+                params["tag_ids"] = [(6, 0, [params["tag_ids"]])]
         task = (
             self.env["project.task"]
             .with_context(force_message_author_id=partner.id)
@@ -172,8 +182,9 @@ class ExternalTaskService(Component):
             raise AccessError(_("You do not have the right to modify this records"))
         if assignee_customer:
             vals["assignee_customer_id"] = self._get_partner(assignee_customer).id
-        if "tag_ids" in vals:
-            vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
+        if self.version_before("2.0"):
+            if "tag_ids" in vals:
+                vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
         # Replace field name for write because attachment_ids already exists natively
         if "attachment_ids" in vals:
             vals["support_attachment_ids"] = vals["attachment_ids"]
@@ -355,7 +366,7 @@ class ExternalTaskService(Component):
             "origin_name": {"type": "string"},
             "action_id": {"type": "integer"},
             "project_id": {"type": "integer"},
-            "tag_ids": {"type": "integer"},
+            "tag_ids": {"type": ["integer", "list"]},
             "priority": {"type": "string"},
             "author": self._partner_validator(),
             "attachment_ids": {"type": "list"},
@@ -371,9 +382,10 @@ class ExternalTaskService(Component):
                 "schema": {
                     "name": {"type": "string"},
                     "stage_name": {"type": "string"},
+                    "stage_id": {"type": "integer"},
                     "description": {"type": "string"},
                     "project_id": {"type": "integer"},
-                    "tag_ids": {"type": "integer"},
+                    "tag_ids": {"type": ["integer", "list"]},
                     "priority": {"type": "string"},
                     "attachment_ids": {"type": "list"},
                     "functional_area": {"type": "string"},
