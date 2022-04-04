@@ -25,6 +25,7 @@ class TestTask(SavepointCase):
         cls.demo_user.image_1920 = cls.image
         cls.env.ref("project_api_client.support_api_key").confirm_connection()
         cls.task = cls.env["external.task"].search(domain=[["name", "=", "Migration"]])
+        cls.stage_done = cls.env["o2o.project.task.stage"].search([("name", "=", "Done")])
         cls.read_only_task = cls.env["external.task"].search(
             domain=[["name", "=", "Integrate Modules"]]
             )
@@ -33,12 +34,28 @@ class TestTask(SavepointCase):
         # Note task.<field> do not work as we didn't have implemented
         # the cache logic so it will raise an error
         # but we do not need this as their is not python logic for this object
-        self.assertEqual(task.read([field])[0][field], value)
+        print(field)
+        vals = task.read([field])[0]
+        if field == "stage_id":
+            self.assertEqual(vals[field][0], value)
+        else:
+            self.assertEqual(vals[field], value)
+
+    def test_sync(self):
+        self.env.ref("project_api_client.support_api_key")._sync_configuration()
+        stages = self.env["o2o.project.task.stage"].search([])
+        self.assertEqual(len(stages), 4)
+        self.assertEqual(
+            set(stages.mapped("name")),
+            {'To Do', 'In Progress', 'Done', 'Cancelled'}
+            )
+        tags = self.env["o2o.project.tag"].search([])
+        self.assertEqual(set(tags.mapped("name")), {'NeedAssistance'})
 
     def test_read_group(self):
         res = self.env["external.task"].read_group(
-            groupby=["stage_name"],
-            fields=["stage_name", "name"],
+            groupby=["stage_id"],
+            fields=["stage_id", "name"],
             domain=[],
             offset=0,
             lazy=True,
@@ -46,26 +63,26 @@ class TestTask(SavepointCase):
             orderby=False,
         )
         self.assertEqual(len(res), 3, "we expect 3 columns")
-        stages = [x["stage_name"] for x in res]
+        stages = [x["stage_id"][1] for x in res]
         self.assertEqual(stages, ["To Do", "In Progress", "Done"])
 
     def test_search(self):
-        res = self.env["external.task"].search(domain=[["stage_name", "=", "Done"]])
-        self.assertEqual(len(res), 1, "we expect 1 task")
+        res = self.env["external.task"].search(domain=[["stage_id", "=", "In Progress"]])
+        self.assertEqual(len(res), 5, "we expect 5 task")
         self.assertIsInstance(res[0], type(self.env["external.task"]))
 
     def test_search__count(self):
         res = self.env["external.task"].search(
-            domain=[["stage_name", "=", "Done"]], count=True
+            domain=[["stage_id", "=", "In Progress"]], count=True
         )
-        self.assertEqual(res, 1)
+        self.assertEqual(res, 5)
 
     def test_read(self):
         tasks = self.env["external.task"].search(
-            domain=[["stage_name", "=", "In Progress"]],
+            domain=[["stage_id", "=", "In Progress"]],
             order="name",
         )
-        res = tasks.read(fields=["stage_name", "name"])
+        res = tasks.read(fields=["stage_id", "name"])
         self.assertEqual(len(res), 5)
         names = [x["name"] for x in res]
         self.assertEqual(
@@ -88,11 +105,19 @@ class TestTask(SavepointCase):
         self.assertTaskFieldEqual(task, "name", "Test")
 
     def test_write(self):
-        res = self.task.write({"description": "Duplicated issue #112"})
-        self.assertEqual(res, True)
-        self.assertTaskFieldEqual(
-            self.task, "description", "<p>Duplicated issue #112</p>"
+        task = self.env["external.task"].create(
+            {"name": "Test", "description": "Creation test"}
         )
+        tags = self.env["o2o.project.tag"].search([])
+        res = task.write({
+            "description": "Duplicated issue #112",
+            "stage_id": self.stage_done.id,
+            "tag_ids": [(6, 0, tags.ids)],
+            })
+        self.assertEqual(res, True)
+        self.assertTaskFieldEqual(task, "description", "<p>Duplicated issue #112</p>")
+        self.assertTaskFieldEqual(task, "stage_id", self.stage_done.id)
+        self.assertTaskFieldEqual(task, "tag_ids", tags.ids)
 
     def test_write__assignee(self):
         res = self.task.write({"assignee_customer_id": self.demo_user.partner_id.id})

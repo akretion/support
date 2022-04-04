@@ -30,11 +30,26 @@ class SupportAccount(models.Model):
     )
     config = Serialized()
 
+    def _create_or_update(self, model_name, vals):
+        model = self.env[model_name]
+        record = model.browse(vals["id"])
+        if record.exists():
+            vals.pop("id")
+            record.write(vals)
+        else:
+            record = model._create([{
+                "stored": vals,
+                "inherited": {},
+                "protected": {},
+                }])
+
     def _sync_configuration(self):
-        self.config = {
-            "project": self._process_call_odoo("task", "project_list", {}),
-            "type": self._process_call_odoo("task", "type_list", {}),
-        }
+        self.config = self._process_call_odoo("connection", "config", {})
+        for project in self.config["projects"]:
+            for vals in project["tags"]:
+                self._create_or_update("o2o.project.tag", vals)
+            for vals in project["stages"]:
+                self._create_or_update("o2o.project.task.stage", vals)
 
     def _sync_support_partner(self):
         for support_uid in self._process_call_odoo("partner", "search"):
@@ -49,7 +64,7 @@ class SupportAccount(models.Model):
             raise UserError(_("Fail to connect, %s") % e)
         self.state = "confirmed"
         self._sync_support_partner()
-        self._sync_configuration()
+        self.sudo()._sync_configuration()
         return True
 
     def unconfirm_connection(self):
@@ -98,7 +113,7 @@ class SupportAccount(models.Model):
     @api.model
     def _process_call_odoo(self, path, method, params=None):
         url = "{}/project-api/{}/{}".format(self.url, path, method)
-        headers = {"API-KEY": self.api_key}
+        headers = {"API-KEY": self.api_key, "VERSION": "2.0"}
         try:
             res = requests.post(url, headers=headers, json=params)
         except Exception as e:

@@ -4,3 +4,5 @@ access_external_message,access_external_message,model_external_message,base.grou
 access_external_attachment,access_external_attachment,model_external_attachment,base.group_user,1,1,1,0
 access_support_account,access_support_account,model_support_account,,0,0,0,0
 access_support_account_admin,access_support_account_admin,model_support_account,base.group_system,1,1,1,1
+access_o2o_project_task_stage,access_o2o_project_task_stage,model_o2o_project_task_stage,base.group_user,1,0,0,0
+access_o2o_project_tag,access_o2o_project_tag,model_o2o_project_tag,base.group_user,1,0,0,0
