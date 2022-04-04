@@ -18,6 +18,12 @@ class ExternalTaskController(main.RestController):
     _collection_name = "project.project"
     _default_auth = "api_key"
 
+    @property
+    def collection(self):
+        version = request.httprequest.headers.get("Version", "1.0")
+        env = request.env(context={"version": version})
+        return main._PseudoCollection(self.collection_name, env)
+
     @classmethod
     def _get_partner_from_request(cls):
         auth_api_key_id = getattr(request, "auth_api_key_id", None)
