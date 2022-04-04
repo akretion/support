@@ -30,10 +30,10 @@ if os.path.exists(manifest_path):
         data = ast.literal_eval(manifest.read())
         if data["installable"] and data["version"][0:4] == version or data["version"][0:3] == version:
             print("Install local dev version of "+ module)
-            run("pip install -e "+ path)
             if os.path.exists("/odoo/addons/test-requirements.txt"):
                 run("pip install -r /odoo/addons/test-requirements.txt")
                 installed = True
+            run("pip install -e "+ path)
 
 if not installed:
     print("Install stable version of " + module)
