@@ -1,2 +1,3 @@
 requests-mock
 odoo12-addon-base_rest==12.0.2.1.1
+odoo12-addon-project_estimate_step @ git+https://github.com/akretion/ak-odoo-incubator@12.0-project-estimation-step#subdirectory=setup/project_estimate_step

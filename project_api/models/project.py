@@ -72,6 +72,7 @@ class ProjectTask(models.Model):
     )
 
     priority = fields.Selection([("0", "Low"), ("1", "Normal"), ("2", "High")])
+    estimate_step_name = fields.Char(related="estimate_step_id.name")
 
     def _build_customer_report(self):
         """This method allow you to return an html that will be show on client side

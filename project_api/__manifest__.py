@@ -16,6 +16,7 @@
         "project",
         "project_task_default_stage",
         "project_tag",
+        "project_estimate_step",
     ],
     "data": ["views/project_view.xml", "views/partner_view.xml"],
     "demo": ["demo/partner_demo.xml", "demo/project_demo.xml"],

@@ -132,11 +132,12 @@ class ExternalTaskService(Component):
         domain = [("project_id.partner_id", "=", self.partner.id)] + domain
         task_obj = self.env["project.task"]
         group_by_stage_name = "stage_name" in groupby[0]
+        if group_by_stage_name or "stage_id" in groupby[0]:
+            project_ids = self._get_all_project_ids_from_domain(domain)
+            task_obj = task_obj.with_context(stage_from_project_ids=project_ids)
         if group_by_stage_name:
             groupby[0] = "stage_id"
             fields[fields.index("stage_name")] = "stage_id"
-            project_ids = self._get_all_project_ids_from_domain(domain)
-            task_obj = task_obj.with_context(stage_from_project_ids=project_ids)
         groups = task_obj.read_group(
             domain,
             fields,
