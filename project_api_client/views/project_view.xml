@@ -26,7 +26,7 @@
                             attrs="{'invisible': [('id', '=', False)]}"
                         >
                                 <field name="project_id" readonly="1" />
-                                <field name="tag_ids" readonly="1" widget="many2many_tags"/>
+                                <field name="tag_ids" readonly="1" options="{'color_field': 'color'}" widget="many2many_tags"/>
                                 <field
                                 name="assignee_customer_id"
                                 readonly="1"
@@ -196,7 +196,9 @@
             <field name="model">external.task</field>
             <field name="arch" type="xml">
                 <search string="External Task">
+                    <field name="id" />
                     <field name="name" />
+                    <field name="tag_ids" />
                     <separator />
                     <filter string="My task" name="my_task" />
                     <separator />
@@ -298,21 +300,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    P: <field name="estimate_step_name" />
-                                </div>
-                                <div>
-                                    E: <field name="effective_days" />
-                                </div>
                                 <div
                                     class="oe_kanban_footer_left"
                                     style="margin-top:5px;"
                                 >
-                                    <field name="tag_ids" />
+                                    <field name="tag_ids" options="{'color_field': 'color'}"/>
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
                                     <field name="priority" widget="priority" />
+                                </div>
+                                <div class="oe_kanban_bottom_left" attrs="{'invisible': [('effective_days', '=', 0.00), ('estimate_step_name', '=', False)]}">
+                                    <field name="effective_days" attrs="{'invisible': [('effective_days', '=', 0.00)]}" /> / <field name="estimate_step_name" />
                                 </div>
                                 <div class="oe_kanban_bottom_right">
                                     <img

@@ -79,6 +79,8 @@ class ExternalTask(models.Model):
         ('done', 'Ready'),
         ('blocked', 'Blocked')], string='Kanban State',
         copy=False, default='normal', required=True)
+    sequence = fields.Integer()
+    is_closed = fields.Boolean()
 
     @api.model
     def _call_odoo(self, method, params):
@@ -225,10 +227,20 @@ class ExternalTask(models.Model):
                 elem = etree.Element(
                     "filter",
                     string=project_name,
-                    name="project_%s" % project_id,
-                    domain="[('project_id', '=', %s)]" % project_id,
+                    name=f"project_{project_id}",
+                    domain=f"[('project_id', '=', {project_id})]",
                 )
                 node.append(elem)
+            node.append(etree.Element("separator"))
+            for tag in self.env['o2o.project.tag'].search([]):
+                elem = etree.Element(
+                    "filter",
+                    string=tag.name,
+                    name="tag_%s" % tag.id,
+                    domain=f"[('tag_ids', '=', {tag.id})]",
+                )
+                node.append(elem)
+                node.append(etree.Element("separator"))
             node = doc.xpath("//filter[@name='my_task']")
             if node:
                 node[0].attrib["domain"] = (
