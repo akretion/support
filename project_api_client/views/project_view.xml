@@ -5,6 +5,10 @@
             <field name="model">external.task</field>
             <field name="arch" type="xml">
                 <form string="Task">
+                    <header>
+                        <button name="action_assign_to_me" string="Assign "/>
+                        <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
                     <sheet string="Task">
                         <h1>
                             <field name="priority" widget="priority" readonly="1" />
@@ -22,7 +26,7 @@
                             attrs="{'invisible': [('id', '=', False)]}"
                         >
                                 <field name="project_id" readonly="1" />
-                                <field name="tag_ids" readonly="1" />
+                                <field name="tag_ids" readonly="1" options="{'color_field': 'color'}" widget="many2many_tags"/>
                                 <field
                                 name="assignee_customer_id"
                                 readonly="1"
@@ -43,11 +47,8 @@
                                 widget="url"
                                 string="Url"
                             />
-                                <field
-                                name="planned_hours"
-                                widget="float_time"
-                                readonly="1"
-                            />
+                                <field name="estimate_step_name"/>
+                                <field name="effective_days"/>
                             </group>
                         </group>
                         <notebook>
@@ -107,9 +108,6 @@
                                     </field>
                                 </group>
                                 <div class="oe_clear" />
-                            </page>
-                            <page name="customer_report" string="Report">
-                                <field name="customer_report" />
                             </page>
                             <page string="Technical" name="technical">
                                 <group name="origin" string="Origin">
@@ -181,9 +179,12 @@
             <field name="arch" type="xml">
                 <tree string="External Task">
                     <field name="name" />
-                    <field name="stage_name" />
+                    <field name="stage_id" />
                     <field name="author_id" />
                     <field name="priority" />
+                    <field name="planned_days" sum="Total Planned"/>
+                    <field name="effective_days" sum="Total Effective"/>
+                    <field name="remaining_days" sum="Total Remainings" />
                     <field name="date_deadline" />
                     <field name="to_invoice" />
                     <field name="create_date" />
@@ -195,16 +196,26 @@
             <field name="model">external.task</field>
             <field name="arch" type="xml">
                 <search string="External Task">
+                    <field name="id" />
                     <field name="name" />
+                    <field name="tag_ids" />
                     <separator />
                     <filter string="My task" name="my_task" />
                     <separator />
                     <filter
-                    string="Stage"
-                    name="stage"
-                    context="{'group_by': 'stage_name'}"
-                />
+                        string="Current Sprint"
+                        name="current_sprint"
+                        domain="[('stage_id.current_sprint', '=', True)]"
+                        context="{'no_empty_stage': True}"
+                    />
                     <separator />
+                    <group expand="0" string="Group By">
+                        <filter
+                            string="Stage"
+                            name="stage"
+                            context="{'group_by': 'stage_id'}"
+                        />
+                    </group>
                 </search>
             </field>
         </record>
@@ -212,18 +223,20 @@
         <record model="ir.ui.view" id="view_external_task_kanban">
             <field name="model">external.task</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="stage_name">
+                <kanban default_group_by="stage_id">
                     <field name="name" />
-                    <field name="stage_name" />
+                    <field name="stage_id" />
                     <field name="color" />
                     <field name="priority" />
                     <field name="date_deadline" />
                     <field name="assignee_customer_id" />
                     <field name="assignee_supplier_id" />
                     <field name="tag_ids" />
-                    <field name="customer_kanban_report" />
+                    <field name="estimate_step_name" />
+                    <field name="effective_days" />
                     <field name="id" />
                     <field name="create_date" />
+                    <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}'/>
                     <templates>
                     <t t-name="kanban-box">
                         <div
@@ -287,16 +300,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <t t-raw="record.customer_kanban_report.value" />
                                 <div
                                     class="oe_kanban_footer_left"
                                     style="margin-top:5px;"
                                 >
-                                    <field name="tag_ids" />
+                                    <field name="tag_ids" options="{'color_field': 'color'}"/>
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
                                     <field name="priority" widget="priority" />
+                                </div>
+                                <div class="oe_kanban_bottom_left" attrs="{'invisible': [('effective_days', '=', 0.00), ('estimate_step_name', '=', False)]}">
+                                    <field name="effective_days" attrs="{'invisible': [('effective_days', '=', 0.00)]}" /> / <field name="estimate_step_name" />
                                 </div>
                                 <div class="oe_kanban_bottom_right">
                                     <img

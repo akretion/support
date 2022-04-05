@@ -5,3 +5,5 @@ from . import partner
 from . import support_account
 from . import res_users
 from . import ir_http
+from . import o2o_project_tag
+from . import o2o_project_task_stage

@@ -21,19 +21,21 @@ class ExternalTask(models.Model):
 
     def _get_select_project(self):
         config = self.env["support.account"]._get_config()
-        return config.get("project", [])
+        return [
+            (project["id"], project["name"])
+            for project in config.get("projects", [])
+            ]
 
     def _get_default_project(self):
         projects = self._get_select_project()
         if projects:
             return projects[0][0]
 
-    def _get_select_type(self):
-        config = self.env["support.account"]._get_config()
-        return config.get("type", [])
-
     name = fields.Char("Name", required=True)
-    stage_name = fields.Char("Stage")
+    stage_id = fields.Many2one(
+        'o2o.project.task.stage',
+        'Stage'
+        )
     description = fields.Html("Description")
     message_ids = fields.One2many(
         comodel_name="external.message", inverse_name="res_id"
@@ -61,15 +63,24 @@ class ExternalTask(models.Model):
         required=True,
     )
     color = fields.Integer(string="Color Index")
-    tag_ids = fields.Selection(selection=_get_select_type, string="Type")
+    tag_ids = fields.Many2many(comodel_name='o2o.project.tag', string='Tags')
     attachment_ids = fields.One2many(
         comodel_name="external.attachment", inverse_name="res_id"
     )
     to_invoice = fields.Boolean(readonly=True)
-    customer_report = fields.Html(readonly=True)
-    customer_kanban_report = fields.Html(readonly=True)
     message_attachment_count = fields.Integer("Attachment Count")
-    planned_hours = fields.Float(string="Planned hours")
+    planned_hours = fields.Float(string="Planned hours", readonly=True)
+    planned_days = fields.Float(string="Planned days", readonly=True)
+    remaining_days = fields.Float(string="Remaining days", readony=True)
+    effective_days = fields.Float(string="Effective days", readonly=True)
+    estimate_step_name = fields.Char(string="Estimate Step", readonly=True)
+    kanban_state = fields.Selection([
+        ('normal', 'In Progress'),
+        ('done', 'Ready'),
+        ('blocked', 'Blocked')], string='Kanban State',
+        copy=False, default='normal', required=True)
+    sequence = fields.Integer()
+    is_closed = fields.Boolean()
 
     @api.model
     def _call_odoo(self, method, params):
@@ -138,7 +149,7 @@ class ExternalTask(models.Model):
     def read_group(
         self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True
     ):
-        return self._call_odoo(
+        res = self._call_odoo(
             "read_group",
             {
                 "domain": domain,
@@ -150,6 +161,9 @@ class ExternalTask(models.Model):
                 "lazy": lazy,
             },
         )
+        if self._context.get("no_empty_stage") and ["stage_id"] == groupby:
+            return [item for item in res if item["stage_id_count"] > 0]
+        return res
 
     def _message_get_suggested_recipients(self):
         result = {task.id: [] for task in self}
@@ -213,10 +227,20 @@ class ExternalTask(models.Model):
                 elem = etree.Element(
                     "filter",
                     string=project_name,
-                    name="project_%s" % project_id,
-                    domain="[('project_id', '=', %s)]" % project_id,
+                    name=f"project_{project_id}",
+                    domain=f"[('project_id', '=', {project_id})]",
                 )
                 node.append(elem)
+            node.append(etree.Element("separator"))
+            for tag in self.env['o2o.project.tag'].search([]):
+                elem = etree.Element(
+                    "filter",
+                    string=tag.name,
+                    name="tag_%s" % tag.id,
+                    domain=f"[('tag_ids', '=', {tag.id})]",
+                )
+                node.append(elem)
+                node.append(etree.Element("separator"))
             node = doc.xpath("//filter[@name='my_task']")
             if node:
                 node[0].attrib["domain"] = (
