@@ -74,6 +74,10 @@ class ProjectTask(models.Model):
     priority = fields.Selection([("0", "Low"), ("1", "Normal"), ("2", "High")])
     estimate_step_name = fields.Char(related="estimate_step_id.name")
 
+    # Add your own logic for computing this field
+    # in Akretion case is done by subcontractor module
+    invoiceable_days = fields.Float(string="Invoiceable days", readonly=True)
+
     def _build_customer_report(self):
         """This method allow you to return an html that will be show on client side
         This avoid having too much logic and too much module with dependency on client
