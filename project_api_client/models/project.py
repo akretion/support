@@ -71,8 +71,7 @@ class ExternalTask(models.Model):
     message_attachment_count = fields.Integer("Attachment Count")
     planned_hours = fields.Float(string="Planned hours", readonly=True)
     planned_days = fields.Float(string="Planned days", readonly=True)
-    remaining_days = fields.Float(string="Remaining days", readony=True)
-    effective_days = fields.Float(string="Effective days", readonly=True)
+    invoiceable_days = fields.Float(string="Invoiceable days", readonly=True)
     estimate_step_name = fields.Char(string="Estimate Step", readonly=True)
     kanban_state = fields.Selection([
         ('normal', 'In Progress'),
