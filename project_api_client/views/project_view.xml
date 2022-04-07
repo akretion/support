@@ -48,7 +48,7 @@
                                 string="Url"
                             />
                                 <field name="estimate_step_name"/>
-                                <field name="effective_days"/>
+                                <field name="invoiceable_days"/>
                             </group>
                         </group>
                         <notebook>
@@ -183,8 +183,7 @@
                     <field name="author_id" />
                     <field name="priority" />
                     <field name="planned_days" sum="Total Planned"/>
-                    <field name="effective_days" sum="Total Effective"/>
-                    <field name="remaining_days" sum="Total Remainings" />
+                    <field name="invoiceable_days" sum="Total Real"/>
                     <field name="date_deadline" />
                     <field name="to_invoice" />
                     <field name="create_date" />
@@ -233,7 +232,7 @@
                     <field name="assignee_supplier_id" />
                     <field name="tag_ids" />
                     <field name="estimate_step_name" />
-                    <field name="effective_days" />
+                    <field name="invoiceable_days" />
                     <field name="id" />
                     <field name="create_date" />
                     <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}'/>
@@ -310,8 +309,8 @@
                                 <div class="oe_kanban_bottom_left">
                                     <field name="priority" widget="priority" />
                                 </div>
-                                <div class="oe_kanban_bottom_left" attrs="{'invisible': [('effective_days', '=', 0.00), ('estimate_step_name', '=', False)]}">
-                                    <field name="effective_days" attrs="{'invisible': [('effective_days', '=', 0.00)]}" /> / <field name="estimate_step_name" />
+                                <div class="oe_kanban_bottom_left" attrs="{'invisible': [('invoiceable_days', '=', 0.00), ('estimate_step_name', '=', False)]}">
+                                    <field name="invoiceable_days" attrs="{'invisible': [('invoiceable_days', '=', 0.00)]}" /> / <field name="estimate_step_name" />
                                 </div>
                                 <div class="oe_kanban_bottom_right">
                                     <img
