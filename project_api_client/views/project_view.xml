@@ -136,7 +136,6 @@
                     <field name="author_id"/>
                     <field name="priority"/>
                     <field name="date_deadline"/>
-                    <field name="to_invoice"/>
                     <field name="create_date"/>
                 </tree>
             </field>
