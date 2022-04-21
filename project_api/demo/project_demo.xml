@@ -12,7 +12,7 @@
             name="type_ids"
             eval="[(4, ref('project.project_stage_0')), (4, ref('project.project_stage_1')), (4, ref('project.project_stage_2')), (4, ref('project.project_stage_3'))]"
                 />
-            <field name="tag_ids" eval="[(6,0,[ref('project.project_tag_data')])]"/>
+            <field name="tag_ids" eval="[(6,0,[ref('project.project_tags_00')])]"/>
         </record>
 
         <!-- Tasks -->
