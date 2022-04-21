@@ -83,4 +83,12 @@
             <field name="name">Propose a new design for invoice report</field>
             <field name="stage_id" ref="project.project_stage_1" />
         </record>
+
+        <!-- test compatibility the name of the stage was To Do in v12 and renamed
+        new in v14. We put back To Do for test compatibility. I guess we should
+        remove this once we change the test in project_api_client all version and
+            drop v12 project_api server compatibility (next migration ?) -->
+        <record id="project.project_stage_0" model="project.task.type">
+            <field name="name">To Do</field>
+        </record>
 </odoo>
