@@ -5,7 +5,7 @@
 {
     "name": "Project API",
     "summary": "Expose a json-rpc like API on top of base_rest",
-    "version": "12.0.1.0.0",
+    "version": "14.0.1.0.0",
     "category": "Project Management",
     "author": "Akretion",
     "website": "https://github.com/akretion/support",

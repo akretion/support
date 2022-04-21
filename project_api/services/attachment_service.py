@@ -23,6 +23,11 @@ class ExternalAttachmentService(Component):
         tasks = self.env["project.task"].search(
             [("project_id.partner_id", "=", self.partner.id)]
         )
+        # compatibility with project_api_client <= 12
+        # we could maybe remove datas_fname from all api_client version instead
+        # maybe for next version
+        if "datas_fname" in fields:
+            fields.remove("datas_fname")
         attachments = self.env["ir.attachment"].search(
             [
                 ("id", "in", ids),

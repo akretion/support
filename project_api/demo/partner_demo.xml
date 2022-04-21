@@ -8,7 +8,6 @@
 
     <record id="partner_customer_help_desk" model="res.partner">
         <field name="name">Adaptoo</field>
-        <field name="customer" eval="True" />
         <field name="email">demo@adaptoo.example.com</field>
         <field name="street">Avenue des adaptateur, 2</field>
         <field name="city">Paris</field>

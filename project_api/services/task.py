@@ -14,6 +14,7 @@ from odoo.tools.translate import _
 
 from odoo.addons.base_rest.components.service import to_bool
 from odoo.addons.component.core import Component
+from odoo.addons.base_rest import restapi
 
 _logger = logging.getLogger(__name__)
 
@@ -53,6 +54,13 @@ class ExternalTaskService(Component):
             else:
                 return {"type": "anonymous", "vals": (0, partner.name)}
 
+    # in project_api_client, all call are done with POST so we have to add this
+    # possibility here. Since we add the decorator we also have to specify the
+    # input_param as the default one won't be added
+    @restapi.method(
+        [("/search", "POST"), ("/search", "GET")],
+        input_param=restapi.CerberusValidator("_validator_search")
+    )
     def search(self, domain, offset, limit, order, count):
         domain = [("project_id.partner_id", "=", self.partner.id)] + domain
         tasks = self.env["project.task"].search(
@@ -167,6 +175,8 @@ class ExternalTaskService(Component):
         if self.version_before("2.0"):
             if params.get("tag_ids"):
                 params["tag_ids"] = [(6, 0, [params["tag_ids"]])]
+
+        params = self._manage_attachment_vals(params)
         task = (
             self.env["project.task"]
             .with_context(force_message_author_id=partner.id)
@@ -174,6 +184,17 @@ class ExternalTaskService(Component):
         )
         return task.id
 
+    def _manage_attachment_vals(self, vals):
+        # Replace field name for write because attachment_ids already exists natively
+        if "attachment_ids" in vals:
+            # compatibility with client version 12 and before
+            for attachment_command in vals["attachment_ids"]:
+                if attachment_command[0] in (0, 1):
+                    attachment_vals = attachment_command[2]
+                    attachment_vals.pop("datas_fname", None)
+            vals["support_attachment_ids"] = vals.pop("attachment_ids")
+        return vals
+        
     def write(self, ids, vals, author, assignee_customer=None):
         author = self._get_partner(author)
         tasks = self.env["project.task"].search(
@@ -186,9 +207,7 @@ class ExternalTaskService(Component):
         if self.version_before("2.0"):
             if "tag_ids" in vals:
                 vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
-        # Replace field name for write because attachment_ids already exists natively
-        if "attachment_ids" in vals:
-            vals["support_attachment_ids"] = vals["attachment_ids"]
+        vals = self._manage_attachment_vals(vals)
         return tasks.with_context(force_message_author_id=author.id).write(vals)
 
     def message_format(self, ids):
@@ -257,7 +276,7 @@ class ExternalTaskService(Component):
             partner = self.env["res.partner"].create(
                 {
                     "parent_id": self.partner.id,
-                    "image": data["image"],
+                    "image_1920": data["image"],
                     "name": data["name"],
                     "customer_uid": data["uid"],
                     "email": data["email"],
@@ -267,7 +286,7 @@ class ExternalTaskService(Component):
             )
         elif (
             partner.name != data["name"]
-            or partner.image != data["image"]
+            or partner.image_1920 != data["image"]
             or partner.email != data["email"]
             or partner.mobile != data["mobile"]
         ):
@@ -275,7 +294,7 @@ class ExternalTaskService(Component):
             partner.write(
                 {
                     "name": data["name"],
-                    "image": data["image"],
+                    "image_1920": data["image"],
                     "email": data["email"],
                     "mobile": data["mobile"],
                     "phone": data["phone"],
@@ -284,6 +303,14 @@ class ExternalTaskService(Component):
             )
         return partner
 
+    # with new base_rest api, default route for method with _id in signature
+    # is /service/_id/method. With old api it was /service/method and the _id was
+    # in the params.
+    # for compatibility with project_api_client all versions, I force the old_path.
+    @restapi.method(
+        [("/message_post", "POST")],
+        input_param=restapi.CerberusValidator("_validator_message_post")
+    )
     def message_post(self, _id, body, author):
         partner = self._get_partner(author)
         domain = [("res_id", "=", _id), ("model", "=", "project.task")]
@@ -297,7 +324,7 @@ class ExternalTaskService(Component):
             body=body,
             attachment_ids=[],
             parent_id=parent.id,
-            subtype="mail.mt_comment",
+            subtype_xmlid="mail.mt_comment",
             author_id=partner.id,
             message_type="comment",
             partner_ids=[],
