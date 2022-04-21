@@ -27,6 +27,8 @@ class ExternalAttachmentService(Component):
         # we could maybe remove datas_fname from all api_client version instead
         # maybe for next version
         if "datas_fname" in fields:
+            if not "name" in fields:
+                fields.append("name")
             fields.remove("datas_fname")
         attachments = self.env["ir.attachment"].search(
             [
@@ -36,6 +38,9 @@ class ExternalAttachmentService(Component):
             ]
         )
         attachments = attachments.read(fields=fields, load=load)
+        for attachment in attachments:
+            if attachment.get("name"):
+                attachment["datas_fname"] = attachment["name"]
         if attachments:
             for attachment in attachments:
                 if "datas" in attachment:
