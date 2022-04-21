@@ -50,7 +50,7 @@ class TestTask(SavepointCase):
             {'To Do', 'In Progress', 'Done', 'Cancelled'}
             )
         tags = self.env["o2o.project.tag"].search([])
-        self.assertEqual(set(tags.mapped("name")), {'NeedAssistance'})
+        self.assertEqual(set(tags.mapped("name")), {'Bug'})
 
     def test_read_group(self):
         res = self.env["external.task"].read_group(
