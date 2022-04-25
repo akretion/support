@@ -367,7 +367,6 @@ class ExternalAttachment(models.Model):
     datas_fname = fields.Char()
     type = fields.Char(default="binary")
     mimetype = fields.Char()
-    color = fields.Integer("Color Index")
 
     @api.onchange("datas_fname")
     def _file_change(self):
