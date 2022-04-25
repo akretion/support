@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euxo pipefail
 
+while [ "$(PGPASSWORD=odoo psql -h postgres -U odoo -c '' postgres 2>&1)" = "psql: FATAL:  the database system is starting up" ]
+do
+  echo "Waiting for the database system to start up"
+  sleep 0.1
+done
+
 echo "Init database"
 click-odoo-update --if-exists -d  $PGDATABASE --i18n-overwrite
 click-odoo-initdb --unless-exists -n $PGDATABASE -m $MODULE
