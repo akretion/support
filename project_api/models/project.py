@@ -159,13 +159,14 @@ class ProjectTask(models.Model):
             self.message_unsubscribe(partner_ids=partner_ids)
         return super().write(vals)
 
-    def message_auto_subscribe(self, updated_fields, values=None):
-        super().message_auto_subscribe(updated_fields, values=values)
-        if values.get("author_id"):
-            self.message_subscribe([values["author_id"]], force=False)
-        if values.get("assignee_customer_id"):
-            self.message_subscribe([values["assignee_customer_id"]], force=False)
-        return True
+    def _message_auto_subscribe(self, updated_values, followers_existing_policy='skip'):
+        res = super()._message_auto_subscribe(
+            updated_values, followers_existing_policy=followers_existing_policy)
+        if updated_values.get("author_id"):
+            self.message_subscribe([updated_values["author_id"]])
+        if updated_values.get("assignee_customer_id"):
+            self.message_subscribe([updated_values["assignee_customer_id"]])
+        return res
 
     def message_get_suggested_recipients(self):
         # we do not need this feature
