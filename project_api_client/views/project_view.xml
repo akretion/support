@@ -6,7 +6,6 @@
             <field name="arch" type="xml">
                 <form string="Task">
                     <header>
-                        <button name="action_assign_to_me" string="Assign "/>
                         <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet string="Task">
