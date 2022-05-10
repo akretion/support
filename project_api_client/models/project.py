@@ -67,7 +67,6 @@ class ExternalTask(models.Model):
     attachment_ids = fields.One2many(
         comodel_name="external.attachment", inverse_name="res_id"
     )
-    to_invoice = fields.Boolean(readonly=True)
     message_attachment_count = fields.Integer("Attachment Count")
     planned_hours = fields.Float(string="Planned hours", readonly=True)
     planned_days = fields.Float(string="Planned days", readonly=True)
