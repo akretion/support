@@ -24,7 +24,7 @@ class ProjectTask(models.Model):
     _inherit = "project.task"
 
     stage_name = fields.Char(
-        "Stage",
+        "Stage Label",
         compute="_compute_stage_name",
         inverse="_inverse_stage_name",
         store=True,
@@ -42,7 +42,7 @@ class ProjectTask(models.Model):
         "res.partner", related="user_id.partner_id", store=True
     )
     assignee_customer_id = fields.Many2one(
-        "res.partner", string="Customer", track_visibility="always"
+        "res.partner", string="Assigned Customer", tracking=True
     )
     origin_name = fields.Char()
     origin_url = fields.Char()
@@ -70,8 +70,7 @@ class ProjectTask(models.Model):
     customer_kanban_report = fields.Html(
         compute="_compute_customer_kanban_report", store=True
     )
-
-    priority = fields.Selection([("0", "Low"), ("1", "Normal"), ("2", "High")])
+    priority = fields.Selection(selection_add=[("2", "Very Important")])
     estimate_step_name = fields.Char(related="estimate_step_id.name")
 
     # Add your own logic for computing this field
