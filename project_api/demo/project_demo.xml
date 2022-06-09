@@ -7,11 +7,11 @@
             <field name="name">Adaptoo Project</field>
             <field name="color">3</field>
             <field name="user_id" ref="base.user_demo" />
-            <field name="alias_model">project.task</field>
             <field
             name="type_ids"
             eval="[(4, ref('project.project_stage_0')), (4, ref('project.project_stage_1')), (4, ref('project.project_stage_2')), (4, ref('project.project_stage_3'))]"
-        />
+                />
+            <field name="tag_ids" eval="[(6,0,[ref('project.project_tags_00')])]"/>
         </record>
 
         <!-- Tasks -->
@@ -82,5 +82,13 @@
             <field name="project_id" ref="project_project_1" />
             <field name="name">Propose a new design for invoice report</field>
             <field name="stage_id" ref="project.project_stage_1" />
+        </record>
+
+        <!-- test compatibility the name of the stage was To Do in v12 and renamed
+        new in v14. We put back To Do for test compatibility. I guess we should
+        remove this once we change the test in project_api_client all version and
+            drop v12 project_api server compatibility (next migration ?) -->
+        <record id="project.project_stage_0" model="project.task.type">
+            <field name="name">To Do</field>
         </record>
 </odoo>

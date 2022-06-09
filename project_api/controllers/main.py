@@ -18,6 +18,12 @@ class ExternalTaskController(main.RestController):
     _collection_name = "project.project"
     _default_auth = "api_key"
 
+    @property
+    def default_collection(self):
+        version = request.httprequest.headers.get("Version", "1.0")
+        env = request.env(context={"version": version})
+        return main._PseudoCollection(self.collection_name, env)
+
     @classmethod
     def _get_partner_from_request(cls):
         auth_api_key_id = getattr(request, "auth_api_key_id", None)
@@ -29,12 +35,12 @@ class ExternalTaskController(main.RestController):
                 return partner
         raise AccessError(_("No partner match the API KEY"))
 
-    def _get_component_context(self):
+    def _get_component_context(self, collection=None):
         """
         This method adds the component context:
         * the partner
         * the project
         """
-        res = super(ExternalTaskController, self)._get_component_context()
+        res = super()._get_component_context(collection=collection)
         res["partner"] = self._get_partner_from_request()
         return res

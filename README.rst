@@ -14,13 +14,18 @@ TODO
 Move to OCA
 
 
-Simplify tests:
+HOW TO TEST AND DEVELOP
+======================
 
-The current testing process is a bit complex. For now you have to:
+* clone the repository and choose your branch
+* In tools directory create a .env file with the following : 
+  COMPOSE_FILE=docker-compose.yml:dev.docker-compose.yml
+  SERVER_VERSION=branch version (ex : 14.0)
+  CLIENT_VERSION=branch version (ex : 14.0)
+* run the script build
+* run the script start_server and the script start_client
+* Lauch both odoo server and odoo client and start to develop and test
 
-- run the tests in "learning" mode for project_api_client then project_api this will generate json file base on automatic mocked call
-- then you can run the tests normally
 
-This is not really easy to debug, but it's the simpliets solution found soo far.
-
-If you have a better idea it will be great to propose it...
+If you want to test a server and client from 2 different version, you can clone the repository twice.
+Do the same steps as described before and launch only the script start_server or start_client depending of the version you want.

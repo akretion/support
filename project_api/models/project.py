@@ -24,7 +24,7 @@ class ProjectTask(models.Model):
     _inherit = "project.task"
 
     stage_name = fields.Char(
-        "Stage",
+        "Stage Label",
         compute="_compute_stage_name",
         inverse="_inverse_stage_name",
         store=True,
@@ -42,7 +42,7 @@ class ProjectTask(models.Model):
         "res.partner", related="user_id.partner_id", store=True
     )
     assignee_customer_id = fields.Many2one(
-        "res.partner", string="Customer", track_visibility="always"
+        "res.partner", string="Assigned Customer", tracking=True
     )
     origin_name = fields.Char()
     origin_url = fields.Char()
@@ -70,8 +70,12 @@ class ProjectTask(models.Model):
     customer_kanban_report = fields.Html(
         compute="_compute_customer_kanban_report", store=True
     )
+    priority = fields.Selection(selection_add=[("2", "Very Important")])
+    estimate_step_name = fields.Char(related="estimate_step_id.name")
 
-    priority = fields.Selection([("0", "Low"), ("1", "Normal"), ("2", "High")])
+    # Add your own logic for computing this field
+    # in Akretion case is done by subcontractor module
+    invoiceable_days = fields.Float(string="Invoiceable days", readonly=True)
 
     def _build_customer_report(self):
         """This method allow you to return an html that will be show on client side
@@ -113,36 +117,35 @@ class ProjectTask(models.Model):
             if stages:
                 task.stage_id = stages[0].id
 
-    @api.multi
     @api.returns("self", lambda value: value.id)
     def message_post(
         self,
+        *,
         body="",
         subject=None,
         message_type="notification",
-        subtype=None,
-        parent_id=False,
-        attachments=None,
-        content_subtype="html",
-        **kwargs
+        email_from=None, author_id=None, parent_id=False,
+        subtype_xmlid=None, subtype_id=False, partner_ids=None, channel_ids=None,
+        attachments=None, attachment_ids=None,
+        add_sign=True, record_name=False, **kwargs
     ):
         if self._context.get("force_message_author_id"):
-            kwargs["author_id"] = self._context["force_message_author_id"]
-        return super(ProjectTask, self).message_post(
-            body=body,
-            subject=subject,
-            message_type=message_type,
-            subtype=subtype,
-            parent_id=parent_id,
-            attachments=attachments,
-            content_subtype=content_subtype,
-            **kwargs
+            author_id = self._context["force_message_author_id"]
+        return super().message_post(
+        body=body,
+        subject=subject,
+        message_type=message_type,
+        email_from=email_from, author_id=author_id, parent_id=parent_id,
+        subtype_xmlid=subtype_xmlid, subtype_id=subtype_id, partner_ids=partner_ids, channel_ids=channel_ids,
+        attachments=attachments, attachment_ids=attachment_ids,
+        add_sign=add_sign, record_name=record_name, **kwargs
         )
 
-    @api.model
-    def create(self, vals):
-        vals.pop("partner_id", None)  # readonly
-        return super(ProjectTask, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals.pop("partner_id", None)  # readonly
+        return super().create(vals_list)
 
     def write(self, vals):
         vals.pop("partner_id", None)  # readonly
@@ -153,15 +156,16 @@ class ProjectTask(models.Model):
             )
             partner_ids = [user.partner_id.id for user in unsubscribe_users]
             self.message_unsubscribe(partner_ids=partner_ids)
-        return super(ProjectTask, self).write(vals)
+        return super().write(vals)
 
-    def message_auto_subscribe(self, updated_fields, values=None):
-        super(ProjectTask, self).message_auto_subscribe(updated_fields, values=values)
-        if values.get("author_id"):
-            self.message_subscribe([values["author_id"]], force=False)
-        if values.get("assignee_customer_id"):
-            self.message_subscribe([values["assignee_customer_id"]], force=False)
-        return True
+    def _message_auto_subscribe(self, updated_values, followers_existing_policy='skip'):
+        res = super()._message_auto_subscribe(
+            updated_values, followers_existing_policy=followers_existing_policy)
+        if updated_values.get("author_id"):
+            self.message_subscribe([updated_values["author_id"]])
+        if updated_values.get("assignee_customer_id"):
+            self.message_subscribe([updated_values["assignee_customer_id"]])
+        return res
 
     def message_get_suggested_recipients(self):
         # we do not need this feature
@@ -187,11 +191,11 @@ class ProjectTask(models.Model):
         custom_values.update(
             {"description": msg["body"], "author_id": msg["author_id"]}
         )
-        return super(ProjectTask, self).message_new(msg, custom_values=custom_values)
+        return super().message_new(msg, custom_values=custom_values)
 
     def _read_group_stage_ids(self, stages, domain, order):
         project_ids = self._context.get("stage_from_project_ids")
         if project_ids:
             projects = self.env["project.project"].browse(project_ids)
             stages |= projects.mapped("type_ids")
-        return super(ProjectTask, self)._read_group_stage_ids(stages, domain, order)
+        return super()._read_group_stage_ids(stages, domain, order)

@@ -5,7 +5,7 @@
 {
     "name": "Project API",
     "summary": "Expose a json-rpc like API on top of base_rest",
-    "version": "12.0.1.0.0",
+    "version": "14.0.1.0.0",
     "category": "Project Management",
     "author": "Akretion",
     "website": "https://github.com/akretion/support",
@@ -16,9 +16,10 @@
         "project",
         "project_task_default_stage",
         "project_tag",
+        "project_estimate_step",
     ],
     "data": ["views/project_view.xml", "views/partner_view.xml"],
     "demo": ["demo/partner_demo.xml", "demo/project_demo.xml"],
-    "installable": False,
+    "installable": True,
     "application": True,
 }

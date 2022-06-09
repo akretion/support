@@ -11,6 +11,7 @@ RUN pip install -r /odoo/requirement.txt
 COPY tools/bin/* /usr/local/bin/
 COPY project_api /odoo/addons/project_api
 COPY project_api_client /odoo/addons/project_api_client
+COPY test-requirements.txt /odoo/addons/test-requirements.txt
 COPY setup /odoo/addons/setup
 
 ARG VERSION

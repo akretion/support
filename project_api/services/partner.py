@@ -11,6 +11,7 @@ from odoo.exceptions import AccessError
 from odoo.tools.translate import _
 
 from odoo.addons.component.core import Component
+from odoo.addons.base_rest import restapi
 
 _logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class ExternalTaskService(Component):
     _collection = "project.project"
     _usage = "partner"
 
+    @restapi.method([("/search", "POST"), ("/search", "GET")])
     def search(self):
         return (
             self.env["res.partner"]
@@ -33,14 +35,14 @@ class ExternalTaskService(Component):
         """All res.user are exposed to this read only api"""
         partner = self.env["res.partner"].browse(uid)
         if partner.sudo().user_ids:
-            image = partner.image
+            image = partner.image_1024
             if image and not isinstance(str, type(image)):
                 image = image.decode("utf-8")
             update_date = partner.write_date or partner.create_date
             res = {
                 "name": partner.name,
                 "uid": uid,
-                "image": image,
+                "image": image or "",
                 "update_date": fields.Datetime.to_string(update_date),
             }
             return res
