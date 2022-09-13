@@ -227,7 +227,7 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:project_api_client.field_res_users__internal_support
 #, fuzzy
 msgid "Internal Support"
-msgstr "Support"
+msgstr "Support interne"
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment____last_update
@@ -417,7 +417,7 @@ msgstr "Support last update date"
 #: model:res.groups,name:project_api_client.group_support_manager
 #, fuzzy
 msgid "Support Manager"
-msgstr "Support"
+msgstr "Gestionaire Support"
 
 #. module: project_api_client
 #: model:ir.module.category,description:project_api_client.module_support
@@ -440,7 +440,7 @@ msgstr "Support uid"
 #: model:res.groups,name:project_api_client.group_support_user
 #, fuzzy
 msgid "Support User"
-msgstr "Support"
+msgstr "Utilisateur Support"
 
 #. module: project_api_client
 #: model:ir.model,name:project_api_client.model_support_account
@@ -487,7 +487,7 @@ msgstr "Un soucis est apparue, veuillez contacter le support par email"
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_task__to_invoice
 msgid "To Invoice"
-msgstr ""
+msgstr "A facturer"
 
 #. module: project_api_client
 #: model:ir.model.fields,field_description:project_api_client.field_external_attachment__type
@@ -532,16 +532,6 @@ msgstr "external.message"
 #: model:ir.model,name:project_api_client.model_external_task
 msgid "external.task"
 msgstr "external.task"
-
-#. module: project_api_client
-#: model:ir.model,name:project_api_client.model_ir_values
-msgid "ir.values"
-msgstr "ir.values"
-
-#. module: project_api_client
-#: model:ir.model,name:project_api_client.model_keychain_account
-msgid "keychain.account"
-msgstr ""
 
 #. module: project_api_client
 #: model_terms:ir.ui.view,arch_db:project_api_client.view_external_task_kanban
