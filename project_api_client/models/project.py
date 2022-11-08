@@ -303,24 +303,41 @@ class IrActionActWindows(models.Model):
     _inherit = "ir.actions.act_window"
 
     def _set_origin_in_context(self, action):
+        ctx = self._context
+
+        def get_previous_action(model):
+            previous_action = ctx.get("params") and ctx["params"].get("action")
+            if not previous_action:
+                act = self.env["ir.actions.act_window"].search(
+                    [("res_model", "=", model), ("view_mode", "ilike", "form")], limit=1
+                )
+                previous_action = act.id or False
+            return previous_action
+
         context = {"default_origin_db": self._cr.dbname}
         ICP = self.env["ir.config_parameter"].sudo()
         base_url = ICP.get_param("web.base.url")
-        _id = self._context.get("active_id")
-        model = self._context.get("active_model")
+        _id = ctx.get("active_id")
+        model = ctx.get("active_model")
         if _id and model:
             record = self.env[model].browse(_id)
             context["default_origin_name"] = record.display_name
             context["default_origin_model"] = model
-            path = urllib.parse.urlencode(
-                {
-                    "view_type": "form",
-                    "model": model,
-                    "id": _id,
-                    "cids": ",".join(str(x) for x in self.env.companies.ids),
-                }
-            )
-            context["default_origin_url"] = "{}#{}".format(base_url, path)
+            vals_path = {
+                "view_type": "form",
+                "model": model,
+                "id": _id,
+                # some redirections require 'active_id' i.e. 'sale.order'
+                "active_id": _id,
+                "cids": ",".join(str(x) for x in self.env.companies.ids),
+            }
+            previous_action = get_previous_action(model)
+            if previous_action:
+                # 'action' or 'menu_id' key prevent redirection fails
+                # when website module is installed
+                vals_path["action"] = previous_action
+            path = urllib.parse.urlencode(vals_path)
+            context["default_origin_url"] = "{}/web#{}".format(base_url, path)
         action["context"] = context
 
     def _set_default_project(self, action):
