@@ -33,7 +33,11 @@ class SupportAccount(models.Model):
     def _create_or_update(self, model_name, vals):
         model = self.env[model_name]
         record = model.browse(vals["id"])
-        if record.exists():
+        if "id" in record:
+            # the behaviour with line above is OK with v15 and v14
+            # in v15 bug with record.exists()
+            # record -> o2o.project.task.stage(56,)
+            # record.exists() -> o2o.project.task.stage()
             vals.pop("id")
             record.write(vals)
         else:
