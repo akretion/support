@@ -283,13 +283,14 @@ class MailMessage(models.Model):
                 domain, limit=limit, moderated_channel_ids=moderated_channel_ids
             )
 
-    def message_format(self):
+    def message_format(self, **kwargs):
+        # From v15 this method has `format_reply=True` as kwargs
         ids = self.ids
         if ids and isinstance(ids[0], str) and "external" in ids[0]:
             external_ids = [int(mid.replace("external/", "")) for mid in ids]
             return self.env["external.task"].message_get(external_ids)
         else:
-            return super(MailMessage, self).message_format()
+            return super(MailMessage, self).message_format(kwargs)
 
     def set_message_done(self):
         for _id in self.ids:
