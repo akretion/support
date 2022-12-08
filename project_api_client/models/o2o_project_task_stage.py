@@ -9,5 +9,8 @@ class O2OProjectTaskStage(models.Model):
     _name = 'o2o.project.task.stage'
     _description = 'O2O Project Task Stage'
 
+    _order = "sequence"
+
     name = fields.Char()
     current_sprint = fields.Boolean()
+    sequence = fields.Integer()
