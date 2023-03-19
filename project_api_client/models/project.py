@@ -80,6 +80,14 @@ class ExternalTask(models.Model):
     sequence = fields.Integer()
     is_closed = fields.Boolean()
 
+    def _get_mail_thread_data(self, request_list):
+        # copied from mail/models/mail_thread.py:3323
+        # TODO: Fix chatter read
+        res = {'hasWriteAccess': False, 'hasReadAccess': True}
+        if not self:
+            res['hasReadAccess'] = False
+        return res
+
     @api.model
     def _call_odoo(self, method, params):
         return self.env["support.account"]._call_odoo("task", method, params)

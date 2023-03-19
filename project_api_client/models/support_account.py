@@ -39,7 +39,11 @@ class SupportAccount(models.Model):
             # record -> o2o.project.task.stage(56,)
             # record.exists() -> o2o.project.task.stage()
             vals.pop("id")
-            record.write(vals)
+            record_fields = record._fields.keys()
+            # seems v16 doesn't support to write on non existing fields
+            # i.e. ValueError: Invalid field 'sequence' on model 'o2o.project.task.stage'
+            values = {x: y for x, y in vals.items() if x in record_fields}
+            record.write(values)
         else:
             record = model._create([{
                 "stored": vals,
