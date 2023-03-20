@@ -17,7 +17,8 @@ _logger = logging.getLogger(__name__)
 
 class ExternalTask(models.Model):
     _name = "external.task"
-    _description = "external.task"
+    _description = "Tasks from other Odoo"
+    _order = "write_date DESC"  # Allow to see recent ones first
 
     def _get_select_project(self):
         config = self.env["support.account"]._get_config()
@@ -37,9 +38,9 @@ class ExternalTask(models.Model):
         'Stage'
         )
     description = fields.Html("Description")
-    message_ids = fields.One2many(
-        comodel_name="external.message", inverse_name="res_id"
-    )
+    # message_ids = fields.One2many(
+    #     comodel_name="external.message", inverse_name="res_id"
+    # )
     create_date = fields.Datetime("Create Date", readonly=True)
     priority = fields.Selection(
         [("0", "Low"), ("1", "Normal"), ("2", "High")], default="1"
@@ -64,10 +65,10 @@ class ExternalTask(models.Model):
     )
     color = fields.Integer(string="Color Index")
     tag_ids = fields.Many2many(comodel_name='o2o.project.tag', string='Tags')
-    attachment_ids = fields.One2many(
-        comodel_name="external.attachment", inverse_name="res_id"
-    )
-    message_attachment_count = fields.Integer("Attachment Count")
+    # attachment_ids = fields.One2many(
+    #     comodel_name="external.attachment", inverse_name="res_id"
+    # )
+    # message_attachment_count = fields.Integer("Attachment Count")
     planned_hours = fields.Float(string="Planned hours", readonly=True)
     planned_days = fields.Float(string="Planned days", readonly=True)
     invoiceable_days = fields.Float(string="Invoiceable days", readonly=True)
@@ -79,14 +80,6 @@ class ExternalTask(models.Model):
         copy=False, default='normal', required=True)
     sequence = fields.Integer()
     is_closed = fields.Boolean()
-
-    def _get_mail_thread_data(self, request_list):
-        # copied from mail/models/mail_thread.py:3323
-        # TODO: Fix chatter read
-        res = {'hasWriteAccess': False, 'hasReadAccess': True}
-        if not self:
-            res['hasReadAccess'] = False
-        return res
 
     @api.model
     def _call_odoo(self, method, params):
@@ -171,9 +164,9 @@ class ExternalTask(models.Model):
             return [item for item in res if item["stage_id_count"] > 0]
         return res
 
-    def _message_get_suggested_recipients(self):
-        result = {task.id: [] for task in self}
-        return result
+    # def _message_get_suggested_recipients(self):
+    #     result = {task.id: [] for task in self}
+    #     return result
 
     def _get_author_info(self):
         return self._get_partner_info(self.env.user.partner_id)
@@ -188,32 +181,32 @@ class ExternalTask(models.Model):
             "phone": partner.phone or "",
         }
 
-    def message_post(self, body="", **kwargs):
-        mid = self._call_odoo(
-            "message_post",
-            {"_id": self.id, "body": body, "author": self._get_author_info()},
-        )
-        return "external/%s" % mid
+    # def message_post(self, body="", **kwargs):
+    #     mid = self._call_odoo(
+    #         "message_post",
+    #         {"_id": self.id, "body": body, "author": self._get_author_info()},
+    #     )
+    #     return "external/%s" % mid
 
-    @api.model
-    def message_get(self, external_ids):
-        messages = self._call_odoo("message_format", {"ids": external_ids})
-        for message in messages:
-            if "author_id" in message:
-                message["author_id"] = self.env["res.partner"]._get_local_id_name(
-                    message["author_id"]
-                )
-        return messages
+    # @api.model
+    # def message_get(self, external_ids):
+    #     messages = self._call_odoo("message_format", {"ids": external_ids})
+    #     for message in messages:
+    #         if "author_id" in message:
+    #             message["author_id"] = self.env["res.partner"]._get_local_id_name(
+    #                 message["author_id"]
+    #             )
+    #     return messages
 
-    @api.model
-    def message_fetch(self, domain, limit):
-        messages = self._call_odoo("message_fetch", {"domain": domain, "limit": limit})
-        for message in messages:
-            if "author_id" in message:
-                message["author_id"] = self.env["res.partner"]._get_local_id_name(
-                    message["author_id"]
-                )
-        return messages
+    # @api.model
+    # def message_fetch(self, domain, limit):
+    #     messages = self._call_odoo("message_fetch", {"domain": domain, "limit": limit})
+    #     for message in messages:
+    #         if "author_id" in message:
+    #             message["author_id"] = self.env["res.partner"]._get_local_id_name(
+    #                 message["author_id"]
+    #             )
+    #     return messages
 
     def fields_view_get(
         self, view_id=None, view_type=False, toolbar=False, submenu=False
@@ -223,10 +216,11 @@ class ExternalTask(models.Model):
         )
         doc = etree.XML(res["arch"])
         if view_type == "form":
-            for node in doc.xpath("//field[@name='message_ids']"):
-                options = safe_eval(node.get("options", "{}"))
-                options.update({"display_log_button": False})
-                node.set("options", repr(options))
+            ""
+            # for node in doc.xpath("//field[@name='message_ids']"):
+            #     options = safe_eval(node.get("options", "{}"))
+            #     options.update({"display_log_button": False})
+            #     node.set("options", repr(options))
         elif view_type == "search":
             node = doc.xpath("//search")[0]
             for project_id, project_name in self._get_select_project():
@@ -275,37 +269,37 @@ class ExternalMessage(models.Model):
     _name = "external.message"
     _description = "external.message"
 
-    res_id = fields.Many2one(comodel_name="external.task")
+    # res_id = fields.Many2one(comodel_name="external.task")
 
 
-class MailMessage(models.Model):
-    _inherit = "mail.message"
+# class MailMessage(models.Model):
+#     _inherit = "mail.message"
 
-    @api.model
-    def message_fetch(self, domain, limit=20, moderated_channel_ids=None):
-        if any(["external.task" in item for item in domain]):
-            new_domain = [item for item in domain if "external.task" not in item]
-            return self.env["external.task"].message_fetch(new_domain, limit=limit)
-        else:
-            return super().message_fetch(
-                domain, limit=limit, moderated_channel_ids=moderated_channel_ids
-            )
+#     @api.model
+#     def message_fetch(self, domain, limit=20, moderated_channel_ids=None):
+#         if any(["external.task" in item for item in domain]):
+#             new_domain = [item for item in domain if "external.task" not in item]
+#             return self.env["external.task"].message_fetch(new_domain, limit=limit)
+#         else:
+#             return super().message_fetch(
+#                 domain, limit=limit, moderated_channel_ids=moderated_channel_ids
+#             )
 
-    def message_format(self, **kwargs):
-        # From v15 this method has `format_reply=True` as kwargs
-        ids = self.ids
-        if ids and isinstance(ids[0], str) and "external" in ids[0]:
-            external_ids = [int(mid.replace("external/", "")) for mid in ids]
-            return self.env["external.task"].message_get(external_ids)
-        else:
-            return super(MailMessage, self).message_format(kwargs)
+#     def message_format(self, **kwargs):
+#         # From v15 this method has `format_reply=True` as kwargs
+#         ids = self.ids
+#         if ids and isinstance(ids[0], str) and "external" in ids[0]:
+#             external_ids = [int(mid.replace("external/", "")) for mid in ids]
+#             return self.env["external.task"].message_get(external_ids)
+#         else:
+#             return super(MailMessage, self).message_format(kwargs)
 
-    def set_message_done(self):
-        for _id in self.ids:
-            if isinstance(_id, str) and "external" in _id:
-                return True
-        else:
-            return super(MailMessage, self).set_message_done()
+#     def set_message_done(self):
+#         for _id in self.ids:
+#             if isinstance(_id, str) and "external" in _id:
+#                 return True
+#         else:
+#             return super(MailMessage, self).set_message_done()
 
 
 class IrActionActWindows(models.Model):
@@ -367,28 +361,29 @@ class IrActionActWindows(models.Model):
 class ExternalAttachment(models.Model):
     _name = "external.attachment"
     _description = "external.attachment"
+    # This model is not commented because is defined in ir.model.access
 
-    res_id = fields.Many2one(comodel_name="external.task")
-    name = fields.Char()
-    datas = fields.Binary()
-    res_model = fields.Char(default="project.task")
-    datas_fname = fields.Char()
-    type = fields.Char(default="binary")
-    mimetype = fields.Char()
+#     res_id = fields.Many2one(comodel_name="external.task")
+#     name = fields.Char()
+#     datas = fields.Binary()
+#     res_model = fields.Char(default="project.task")
+#     datas_fname = fields.Char()
+#     type = fields.Char(default="binary")
+#     mimetype = fields.Char()
 
-    @api.onchange("datas_fname")
-    def _file_change(self):
-        if self.datas_fname:
-            self.name = self.datas_fname
+#     @api.onchange("datas_fname")
+#     def _file_change(self):
+#         if self.datas_fname:
+#             self.name = self.datas_fname
 
-    def read(self, fields=None, load="_classic_read"):
-        return self._call_odoo(
-            "read", {"ids": self.ids, "fields": fields, "load": load}
-        )
+#     def read(self, fields=None, load="_classic_read"):
+#         return self._call_odoo(
+#             "read", {"ids": self.ids, "fields": fields, "load": load}
+#         )
 
-    @api.model
-    def _call_odoo(self, method, params):
-        return self.env["support.account"]._call_odoo("attachment", method, params)
+#     @api.model
+#     def _call_odoo(self, method, params):
+#         return self.env["support.account"]._call_odoo("attachment", method, params)
 
-    def exists(self):
-        return self.browse(self._call_odoo("exists", {"ids": self.ids}))
+#     def exists(self):
+#         return self.browse(self._call_odoo("exists", {"ids": self.ids}))
