@@ -16,7 +16,7 @@ then
     echo "vieux python"
     export CLIENT_PYTHON_VERSION=2.7
 else
-    export CLIENT_PYTHON_VERSION=3.6
+    export CLIENT_PYTHON_VERSION=$(CLIENT_PYTHON_VERSION:-3.8)
 fi
 
 docker-compose build

@@ -18,12 +18,9 @@ HOW TO TEST AND DEVELOP
 ======================
 
 * clone the repository and choose your branch
-* In tools directory create a .env file with the following : 
-  COMPOSE_FILE=docker-compose.yml:dev.docker-compose.yml
-  SERVER_VERSION=branch version (ex : 14.0)
-  CLIENT_VERSION=branch version (ex : 14.0)
-* run the script build
-* run the script start_server and the script start_client
+* In tools directory create a `.env` file with the following copying `.env-sample`
+* run the script `build`
+* run the script `start_server` and the script `start_client`
 * Lauch both odoo server and odoo client and start to develop and test
 
 
