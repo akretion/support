@@ -5,7 +5,7 @@ black_version: 20.8b1
 dependency_installation_mode: PIP
 generate_requirements_txt: true
 include_wkhtmltopdf: false
-odoo_version: '14.0'
+odoo_version: 14.0
 prettify_xml: true
 python_line_length: 88
 rebel_module_groups: []
