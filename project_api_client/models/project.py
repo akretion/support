@@ -180,12 +180,19 @@ class ExternalTask(models.Model):
             "phone": partner.phone or "",
         }
 
+    # hack to make message post works (exists is checked in mail_message_post, in 
+    # mail controllers)
+    @api.returns('self')
+    def exists(self):
+        return self
+
     def message_post(self, body="", **kwargs):
         mid = self._call_odoo(
             "message_post",
             {"_id": self.id, "body": body, "author": self._get_author_info()},
         )
-        return "external/%s" % mid
+        #return mid
+        return self.env["mail.message"].browse(["external/%s" % mid])
 
     @api.model
     def message_get(self, external_ids):
@@ -206,6 +213,19 @@ class ExternalTask(models.Model):
                     message["author_id"]
                 )
         return messages
+
+    def _get_mail_thread_data(self, request_list):
+        res = self.env["mail.thread"]._get_mail_thread_data(request_list)
+        # copied from mail module, needed because we do not inherits mail.thread
+        # we need thos hasWriteAccess to enable the send message button on UI mail
+        # message widget
+        try:
+            self.check_access_rights("write")
+            self.check_access_rule("write")
+            res['hasWriteAccess'] = True
+        except AccessError:
+            pass
+        return res
 
     def fields_view_get(
         self, view_id=None, view_type=False, toolbar=False, submenu=False
@@ -274,29 +294,29 @@ class MailMessage(models.Model):
     _inherit = "mail.message"
 
     @api.model
-    def message_fetch(self, domain, limit=20, moderated_channel_ids=None):
+    def _message_fetch(self, domain, max_id=None, min_id=None, limit=30):
         if any(["external.task" in item for item in domain]):
             new_domain = [item for item in domain if "external.task" not in item]
             return self.env["external.task"].message_fetch(new_domain, limit=limit)
         else:
-            return super().message_fetch(
-                domain, limit=limit, moderated_channel_ids=moderated_channel_ids
+            return super()._message_fetch(
+                domain, max_id=max_id, min_id=min_id, limit=limit
             )
 
-    def message_format(self):
+    def message_format(self, format_reply=True):
         ids = self.ids
         if ids and isinstance(ids[0], str) and "external" in ids[0]:
             external_ids = [int(mid.replace("external/", "")) for mid in ids]
             return self.env["external.task"].message_get(external_ids)
         else:
-            return super(MailMessage, self).message_format()
+            return super().message_format(format_reply=format_reply)
 
     def set_message_done(self):
         for _id in self.ids:
             if isinstance(_id, str) and "external" in _id:
                 return True
         else:
-            return super(MailMessage, self).set_message_done()
+            return super().set_message_done()
 
 
 class IrActionActWindows(models.Model):
