@@ -99,6 +99,9 @@ class ExternalTask(models.Model):
         if not vals.get("model_reference", False):
             vals["model_reference"] = ""
         self._add_assignee_customer(vals, vals.pop("assignee_customer_id", None))
+        # avoid returning False in description because webservice expects a string
+        if "description" in vals and not vals["description"]:
+            vals["description"] = ""
         task_id = self._call_odoo("create", vals)
         return self.browse(task_id)
 
