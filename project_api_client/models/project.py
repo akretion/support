@@ -326,12 +326,13 @@ class IrActionActWindows(models.Model):
         ctx = self._context
 
         def get_previous_action(model):
+            # FIXME Not sure when/if this params exist some times nor in which case.
             previous_action = ctx.get("params") and ctx["params"].get("action")
-            if not previous_action:
-                act = self.env["ir.actions.act_window"].search(
-                    [("res_model", "=", model), ("view_mode", "ilike", "form")], limit=1
-                )
-                previous_action = act.id or False
+            # We avoid searching an action by default because it could contain
+            # some context making the url to fail. Example, a sale.order action
+            # which has this context : 'search_default_team_id': [active_id]
+            # would fail because the active_id we pass is actually the one from
+            # a sale order...
             return previous_action
 
         context = {"default_origin_db": self._cr.dbname}
