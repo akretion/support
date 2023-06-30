@@ -147,28 +147,6 @@
             </field>
         </record>
 
-        <record id="view_external_task_manager_form" model="ir.ui.view">
-            <field name="model">external.task</field>
-            <field name="inherit_id" ref="view_external_task_form" />
-            <field name="arch" type="xml">
-                <field name="priority" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </field>
-                <field name="tag_ids" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </field>
-                <field name="project_id" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </field>
-                <field name="assignee_customer_id" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </field>
-                <group name="project" position="attributes">
-                    <attribute name="attrs" />
-                </group>
-            </field>
-        </record>
-
         <record id="view_external_task_tree" model="ir.ui.view">
             <field name="model">external.task</field>
             <field name="arch" type="xml">

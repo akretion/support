@@ -230,20 +230,48 @@ class ExternalTask(models.Model):
             pass
         return res
 
-    def fields_view_get(
-        self, view_id=None, view_type=False, toolbar=False, submenu=False
-    ):
-        res = super(ExternalTask, self).fields_view_get(
-            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu
-        )
-        doc = etree.XML(res["arch"])
-        if view_type == "form":
-            for node in doc.xpath("//field[@name='message_ids']"):
-                options = safe_eval(node.get("options", "{}"))
-                options.update({"display_log_button": False})
-                node.set("options", repr(options))
-        elif view_type == "search":
-            node = doc.xpath("//search")[0]
+    @api.model
+    def default_get(self, fields):
+        vals = super(ExternalTask, self).default_get(fields)
+        if "from_model" in self._context and "from_id" in self._context:
+            vals["model_reference"] = "{},{}".format(
+                self._context["from_model"], self._context["from_id"]
+            )
+        if "from_action" in self._context:
+            vals["action_id"] = self._context["from_action"]
+        return vals
+
+    def message_partner_info_from_emails(self, emails, link_mail=False):
+        return []
+
+    def _set_readonly_form_view(self, doc):
+        for field in doc.iter("field"):
+            env_fields = self._server_env_fields.keys()
+            field_name = field.get("name")
+            if field_name in env_fields:
+                continue
+            field.set("readonly", "1")
+            field.set("modifiers", json.dumps({"readonly": True}))
+
+    def _update_form_view_for_manager(self, arch, view_type):
+        if view_type != "form":
+            return arch
+        is_manager = self.env.user.has_group("project_api_client.group_support_manager")
+        if not is_manager:
+            return arch
+        for field in arch.iter("field"):
+            editable_fields = ["tag_ids", "project_id", "assignee_customer_id", "priority"]
+            if field.get("name") in editable_fields:
+                field.set("readonly", "0")
+        project_groups = arch.xpath("//group[@name='project']")
+        group_el = project_groups and project_groups[0]
+        # remove invisible part on creation for manager
+        group_el.attrib.pop("attrs", None)
+        return arch
+
+    def _update_search_view(self, arch, view_type):
+        if view_type == "search":
+            node = arch.xpath("//search")[0]
             for project_id, project_name in self._get_select_project():
                 elem = etree.Element(
                     "filter",
@@ -262,28 +290,27 @@ class ExternalTask(models.Model):
                 )
                 node.append(elem)
                 node.append(etree.Element("separator"))
-            node = doc.xpath("//filter[@name='my_task']")
+            node = arch.xpath("//filter[@name='my_task']")
             if node:
                 node[0].attrib["domain"] = (
                     "[('assignee_customer_id.customer_uid', '=', %s)]"
                     % self.env.user.partner_id.id
                 )
-        res["arch"] = etree.tostring(doc, pretty_print=True)
-        return res
+        return arch
 
     @api.model
-    def default_get(self, fields):
-        vals = super(ExternalTask, self).default_get(fields)
-        if "from_model" in self._context and "from_id" in self._context:
-            vals["model_reference"] = "{},{}".format(
-                self._context["from_model"], self._context["from_id"]
-            )
-        if "from_action" in self._context:
-            vals["action_id"] = self._context["from_action"]
-        return vals
+    def _get_view(self, view_id=None, view_type="form", **options):
+        arch, view = super()._get_view(view_id=view_id, view_type=view_type, **options)
+        arch = self._update_form_view_for_manager(arch, view_type)
+        arch = self._update_search_view(arch, view_type)
+        return arch, view
 
-    def message_partner_info_from_emails(self, emails, link_mail=False):
-        return []
+    def _get_view_cache_key(self, view_id=None, view_type="form", **options):
+        res = super()._get_view_cache_key(
+            view_id=view_id, view_type=view_type, **options
+        )
+        res += (self.env.user.has_group("project_api_client.group_support_manager"),)
+        return res
 
 
 class ExternalMessage(models.Model):
