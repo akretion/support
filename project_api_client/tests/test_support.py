@@ -6,10 +6,10 @@
 import base64
 from os import path
 
-from odoo.tests.common import SavepointCase
+from odoo.tests.common import TransactionCase
 
 
-class TestTask(SavepointCase):
+class TestTask(TransactionCase):
     @classmethod
     def _get_image(cls, name):
         image_path = path.dirname(path.abspath(__file__))
