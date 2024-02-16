@@ -15,6 +15,10 @@ class ProjectProject(models.Model):
         string="Subscribe assigned only",
         help="When a user get assigned, unscubscribe automaticaly other users",
     )
+    customer_display = fields.Boolean(
+        index=True,
+        help="The tasks of this project will be displayed on customer side only if this"
+             " box is checked")
 
     def _get_customer_project_name(self):
         return self.customer_project_name or self.name
