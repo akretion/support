@@ -7,6 +7,7 @@
             <field name="name">Adaptoo Project</field>
             <field name="color">3</field>
             <field name="user_id" ref="base.user_demo" />
+            <field name="customer_display" eval="True"/>
             <field
             name="type_ids"
             eval="[(4, ref('project.project_stage_0')), (4, ref('project.project_stage_1')), (4, ref('project.project_stage_2')), (4, ref('project.project_stage_3'))]"
