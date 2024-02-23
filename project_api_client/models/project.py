@@ -194,7 +194,6 @@ class ExternalTask(models.Model):
             "message_post",
             {"_id": self.id, "body": body, "author": self._get_author_info()},
         )
-        #return mid
         return self.env["mail.message"].browse(["external/%s" % mid])
 
     @api.model

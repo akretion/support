@@ -132,7 +132,7 @@ class TestTask(TransactionCase):
         support_team = self.env.ref("project_api_client.support_team")
         # Ensure that there is not partner in the team
         support_team.child_ids.unlink()
-        res = self.env["mail.message"].message_fetch(
+        res = self.env["mail.message"]._message_fetch(
             [("res_id", "=", self.read_only_task.id), ("model", "=", "external.task")]
         )
         self.assertEqual(len(res), 2)
@@ -140,7 +140,7 @@ class TestTask(TransactionCase):
 
     def test_message_post(self):
         res = self.task.message_post(body="my comment")
-        self.assertIn("external/", res)
+        self.assertIn("external/", res.id)
 
     def test_add_and_download_attachement(self):
         self.task.write(
