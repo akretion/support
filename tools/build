@@ -15,8 +15,11 @@ if [[ "8.0 10.0" =~ (^|[[:space:]])$CLIENT_VERSION($|[[:space:]]) ]]
 then
     echo "vieux python"
     export CLIENT_PYTHON_VERSION=2.7
-else
+elif [[ "12.0 14.0" =~ (^|[[:space:]])$CLIENT_VERSION($|[[:space:]]) ]]
+then
     export CLIENT_PYTHON_VERSION=3.6
+else
+    export CLIENT_PYTHON_VERSION=3.10
 fi
 
 docker-compose build
