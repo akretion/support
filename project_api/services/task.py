@@ -62,7 +62,7 @@ class ExternalTaskService(Component):
         input_param=restapi.CerberusValidator("_validator_search")
     )
     def search(self, domain, offset, limit, order, count):
-        domain = [("project_id.partner_id", "=", self.partner.id), ("customer_display", "=", True)] + domain
+        domain = [("project_id.partner_id", "=", self.partner.id), ("project_id.customer_display", "=", True)] + domain
         tasks = self.env["project.task"].search(
             domain, offset=offset, limit=limit, order=order, count=count
         )
