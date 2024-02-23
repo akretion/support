@@ -21,7 +21,7 @@ class ExternalAttachmentService(Component):
     # pylint: disable=W8106
     def read(self, ids, fields, load):
         tasks = self.env["project.task"].search(
-            [("project_id.partner_id", "=", self.partner.id)]
+            [("project_id.partner_id", "=", self.partner.id), ("project_id.customer_display", "=", True)]
         )
         # compatibility with project_api_client <= 12
         # we could maybe remove datas_fname from all api_client version instead
