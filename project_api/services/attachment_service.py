@@ -67,3 +67,30 @@ class ExternalAttachmentService(Component):
 
     def _validator_exists(self):
         return {"ids": {"type": "list"}}
+
+    # Used since v16 on client side.
+    def download_url(self, attachment_id):
+        tasks = self.env["project.task"].search(
+            [("project_id.partner_id", "=", self.partner.id), ("project_id.customer_display", "=", True)]
+        )
+        attachment = self.env["ir.attachment"].search(
+            [
+                ("id", "=", attachment_id),
+                ("res_id", "in", tasks.ids),
+                ("res_model", "=", "project.task"),
+            ]
+        )
+        if not attachment:
+            url = ""
+        else:
+            base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+            token = attachment.generate_access_token()[0]
+            url = ("%(base_url)s/web/content/?id=%(attach_id)s&download=true"
+                  "&filename=%(filename)s&access_token=%(token)s") % {"base_url": base_url, "attach_id": attachment_id, "filename": attachment.name, "token": token}
+        return url
+
+    def _validator_download_url(self):
+        return {
+            "attachment_id": {"type": "integer"},
+            "context": {"type": "dict"},
+        }
