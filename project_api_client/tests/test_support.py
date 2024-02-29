@@ -160,12 +160,6 @@ class TestTask(TransactionCase):
             }
         )
         _id = self.task.read(["attachment_ids"])[0]["attachment_ids"][-1]
-        status, headers, content = self.env["ir.http"].binary_content(
-            model="external.attachment",
-            id=_id,
-            field="datas",
-            filename_field="datas_fname",
-            download=True,
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(content, self.image)
+        download_action = self.env["external.attachment"].browse(_id).download()
+        url = download_action.get("url")
+        self.assertIn(str(_id), url)

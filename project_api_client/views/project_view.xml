@@ -66,6 +66,7 @@
                                             filename="datas_fname"
                                         />
                                             <field name="datas_fname" invisible="1" />
+                                            <button name="download" string="Download" type="object"/>
                                         </tree>
                                         <kanban>
                                             <field name="id" />
@@ -103,6 +104,10 @@
                                             <field name="datas_fname" invisible="1" />
                                             <field name="name" invisible="1" />
                                             <field name="res_model" invisible="1" />
+                                            <field name="id" invisible="1" />
+                                            <separator/>
+                                            <button name="download" string="Download" type="object" class="oe_highlight"
+                                                    attrs="{'invisible': ['|', ('id', '=', False), ('datas_fname', '=', False)]}"/>
                                         </form>
                                     </field>
                                 </group>
