@@ -97,6 +97,11 @@
                                             </templates>
                                         </kanban>
                                         <form>
+                                            <div class="hide_download_button">
+                                                <!-- Hide native download button since we add our own simpler download button...-->
+                                               <style type="text/css" > .hide_download_button .fa-download {
+  display: none;
+                                                   }</style>
                                             <field
                                             name="datas"
                                             filename="datas_fname"
@@ -108,6 +113,7 @@
                                             <separator/>
                                             <button name="download" string="Download" type="object" class="oe_highlight"
                                                     attrs="{'invisible': ['|', ('id', '=', False), ('datas_fname', '=', False)]}"/>
+                                           </div>
                                         </form>
                                     </field>
                                 </group>
