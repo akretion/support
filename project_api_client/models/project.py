@@ -194,7 +194,6 @@ class ExternalTask(models.Model):
             "message_post",
             {"_id": self.id, "body": body, "author": self._get_author_info()},
         )
-        #return mid
         return self.env["mail.message"].browse(["external/%s" % mid])
 
     @api.model
@@ -451,3 +450,14 @@ class ExternalAttachment(models.Model):
 
     def exists(self):
         return self.browse(self._call_odoo("exists", {"ids": self.ids}))
+
+    def download(self):
+        url =  self._call_odoo(
+            "download_url", {"attachment_id": self.id}
+        )
+        action = {
+            "name": "Attachment Download",
+            "type": "ir.actions.act_url",
+            "url": url,
+        }
+        return action

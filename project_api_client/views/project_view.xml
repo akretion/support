@@ -66,6 +66,7 @@
                                             filename="datas_fname"
                                         />
                                             <field name="datas_fname" invisible="1" />
+                                            <button name="download" string="Download" type="object"/>
                                         </tree>
                                         <kanban>
                                             <field name="id" />
@@ -96,6 +97,11 @@
                                             </templates>
                                         </kanban>
                                         <form>
+                                            <div class="hide_download_button">
+                                                <!-- Hide native download button since we add our own simpler download button...-->
+                                               <style type="text/css" > .hide_download_button .fa-download {
+  display: none;
+                                                   }</style>
                                             <field
                                             name="datas"
                                             filename="datas_fname"
@@ -103,6 +109,11 @@
                                             <field name="datas_fname" invisible="1" />
                                             <field name="name" invisible="1" />
                                             <field name="res_model" invisible="1" />
+                                            <field name="id" invisible="1" />
+                                            <separator/>
+                                            <button name="download" string="Download" type="object" class="oe_highlight"
+                                                    attrs="{'invisible': ['|', ('id', '=', False), ('datas_fname', '=', False)]}"/>
+                                           </div>
                                         </form>
                                     </field>
                                 </group>
