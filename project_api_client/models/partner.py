@@ -41,7 +41,7 @@ class ResPartner(models.Model):
         """This method will return the local partner used for the support
         If the partner is missing it will be created
         If the partner information are obsolete their will be updated"""
-        partner = self.env["res.partner"].search(
+        partner = self.env["res.partner"].with_context(active_test=False).search(
             [("support_uid", "=", str(data["uid"]))]
         )
         # Compatibility v10-v12
