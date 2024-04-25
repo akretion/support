@@ -338,7 +338,7 @@ class ExternalTaskService(Component):
         if helpdesk:
             result.append((helpdesk.id, helpdesk._get_customer_project_name()))
         projects = self.env["project.project"].search(
-            [("partner_id", "=", self.partner.id), ("id", "!=", helpdesk.id)]
+            [("partner_id", "=", self.partner.id), ("id", "!=", helpdesk.id), ("customer_display", "=", True)]
         )
         result += [(p.id, p._get_customer_project_name()) for p in projects]
         return result
