@@ -41,7 +41,7 @@ class ResPartner(models.Model):
         """This method will return the local partner used for the support
         If the partner is missing it will be created
         If the partner information are obsolete their will be updated"""
-        partner = self.env["res.partner"].search(
+        partner = self.env["res.partner"].sudo().search(
             [("support_uid", "=", str(data["uid"]))]
         )
         # Compatibility v10-v12
@@ -50,7 +50,7 @@ class ResPartner(models.Model):
             update_date = fields.Datetime.from_string(update_date)
         if not partner:
             vals = self._get_support_partner_vals(data)
-            partner = self.env["res.partner"].create(vals)
+            partner = self.env["res.partner"].sudo().create(vals)
         elif partner.support_last_update_date < update_date:
             vals = self._get_support_partner_vals(data)
             partner.write(vals)
