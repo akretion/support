@@ -14,3 +14,4 @@ Contributors
 
 * Sébastien BEAU <sebastien.beau@akretion.com>
 * Benoit Guillot <benoit.guillot@akretion.com>
+* Florian da Costa <florian.dacosta@akretion.com>

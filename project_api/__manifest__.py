@@ -4,22 +4,27 @@
 
 {
     "name": "Project API",
-    "summary": "Expose a json-rpc like API on top of base_rest",
-    "version": "14.0.1.0.1",
+    "summary": "Expose a json-rpc like API on top of fastapi",
+    "version": "16.0.1.0.0",
     "category": "Project Management",
     "author": "Akretion",
     "website": "https://github.com/akretion/support",
     "license": "AGPL-3",
     "depends": [
         "auth_api_key",
-        "base_rest",
+        "fastapi",
         "project",
         "project_task_default_stage",
-        "project_tag",
         "project_estimate_step",
     ],
-    "data": ["views/project_view.xml", "views/partner_view.xml"],
+    "data": [
+        "security/res_groups.xml",
+        "data/res_users.xml",
+        "data/fastapi_endpoint.xml",
+        "views/project_view.xml",
+        "views/partner_view.xml",
+    ],
     "demo": ["demo/partner_demo.xml", "demo/project_demo.xml"],
-    "installable": False,
+    "installable": True,
     "application": True,
 }

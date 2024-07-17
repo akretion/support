@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record model="fastapi.endpoint" id="fastapi_endpoint_support">
+        <field name="name">Support</field>
+        <field name="app">support</field>
+        <field name="root_path">/project-api</field>
+        <field name="support_auth_method">api_key</field>
+        <field name="user_id" eval="ref('user_support')" />
+    </record>
+</odoo>
+
