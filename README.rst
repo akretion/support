@@ -23,4 +23,3 @@ Start manually and hack it
 .. code-block:: bash
 
   tools/start-client
-

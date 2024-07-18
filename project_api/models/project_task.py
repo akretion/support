@@ -5,25 +5,6 @@
 from odoo import api, fields, models, tools
 
 
-class ProjectProject(models.Model):
-    _inherit = "project.project"
-
-    customer_project_name = fields.Char(
-        help="Name that will appear on customer support menu", index=True
-    )
-    subscribe_assigned_only = fields.Boolean(
-        string="Subscribe assigned only",
-        help="When a user get assigned, unscubscribe automaticaly other users",
-    )
-    customer_display = fields.Boolean(
-        index=True,
-        help="The tasks of this project will be displayed on customer side only if this"
-             " box is checked")
-
-    def _get_customer_project_name(self):
-        return self.customer_project_name or self.name
-
-
 class ProjectTask(models.Model):
     _inherit = "project.task"
 
@@ -41,7 +22,11 @@ class ProjectTask(models.Model):
     partner_id = fields.Many2one(
         related="project_id.partner_id", readonly=True, store=True
     )
-    user_id = fields.Many2one(default=False)
+    user_id = fields.Many2one("res.users", tracking=True)
+    # Compute native user_ids field we don't really to manage multiple users and
+    # it is complicated as all project_api_client modules manage only one
+    user_ids = fields.Many2many(compute="_compute_user_ids", store=True)
+    # TODO
     assignee_supplier_id = fields.Many2one(
         "res.partner", related="user_id.partner_id", store=True
     )
@@ -80,6 +65,11 @@ class ProjectTask(models.Model):
     # Add your own logic for computing this field
     # in Akretion case is done by subcontractor module
     invoiceable_days = fields.Float(string="Invoiceable days", readonly=True)
+
+    @api.depends("user_id")
+    def _compute_user_ids(self):
+        for rec in self:
+            rec.user_ids = rec.user_id.ids or False
 
     def _build_customer_report(self):
         """This method allow you to return an html that will be show on client side
@@ -121,28 +111,38 @@ class ProjectTask(models.Model):
             if stages:
                 task.stage_id = stages[0].id
 
-    @api.returns("self", lambda value: value.id)
+    @api.returns("mail.message", lambda value: value.id)
     def message_post(
         self,
         *,
         body="",
         subject=None,
         message_type="notification",
-        email_from=None, author_id=None, parent_id=False,
-        subtype_xmlid=None, subtype_id=False, partner_ids=None, channel_ids=None,
-        attachments=None, attachment_ids=None,
-        add_sign=True, record_name=False, **kwargs
+        email_from=None,
+        author_id=None,
+        parent_id=False,
+        subtype_xmlid=None,
+        subtype_id=False,
+        partner_ids=None,
+        attachments=None,
+        attachment_ids=None,
+        **kwargs
     ):
-        if self._context.get("force_message_author_id"):
-            author_id = self._context["force_message_author_id"]
+        if self.env.context.get("force_message_author_id"):
+            author_id = self.env.context["force_message_author_id"]
         return super().message_post(
-        body=body,
-        subject=subject,
-        message_type=message_type,
-        email_from=email_from, author_id=author_id, parent_id=parent_id,
-        subtype_xmlid=subtype_xmlid, subtype_id=subtype_id, partner_ids=partner_ids, channel_ids=channel_ids,
-        attachments=attachments, attachment_ids=attachment_ids,
-        add_sign=add_sign, record_name=record_name, **kwargs
+            body=body,
+            subject=subject,
+            message_type=message_type,
+            email_from=email_from,
+            author_id=author_id,
+            parent_id=parent_id,
+            subtype_xmlid=subtype_xmlid,
+            subtype_id=subtype_id,
+            partner_ids=partner_ids,
+            attachments=attachments,
+            attachment_ids=attachment_ids,
+            **kwargs
         )
 
     @api.model_create_multi
@@ -162,9 +162,10 @@ class ProjectTask(models.Model):
             self.message_unsubscribe(partner_ids=partner_ids)
         return super().write(vals)
 
-    def _message_auto_subscribe(self, updated_values, followers_existing_policy='skip'):
+    def _message_auto_subscribe(self, updated_values, followers_existing_policy="skip"):
         res = super()._message_auto_subscribe(
-            updated_values, followers_existing_policy=followers_existing_policy)
+            updated_values, followers_existing_policy=followers_existing_policy
+        )
         if updated_values.get("author_id"):
             self.message_subscribe([updated_values["author_id"]])
         if updated_values.get("assignee_customer_id"):
