@@ -7,17 +7,17 @@
             <field name="name">Adaptoo Project</field>
             <field name="color">3</field>
             <field name="user_id" ref="base.user_demo" />
-            <field name="customer_display" eval="True"/>
+            <field name="customer_display" eval="True" />
             <field
             name="type_ids"
             eval="[(4, ref('project.project_stage_0')), (4, ref('project.project_stage_1')), (4, ref('project.project_stage_2')), (4, ref('project.project_stage_3'))]"
-                />
-            <field name="tag_ids" eval="[(6,0,[ref('project.project_tags_00')])]"/>
+        />
+            <field name="tag_ids" eval="[(6,0,[ref('project.project_tags_00')])]" />
         </record>
 
         <!-- Tasks -->
         <record id="project_task_1" model="project.task">
-            <field name="user_id" ref="base.user_demo" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">0</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Bug when sending email</field>
@@ -25,14 +25,14 @@
             <field name="color">3</field>
         </record>
         <record id="project_task_2" model="project.task">
-            <field name="user_id" ref="base.user_demo" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">0</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Need to add a new columns in report A</field>
             <field name="stage_id" ref="project.project_stage_1" />
         </record>
         <record id="project_task_3" model="project.task">
-            <field name="user_id" ref="base.user_root" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">0</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Migration</field>
@@ -40,7 +40,7 @@
             <field name="color">4</field>
         </record>
         <record id="project_task_4" model="project.task">
-            <field name="user_id" ref="base.user_demo" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">0</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Develop module for Sale Management</field>
@@ -48,7 +48,7 @@
             <field name="stage_id" ref="project.project_stage_1" />
         </record>
         <record id="project_task_5" model="project.task">
-            <field name="user_id" ref="base.user_root" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">1</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Develop module for Warehouse</field>
@@ -57,7 +57,7 @@
             <field name="stage_id" ref="project.project_stage_1" />
         </record>
         <record id="project_task_6" model="project.task">
-            <field name="user_id" ref="base.user_root" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">1</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Integrate Modules</field>
@@ -78,7 +78,7 @@
             <field name="subtype_id" ref="mail.mt_comment" />
         </record>
         <record id="project_task_7" model="project.task">
-            <field name="user_id" ref="base.user_root" />
+            <field name="user_ids" eval="[(4, ref('base.user_demo'))]" />
             <field name="priority">1</field>
             <field name="project_id" ref="project_project_1" />
             <field name="name">Propose a new design for invoice report</field>
