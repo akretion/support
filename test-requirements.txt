@@ -1,0 +1,2 @@
+odoo-addon-project_time_in_day @ git+https://github.com/akretion/ak-odoo-incubator@16.0#subdirectory=setup/project_time_in_day
+odoo-addon-project_estimate_step @ git+https://github.com/akretion/ak-odoo-incubator@16.0#subdirectory=setup/project_estimate_step

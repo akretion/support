@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
 
+        <!-- for test compatibility with all versions... -->
+        <record id="project.project_stage_3" model="project.task.type">
+            <field name="name">Cancelled</field>
+        </record>
+
         <record id="project_project_1" model="project.project">
             <field name="partner_id" ref="partner_customer_help_desk" />
             <field name="date_start" eval="time.strftime('%Y-%m-01 10:00:00')" />
