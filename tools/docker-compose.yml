@@ -13,6 +13,7 @@ services:
       PGDATABASE: dbserver
       DEMO: "True"
       WORKERS: 0
+      PYTHON_VERSION: "3.10"
       SERVER_WIDE_MODULES: web
       ADDITIONAL_ODOO_RC: |-
         encryption_key_dev=-Zlvw8hr_MHSkS8PLhDpQjtqYDZT-6npSgIeOGA8FUE=
@@ -21,7 +22,7 @@ services:
       dockerfile: tools/Dockerfile
       args:
         VERSION: $SERVER_VERSION
-        PYTHON_VERSION: 3.6
+        PYTHON_VERSION: "3.10"
         MODULE: project_api
         LOCAL_UID: $LOCAL_UID
     depends_on:
