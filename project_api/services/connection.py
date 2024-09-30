@@ -21,10 +21,12 @@ class ConnectionService(Component):
 
     def config(self):
         config = {"projects": []}
-        projects = self.partner.help_desk_project_id
-        for project in self.env["project.project"].search([
-            ("partner_id", "=", self.partner.id),
-            ]):
+        for project in self.env["project.project"].search(
+            [
+                ("partner_id", "=", self.partner.id),
+                ("customer_display", "=", True),
+            ]
+        ):
             config["projects"].append({
                 "id": project.id,
                 "name": project.name,
