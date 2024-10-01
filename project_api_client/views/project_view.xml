@@ -177,6 +177,7 @@
             <field name="model">external.task</field>
             <field name="arch" type="xml">
                 <tree string="External Task">
+                    <field name="project_id" optional="show" />
                     <field name="name" />
                     <field name="stage_id" />
                     <field name="author_id" />
@@ -207,6 +208,11 @@
                     />
                     <separator />
                     <group expand="0" string="Group By">
+                        <filter
+                            string="Project"
+                            name="project"
+                            context="{'group_by': 'project_id'}"
+                        />
                         <filter
                             string="Stage"
                             name="stage"
