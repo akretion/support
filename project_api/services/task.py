@@ -137,7 +137,10 @@ class ExternalTaskService(Component):
     def read_group(
         self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True
     ):
-        domain = [("project_id.partner_id", "=", self.partner.id)] + domain
+        domain = [
+            ("project_id.partner_id", "=", self.partner.id),
+            ("project_id.customer_display", "=", True),
+        ] + domain
         task_obj = self.env["project.task"]
         group_by_stage_name = "stage_name" in groupby[0]
         if group_by_stage_name or "stage_id" in groupby[0]:
