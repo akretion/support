@@ -333,9 +333,12 @@ def task_read_group(
             group["stage_name"] = group.pop("stage_id")[1]._value
             group["stage_name_count"] = group.pop("stage_id_count")
     # TODO find a better way to resolve lazy value
+    fields_to_resolve = ("stage_id", "project_id")
     for group in groups:
-        if "stage_id" in group:
-            group["stage_id"] = (group["stage_id"][0], group["stage_id"][1]._value)
+        for field in fields_to_resolve:
+            if field in group:
+                val = group[field]
+                group[field] = val and (val[0], val[1]._value)
     return groups
 
 
