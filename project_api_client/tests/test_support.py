@@ -52,7 +52,7 @@ class TestTask(TransactionCase):
         tags = self.env["o2o.project.tag"].search([])
         self.assertEqual(set(tags.mapped("name")), {'Bug'})
 
-    def test_read_group(self):
+    def test_read_group_by_stage_id(self):
         res = self.env["external.task"].read_group(
             groupby=["stage_id"],
             fields=["stage_id", "name"],
@@ -65,6 +65,20 @@ class TestTask(TransactionCase):
         self.assertEqual(len(res), 3, "we expect 3 columns")
         stages = [x["stage_id"][1] for x in res]
         self.assertEqual(stages, ["To Do", "In Progress", "Done"])
+
+    def test_read_group_by_project_id(self):
+        res = self.env["external.task"].read_group(
+            groupby=["project_id"],
+            fields=["project_id", "name"],
+            domain=[],
+            offset=0,
+            lazy=True,
+            limit=False,
+            orderby=False,
+        )
+        self.assertEqual(len(res), 1, "we expect 1 project")
+        project_ids = [x["project_id"] for x in res]
+        self.assertTrue(all([isinstance(x, int) for x in project_ids]))
 
     def test_search(self):
         res = self.env["external.task"].search(domain=[["stage_id", "=", "In Progress"]])
