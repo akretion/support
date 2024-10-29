@@ -27,6 +27,10 @@ class ProjectProject(models.Model):
 class ProjectTask(models.Model):
     _inherit = "project.task"
 
+    milestone_name = fields.Char(
+        compute="_compute_milestone_name",
+        store=True,
+        )
     stage_name = fields.Char(
         "Stage Label",
         compute="_compute_stage_name",
@@ -109,6 +113,12 @@ class ProjectTask(models.Model):
     def _compute_stage_name(self):
         for task in self:
             task.stage_name = task.stage_id.name
+
+    @api.depends("milestone_id.name")
+    def _compute_milestone_name(self):
+        for task in self:
+            task.milestone_name =\
+                f"{task.milestone_id.target_date} - {task.milestone_id.name}"
 
     def _inverse_stage_name(self):
         for task in self:

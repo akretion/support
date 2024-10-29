@@ -143,8 +143,8 @@ msgid "Datas Fname"
 msgstr ""
 
 #. module: project_api_client
-#: model:ir.model.fields,field_description:project_api_client.field_external_task__date_deadline
-msgid "Date deadline"
+#: model:ir.model.fields,field_description:project_api_client.field_external_task__date_end
+msgid "Date de fin"
 msgstr ""
 
 #. module: project_api_client

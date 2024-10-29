@@ -29,7 +29,12 @@ class ConnectionService(Component):
                 "id": project.id,
                 "name": project.name,
                 "tags": [{"id": tag.id, "name": tag.name, "color": tag.color} for tag in project.tag_ids],
-                "stages": [{"id": st.id, "name": st.name, "sequence": st.sequence} for st in project.type_ids],
+                "stages": [{
+                    "id": st.id,
+                    "name": st.name,
+                    "sequence": st.sequence,
+                    "fold": st.fold,
+                    } for st in project.type_ids],
             })
         return config
 

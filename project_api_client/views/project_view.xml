@@ -183,7 +183,8 @@
                     <field name="priority" />
                     <field name="planned_days" sum="Total Planned"/>
                     <field name="invoiceable_days" sum="Total Real"/>
-                    <field name="date_deadline" />
+                    <field name="date_end" />
+                    <field name="milestone_name" />
                     <field name="create_date" />
                 </tree>
             </field>
@@ -200,10 +201,10 @@
                     <filter string="My task" name="my_task" />
                     <separator />
                     <filter
-                        string="Current Sprint"
-                        name="current_sprint"
-                        domain="[('stage_id.current_sprint', '=', True)]"
+                        string="Tache en cours"
+                        name="todo_task"
                         context="{'no_empty_stage': True}"
+                        domain="[('stage_id.fold', '=', False)]"
                     />
                     <separator />
                     <group expand="0" string="Group By">
@@ -211,6 +212,11 @@
                             string="Stage"
                             name="stage"
                             context="{'group_by': 'stage_id'}"
+                        />
+                        <filter
+                            string="Jalon"
+                            name="milestone"
+                            context="{'group_by': 'milestone_name'}"
                         />
                     </group>
                 </search>
@@ -225,7 +231,7 @@
                     <field name="stage_id" />
                     <field name="color" />
                     <field name="priority" />
-                    <field name="date_deadline" />
+                    <field name="date_end" />
                     <field name="assignee_customer_id" />
                     <field name="assignee_supplier_id" />
                     <field name="tag_ids" />
@@ -233,6 +239,7 @@
                     <field name="invoiceable_days" />
                     <field name="id" />
                     <field name="create_date" />
+                    <field name="milestone_name" />
                     <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}'/>
                     <templates>
                     <t t-name="kanban-box">
@@ -249,13 +256,14 @@
                                             class="o_kanban_record_subtitle text-muted"
                                         >
                                             <t
-                                                t-if="record.date_deadline.raw_value and record.date_deadline.raw_value lt (new Date())"
+                                                t-if="record.date_end.raw_value and record.date_end.raw_value lt (new Date())"
                                                 t-set="red"
                                             >oe_kanban_text_red</t>
                                             <span t-attf-class="#{red || ''}"><i><field
-                                                        name="date_deadline"
+                                                        name="date_end"
                                                     /></i></span>
                                             <span><field name="create_date" /></span>
+                                            <span><field name="milestone_name" /></span>
                                         </small>
                                     </div>
                                     <div

@@ -44,7 +44,7 @@ class ExternalTask(models.Model):
     priority = fields.Selection(
         [("0", "Low"), ("1", "Normal"), ("2", "High")], default="1"
     )
-    date_deadline = fields.Date("Date deadline", readonly=True)
+    date_end = fields.Date("Date de fin", readonly=True)
     author_id = fields.Many2one("res.partner", string="Author", readonly=True)
     assignee_supplier_id = fields.Many2one(
         "res.partner", string="Resp. Externe", readonly=True
@@ -79,6 +79,7 @@ class ExternalTask(models.Model):
         copy=False, default='normal', required=True)
     sequence = fields.Integer()
     is_closed = fields.Boolean()
+    milestone_name = fields.Char("Jalon")
 
     @api.model
     def _call_odoo(self, method, params):

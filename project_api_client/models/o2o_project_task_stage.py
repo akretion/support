@@ -14,3 +14,4 @@ class O2OProjectTaskStage(models.Model):
     name = fields.Char()
     current_sprint = fields.Boolean()
     sequence = fields.Integer()
+    fold = fields.Boolean()
