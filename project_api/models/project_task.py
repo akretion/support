@@ -25,6 +25,7 @@ class ProjectTask(models.Model):
     user_id = fields.Many2one("res.users", tracking=True)
     # Compute native user_ids field we don't really to manage multiple users and
     # it is complicated as all project_api_client modules manage only one
+    # Go back to native and remove user_id once we refactore this module
     user_ids = fields.Many2many(compute="_compute_user_ids", store=True)
     # TODO
     assignee_supplier_id = fields.Many2one(
