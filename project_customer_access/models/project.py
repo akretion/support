@@ -16,6 +16,10 @@ class ProjectProject(models.Model):
 class ProjectTask(models.Model):
     _inherit = "project.task"
 
+    origin_url = fields.Char()
+    origin_db = fields.Char()
+    origin_name = fields.Char()
+
     def _get_customer_access_view_ids(self):
         form_id = self.env.ref("project_customer_access.view_task_form")
         kanban_id = self.env.ref("project_customer_access.view_task_kanban")
