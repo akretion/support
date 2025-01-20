@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models, tools
+from odoo.fields import first
 
 
 class ProjectTask(models.Model):
@@ -26,7 +27,7 @@ class ProjectTask(models.Model):
     # Compute native user_ids field we don't really to manage multiple users and
     # it is complicated as all project_api_client modules manage only one
     # Go back to native and remove user_id once we refactore this module
-    user_ids = fields.Many2many(compute="_compute_user_ids", store=True)
+    user_ids = fields.Many2many(compute="_compute_user_ids", inverse="_inverse_user_ids", store=True)
     # TODO
     assignee_supplier_id = fields.Many2one(
         "res.partner", related="user_id.partner_id", store=True
@@ -71,6 +72,10 @@ class ProjectTask(models.Model):
     def _compute_user_ids(self):
         for rec in self:
             rec.user_ids = rec.user_id.ids or False
+
+    def _inverse_user_ids(self):
+        for task in self:
+            task.write({"user_id": first(task.user_ids).id})
 
     def _build_customer_report(self):
         """This method allow you to return an html that will be show on client side
