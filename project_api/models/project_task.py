@@ -23,14 +23,8 @@ class ProjectTask(models.Model):
     partner_id = fields.Many2one(
         related="project_id.partner_id", readonly=True, store=True
     )
-    user_id = fields.Many2one("res.users", tracking=True)
-    # Compute native user_ids field we don't really to manage multiple users and
-    # it is complicated as all project_api_client modules manage only one
-    # Go back to native and remove user_id once we refactore this module
-    user_ids = fields.Many2many(compute="_compute_user_ids", inverse="_inverse_user_ids", store=True)
-    # TODO
     assignee_supplier_id = fields.Many2one(
-        "res.partner", related="user_id.partner_id", store=True
+        "res.partner", related="user_ids.partner_id", store=True
     )
     assignee_customer_id = fields.Many2one(
         "res.partner", string="Assigned Customer", tracking=True
@@ -67,15 +61,6 @@ class ProjectTask(models.Model):
     # Add your own logic for computing this field
     # in Akretion case is done by subcontractor module
     invoiceable_days = fields.Float(string="Invoiceable days", readonly=True)
-
-    @api.depends("user_id")
-    def _compute_user_ids(self):
-        for rec in self:
-            rec.user_ids = rec.user_id.ids or False
-
-    def _inverse_user_ids(self):
-        for task in self:
-            task.write({"user_id": first(task.user_ids).id})
 
     def _build_customer_report(self):
         """This method allow you to return an html that will be show on client side
@@ -159,13 +144,15 @@ class ProjectTask(models.Model):
 
     def write(self, vals):
         vals.pop("partner_id", None)  # readonly
-        if "user_id" in vals and self.project_id.subscribe_assigned_only:
+        if "user_ids" in vals and self.project_id.subscribe_assigned_only:
             followers = self.message_follower_ids.mapped("partner_id")
-            unsubscribe_users = self.env["res.users"].search(
-                [("partner_id", "in", followers.ids), ("id", "!=", vals["user_id"])]
-            )
-            partner_ids = [user.partner_id.id for user in unsubscribe_users]
-            self.message_unsubscribe(partner_ids=partner_ids)
+            if len(vals["user_ids"]) == 1 and vals["user_ids"][0][0] == 6:
+                user_ids = vals["user_ids"][0][2]
+                unsubscribe_users = self.env["res.users"].search(
+                    [("partner_id", "in", followers.ids), ("id", "not in", user_ids)]
+                )
+                partner_ids = [user.partner_id.id for user in unsubscribe_users]
+                self.message_unsubscribe(partner_ids=partner_ids)
         return super().write(vals)
 
     def _message_auto_subscribe(self, updated_values, followers_existing_policy="skip"):
