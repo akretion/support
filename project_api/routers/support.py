@@ -371,8 +371,10 @@ def task_create(
             vals["tag_ids"] = [(6, 0, [vals["tag_ids"]])]
 
     vals = env["support.task.api.helper"]._manage_attachment_vals(vals)
+    # avoid default user from support else it will always be the technical user creating
+    # the tasks because of native project task default get
     task = (
-        env["project.task"].with_context(force_message_author_id=author.id).create(vals)
+        env["project.task"].with_context(force_message_author_id=author.id, default_user_ids=[]).create(vals)
     )
     return task.id
 
