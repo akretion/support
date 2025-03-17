@@ -53,7 +53,7 @@
                 </group>
             </search>
         </field>
-    </record>   
+    </record>
 
     <record id="view_task_form" model="ir.ui.view">
         <field name="name">project.task.form (in project_customer_access)</field>
@@ -107,12 +107,12 @@
                         <field name="create_uid" widget="many2one_avatar_user"/>
                         <field name="create_date"/>
                         <field name="date_deadline" attrs="{'invisible': [('is_closed', '=', True)]}" readonly="1"/>
-                        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" context="{'project_id': project_id}" />              
+                        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" context="{'project_id': project_id}" />
                     </group>
                 </group>
                 <notebook>
                     <page name="description_page" string="Description">
-                        <field name="description" type="html" options="{'collaborative': true, 'resizable': false}" placeholder="Task description..."/>                   
+                        <field name="description" type="html" options="{'collaborative': true, 'resizable': false}" placeholder="Task description..."/>
                     </page>
                     <page name="origin_page" string="Origin">
                         <group>
@@ -120,7 +120,7 @@
                             <field name="origin_db" readonly="1" string="DataBase"/>
                             <field name="origin_name" readonly="1" string="Record name"/>
                         </group>
-                    </page>                    
+                    </page>
                 </notebook>
                 </sheet>
                 <div class="oe_chatter">
@@ -129,7 +129,7 @@
                 </div>
             </form>
         </field>
-    </record>         
+    </record>
 
     <record id="view_task_kanban" model="ir.ui.view">
         <field name="name">project.task.kanban (in project_customer_access)</field>
@@ -139,8 +139,8 @@
                 default_group_by="stage_id"
                 class="o_kanban_small_column o_kanban_project_tasks"
                 examples="project"
-                js_class="project_task_kanban" 
-                sample="1"         
+                js_class="project_task_kanban"
+                sample="1"
             >
                 <field name="color"/>
                 <field name="priority"/>
@@ -247,10 +247,10 @@
     </record>
 
     <record id="action_view_all_task" model="ir.actions.act_window">
-        <field name="name">My Tasks</field>
+        <field name="name">Tasks</field>
         <field name="res_model">project.task</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{'search_default_my_tasks': 1, 'search_default_open_tasks': 1, 'all_task': 0, 'default_user_ids': [(4, uid)]}</field>
+        <field name="context">{'search_default_open_tasks': 1}</field>
         <field name="search_view_id" ref="view_task_search_form"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -283,8 +283,8 @@
     </record>
 
 
-    <menuitem 
-        name="My Tasks" 
+    <menuitem
+        name="Tasks"
         id="menu_my_tasks"
         parent="menu_project_customer_root"
         action="action_view_all_task"
@@ -297,10 +297,10 @@
         <field name="inherit_id" ref="project.edit_project"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='date']/.." position="after">
-                <field name="cross_connect_client_id" /> 
+                <field name="cross_connect_client_id" />
             </xpath>
         </field>
-    </record>        
+    </record>
 
     <!-- TODO: to remove if cross_connect_client_id already put by other module -->
     <record id="user_from_view" model="ir.ui.view">
@@ -309,9 +309,9 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='email']/.." position="inside">
-                <field name="cross_connect_client_id" /> 
+                <field name="cross_connect_client_id" />
             </xpath>
         </field>
-    </record>   
+    </record>
 
 </odoo>
