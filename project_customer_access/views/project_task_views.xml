@@ -26,6 +26,27 @@
                 <filter string="My Tasks" name="my_tasks" domain="[('user_ids', 'in', uid)]"/>
                 <filter string="Followed Tasks" name="followed_by_me" domain="[('message_is_follower', '=', True)]"/>
                 <filter string="Unassigned" name="unassigned" domain="[('user_ids', '=', False)]"/>
+                <separator />
+                <filter
+                    name="current_sprint_level_1"
+                    string="Current Sprint By Year"
+                    domain="[('sprint_level_1_id.date_start', '&lt;=', datetime.datetime.now()), ('sprint_level_1_id.date_end', '&gt;=', datetime.datetime.now())]"
+                />
+                <filter
+                    name="current_sprint_level_2"
+                    string="Current Sprint By Quarter"
+                    domain="[('sprint_level_2_id.date_start', '&lt;=', datetime.datetime.now()), ('sprint_level_2_id.date_end', '&gt;=', datetime.datetime.now())]"
+                />
+                <filter
+                    name="current_sprint_level_3"
+                    string="Current Sprint By Month"
+                    domain="[('sprint_level_3_id.date_start', '&lt;=', datetime.datetime.now()), ('sprint_level_3_id.date_end', '&gt;=', datetime.datetime.now())]"
+                />
+                <filter
+                    name="current_sprint_level_4"
+                    string="Current Sprint By Fortnight"
+                    domain="[('sprint_level_4_id.date_start', '&lt;=', datetime.datetime.now()), ('sprint_level_4_id.date_end', '&gt;=', datetime.datetime.now())]"
+                />
                 <separator/>
                 <filter string="High Priority" name="high_priority" domain="[('priority', '=', 1)]"/>
                 <filter string="Low Priority" name="low_priority" domain="[('priority', '=', 0)]"/>
@@ -50,6 +71,27 @@
                     <filter string="Kanban State" name="kanban_state" context="{'group_by': 'kanban_state'}"/>
                     <filter string="Deadline" name="date_deadline" context="{'group_by': 'date_deadline'}"/>
                     <filter string="Creation Date" name="group_create_date" context="{'group_by': 'create_date'}"/>
+                    <separator />
+                    <filter
+                        name="group_sprint_level_1"
+                        string="Sprint By Year"
+                        context="{'group_by': 'sprint_level_1_id'}"
+                    />
+                    <filter
+                        name="group_sprint_level_2"
+                        string="Sprint By Quarter"
+                        context="{'group_by': 'sprint_level_2_id'}"
+                    />
+                    <filter
+                        name="group_sprint_level_3"
+                        string="Sprint By Month"
+                        context="{'group_by': 'sprint_level_3_id'}"
+                    />
+                    <filter
+                        name="group_sprint_level_4"
+                        string="Sprint By Fortnight"
+                        context="{'group_by': 'sprint_level_4_id'}"
+                    />
                 </group>
             </search>
         </field>
@@ -100,7 +142,11 @@
                             widget="many2many_avatar_user"
                             domain="[('share', '=', False), ('active', '=', True)]"
                             readonly="1"/>
-
+                        <field name="use_sprint" invisible="1" />
+                        <field
+                            name="sprint_id"
+                            attrs="{'invisible': [('use_sprint', '=', False)]}"
+                        />
                     </group>
                     <group>
                         <field name="active" invisible="1"/>
@@ -232,6 +278,11 @@
                 <field name="name" widget="name_with_subtask_count"/>
                 <field name="project_id" optional="show" readonly="1" options="{'no_open': 1}"/>
                 <field name="milestone_id" attrs="{'invisible': [('allow_milestones', '=', False)]}" context="{'default_project_id': project_id}" groups="project.group_project_milestone"/>
+                <field name="use_sprint" invisible="1" />
+                <field
+                    name="sprint_id"
+                    attrs="{'invisible': [('use_sprint', '=', False)]}"
+                />
                 <field name="partner_id" optional="hide"/>
                 <field name="user_ids" optional="show" widget="many2many_avatar_user" domain="[('share', '=', False), ('active', '=', True)]" options='{"no_quick_create": True}'/>
                 <field name="company_id" invisible="1"/>
