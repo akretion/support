@@ -23,7 +23,8 @@ class ProjectTask(models.Model):
     def _get_customer_access_view_ids(self):
         form_id = self.env.ref("project_customer_access.view_task_form")
         kanban_id = self.env.ref("project_customer_access.view_task_kanban")
-        return form_id | kanban_id
+        search_id = self.env.ref("project_customer_access.view_task_search_form")
+        return form_id | kanban_id | search_id
 
     def _get_editable_fields_customer(self):
         return ["name", "description"]
@@ -54,18 +55,34 @@ class ProjectTask(models.Model):
     def get_view(self, view_id=None, view_type="form", **options):
         res = super().get_view(view_id=view_id, view_type=view_type, **options)
         customer_access_view_ids = self._get_customer_access_view_ids()
-
         if view_id in customer_access_view_ids.ids:
             doc = etree.XML(res["arch"])
+            if view_type in ["form", "kanban"]:
+                for field in doc.xpath("//field[@name][not(ancestor::field)]"):
+                    modifiers = json.loads(
+                        field.attrib.get("modifiers", '{"readonly": false}')
+                    )
+                    if modifiers.get("readonly") is not True:
+                        modifiers["readonly"] = self._get_readonly_value(field)
 
-            for field in doc.xpath("//field[@name][not(ancestor::field)]"):
-                modifiers = json.loads(
-                    field.attrib.get("modifiers", '{"readonly": false}')
-                )
-                if modifiers.get("readonly") is not True:
-                    modifiers["readonly"] = self._get_readonly_value(field)
+                    field.attrib["modifiers"] = json.dumps(modifiers)
 
-                field.attrib["modifiers"] = json.dumps(modifiers)
+            # List all accessible projects in filters for customers project users
+
+            if view_type == "search":
+                projects = self.env["project.project"].search([])
+                node = doc.xpath("//search")[0]
+                idx = node.index(node.xpath("//filter[@name='unassigned']")[0])
+                for project in reversed(projects):
+                    elem = etree.Element(
+                        "filter",
+                        string=project.name,
+                        name=f"project_{project.id}",
+                        domain=f"[('project_id', '=', {project.id})]",
+                    )
+                    node.insert(idx, elem)
+                if projects:
+                    node.insert(idx, etree.Element("separator"))
 
             res["arch"] = etree.tostring(doc, pretty_print=True)
 
