@@ -162,9 +162,9 @@
                     </page>
                     <page name="origin_page" string="Origin">
                         <group>
-                            <field name="origin_url" readonly="1" widget="url" string="URL"/>
-                            <field name="origin_db" readonly="1" string="DataBase"/>
-                            <field name="origin_name" readonly="1" string="Record name"/>
+                            <field name="origin_url" readonly="1" force_save="1" widget="url" string="URL"/>
+                            <field name="origin_db" readonly="1" force_save="1" string="DataBase"/>
+                            <field name="origin_name" readonly="1" force_save="1" string="Record name"/>
                         </group>
                     </page>
                 </notebook>
