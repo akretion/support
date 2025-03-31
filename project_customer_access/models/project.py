@@ -27,10 +27,10 @@ class ProjectTask(models.Model):
         return form_id | kanban_id | search_id
 
     def _get_editable_fields_customer(self):
-        return ["name", "description"]
+        return ["name", "description", "is_urgent"]
 
     def _get_editable_fields_manager(self):
-        return ["name", "description", "tag_ids", "stage_id", "project_id"]
+        return ["name", "description", "tag_ids", "stage_id", "project_id", "sprint_id", "is_urgent"]
 
     def _get_readonly_value(self, field):
         field_name = field.attrib.get("name")

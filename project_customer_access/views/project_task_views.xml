@@ -92,6 +92,12 @@
                         string="Sprint By Fortnight"
                         context="{'group_by': 'sprint_level_4_id'}"
                     />
+                    <separator />
+                    <filter
+                        name="is_urgent"
+                        string="Urgent Tasks"
+                        domain="[('is_urgent', '=', True)]"
+                    />
                 </group>
             </search>
         </field>
@@ -111,6 +117,19 @@
                     <field name="stage_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"
                         attrs="{'invisible': [('project_id', '=', False), ('stage_id', '=', False)]}"/>
                 </header>
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    style="margin-bottom:0px;"
+                    attrs="{'invisible': [('is_urgent','=',False)]}"
+                >
+                    <p>
+                        <strong>This task has been marked as urgent.</strong>
+                        <br /> All other tasks
+                        will be put on hold until this task is completed in order to treat it with
+                        the highest priority. This will have an impact on the treatment delay of the
+                        other tasks. </p>
+                </div>
                 <sheet string="Task">
                 <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                 <div class="oe_title pe-0">
@@ -153,6 +172,11 @@
                         <field name="create_uid" widget="many2one_avatar_user"/>
                         <field name="create_date"/>
                         <field name="date_deadline" attrs="{'invisible': [('is_closed', '=', True)]}" readonly="1"/>
+                        <field
+                            name="is_urgent"
+                            widget="boolean_toggle"
+                            attrs="{'readonly': [('is_closed','=',True)]}"
+                        />
                         <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" context="{'project_id': project_id}" />
                     </group>
                 </group>
@@ -190,6 +214,7 @@
             >
                 <field name="color"/>
                 <field name="priority"/>
+                <field name="is_urgent" />
                 <field name="stage_id" options='{"group_by_tooltip": {"description": "Description"}}'/>
                 <field name="partner_id"/>
                 <field name="sequence"/>
@@ -205,7 +230,7 @@
                 <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "200"}'/>
                 <templates>
                 <t t-name="kanban-box">
-                    <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                    <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click" t-attf-style="{{record.is_urgent.raw_value ? 'background-color: #f8d7da !important; border-color: #f5c2c7 !important' : ''}}">
                         <div class="oe_kanban_content">
                             <div class="o_kanban_record_top">
                                 <div class="o_kanban_record_headings">
@@ -270,9 +295,10 @@
         <field name="model">project.task</field>
         <field eval="2" name="priority"/>
         <field name="arch" type="xml">
-            <tree string="Tasks" multi_edit="1" sample="1" js_class="project_task_list">
+            <tree string="Tasks" multi_edit="1" sample="1" js_class="project_task_list" decoration-danger="is_urgent">
                 <field name="is_closed" invisible="1" />
                 <field name="allow_milestones" invisible="1"/>
+                <field name="is_urgent" widget="boolean_toggle" />
                 <field name="priority" widget="priority" optional="show" nolabel="1"/>
                 <field name="id" optional="hide"/>
                 <field name="name" widget="name_with_subtask_count"/>
@@ -293,6 +319,9 @@
                 <field name="legend_blocked" invisible="1"/>
                 <field name="kanban_state" widget="state_selection" optional="show" options="{'hide_label': True}" nolabel="1" required="0"/>
                 <field name="stage_id" invisible="context.get('set_visible',False)" optional="show" readonly="not context.get('default_project_id')"/>
+                <field name="urgency_start_date" optional="hide" />
+                <field name="urgency_end_date" optional="hide" />
+                <field name="urgency_duration" optional="hide" />
             </tree>
         </field>
     </record>
