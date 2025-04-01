@@ -24,5 +24,5 @@
         "security/project_customer_access_security.xml",
         "views/project_task_views.xml",
     ],
-    "demo": ["data/project_customer_access_demo.xml"],
+    "demo": ["demo/project_customer_access_demo.xml"],
 }
