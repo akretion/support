@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
 
-        <record id="rule_project_customer_access_tasks" model="ir.rule">
-            <field name="name">Project Customer Access: Tasks</field>
-            <field name="model_id" ref="project.model_project_task"/>
-            <field name="domain_force">
-                [('project_id.cross_connect_client_id', '=', user.cross_connect_client_id.id)]
-            </field>
-            <field name="perm_create" eval="0" />
-            <field name="perm_read" eval="1" />
-            <field name="perm_write" eval="0" />
-            <field name="perm_unlink" eval="0" />            
-            <field name="groups" eval="[(4,ref('project_customer_access.group_customer'))]"/>
-        </record>
+    <record id="rule_project_customer_access_tasks" model="ir.rule">
+        <field name="name">Project Customer Access: Tasks</field>
+        <field name="model_id" ref="project.model_project_task" />
+        <field name="domain_force">
+            [('project_id.cross_connect_client_id', '!=', False),
+            ('project_id.cross_connect_client_id', '=', user.cross_connect_client_id.id)]
+        </field>
+        <field name="perm_create" eval="0" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="0" />
+        <field name="perm_unlink" eval="0" />
+        <field name="groups" eval="[(4,ref('project_customer_access.group_customer'))]" />
+    </record>
 
-        <record id="rule_project_customer_access_projects" model="ir.rule">
-            <field name="name">Project Customer Access: Projects</field>
-            <field name="model_id" ref="project.model_project_project"/>
-            <field name="domain_force">
-                [('cross_connect_client_id', '=', user.cross_connect_client_id.id)]
-            </field>
-            <field name="groups" eval="[(4,ref('project_customer_access.group_customer'))]"/>
-        </record>
+    <record id="rule_project_customer_access_projects" model="ir.rule">
+        <field name="name">Project Customer Access: Projects</field>
+        <field name="model_id" ref="project.model_project_project" />
+        <field name="domain_force">
+            [('cross_connect_client_id', '!=', False),
+            ('cross_connect_client_id', '=', user.cross_connect_client_id.id)]
+        </field>
+        <field name="groups" eval="[(4,ref('project_customer_access.group_customer'))]" />
+    </record>
 
-    </data>
+
 </odoo>
