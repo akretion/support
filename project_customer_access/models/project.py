@@ -4,6 +4,7 @@
 import json
 
 from lxml import etree
+
 from odoo import api, fields, models
 
 
@@ -30,7 +31,15 @@ class ProjectTask(models.Model):
         return ["name", "description", "is_urgent"]
 
     def _get_editable_fields_manager(self):
-        return ["name", "description", "tag_ids", "stage_id", "project_id", "sprint_id", "is_urgent"]
+        return [
+            "name",
+            "description",
+            "tag_ids",
+            "stage_id",
+            "project_id",
+            "sprint_id",
+            "is_urgent",
+        ]
 
     def _get_readonly_value(self, field):
         field_name = field.attrib.get("name")

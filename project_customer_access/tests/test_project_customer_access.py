@@ -7,7 +7,6 @@ from odoo.tests.common import Form, TransactionCase, new_test_user
 
 
 class TestProjectCustomerAccess(TransactionCase):
-
     def setUp(self):
         super().setUp()
         self.customer = new_test_user(
