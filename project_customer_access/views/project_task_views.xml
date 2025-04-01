@@ -369,7 +369,16 @@
         parent="menu_project_customer_root"
         action="action_view_all_task"
         groups="project_customer_access.group_customer"
-        sequence="1"/>
+        sequence="1" />
+
+    <menuitem
+        name="Budget"
+        id="menu_project_customer_budget"
+        parent="menu_project_customer_root"
+        sequence="20"
+        action="project_budget_subcontractor.project_budget_action"
+        groups="project_customer_access.group_budget"
+    />
 
     <record id="edit_project" model="ir.ui.view">
         <field name="name">project.project.form in project_customer_access</field>
