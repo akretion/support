@@ -386,9 +386,10 @@
     <record id="user_from_view" model="ir.ui.view">
         <field name="name">res.users.form in project_customer_access</field>
         <field name="model">res.users</field>
-        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="inherit_id" ref="base.view_users_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='email']/.." position="inside">
+                <label for="cross_connect_client_id" />
                 <field name="cross_connect_client_id" />
             </xpath>
         </field>
