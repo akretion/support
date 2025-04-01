@@ -14,7 +14,10 @@ class IrActions(models.Model):
         res = super().get_bindings(model_name)
         if self.env.user.has_group("support.akretion_erp_group_customer"):
             action_id = "support.cross_connect_support"
-            if action_id not in [act.get("xml_id") for act in res["action"]]:
-                res["action"].append(self._for_xml_id(action_id))
+            if "action" in res:
+                if action_id not in [act.get("xml_id") for act in res["action"]]:
+                    res["action"].append(self._for_xml_id(action_id))
+            else:
+                res["action"] = [self._for_xml_id(action_id)]
 
         return res
