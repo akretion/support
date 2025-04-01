@@ -13,6 +13,7 @@
         # https://github.com/akretion/ak-odoo-incubator
         "project_sprint",
         "project_task_urgency",
+        "project_budget_subcontractor",
         # https://github.com/OCA/server-backend
         "base_group_backend",
         # https://github.com/OCA/server-auth
