@@ -17,5 +17,11 @@
     <field name="cross_connect_server_group_id" eval="195" />
     <field name="implied_ids" eval="[(4, ref('akretion_erp_group_customer'))]" />
   </record>
+  <record id="akretion_erp_group_budget" model="res.groups">
+    <field name="name">Support: Support Budget Access</field>
+    <field name="cross_connect_server_id" ref="akretion_erp" />
+    <field name="cross_connect_server_group_id" eval="198" />
+    <field name="implied_ids" eval="[(4, ref('akretion_erp_group_customer'))]" />
+  </record>
 
 </odoo>
