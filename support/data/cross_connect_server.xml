@@ -4,7 +4,7 @@
   @author Florian Mounier <florian.mounier@akretion.com>
   License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 -->
-<odoo>
+<odoo noupdate="1">
 
   <record id="support_server" model="cross.connect.server">
     <field name="name">Support</field>

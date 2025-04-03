@@ -15,6 +15,9 @@ class CrossConnectServer(models.Model):
     @api.model
     def redirect_to_support(self):
         """Redirect to the support page"""
+        # Any user with low rights may have the right to create tickets but can't
+        # read cross.connect.server.
+        self = self.sudo()
         server = self.env.ref("support.support_server")
         url = f"/cross_connect_server/{server.id}"
         params = {
@@ -65,7 +68,7 @@ class CrossConnectServer(models.Model):
         # Akretion users specific case
         if self.env.user.email and AKRETION_EMAILS_RE.match(self.env.user.email):
             redirect_params["action"] = (
-                "custom_akretion_project.action_view_all_task_real"
+                "project.action_view_task"
             )
             server_url = urlparse(server.server_url)
             server_url = server_url._replace(
