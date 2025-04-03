@@ -9,17 +9,19 @@
     "author": "Akretion",
     "website": "http://akretion.com",
     "depends": [
-        "project",
+        "date_range",
+        # https://github.com/akretion/ak-odoo-incubator
+        "project_sprint",
         # https://github.com/OCA/server-backend
         "base_group_backend",
         # https://github.com/OCA/server-auth
         "cross_connect_server",
     ],
     "data": [
-        "data/res_groups.xml",
+        "security/res_groups.xml",
         "security/ir.model.access.csv",
         "security/project_customer_access_security.xml",
         "views/project_task_views.xml",
     ],
-    "demo": ["data/project_customer_access_demo.xml"],
+    "demo": ["demo/project_customer_access_demo.xml"],
 }
