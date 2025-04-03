@@ -15,7 +15,7 @@ class CrossConnectServer(models.Model):
     @api.model
     def redirect_to_support(self):
         """Redirect to the support page"""
-        server = self.env.ref("support.akretion_erp")
+        server = self.env.ref("support.support_server")
         url = f"/cross_connect_server/{server.id}"
         params = {
             "origin_db": self.env.cr.dbname,
