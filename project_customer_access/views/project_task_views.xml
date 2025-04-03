@@ -107,6 +107,7 @@
                 <field name="allow_milestones" invisible="1" />
                 <field name="parent_id" invisible="1"/>
                 <field name="company_id" invisible="1"/>
+                <field name="cross_connect_client_id" invisible="1"/>
                 <header>
                     <field name="stage_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"
                         attrs="{'invisible': [('project_id', '=', False), ('stage_id', '=', False)]}"/>
@@ -116,10 +117,10 @@
                 <div class="oe_title pe-0">
                     <h1 class="d-flex justify-content-between align-items-center">
                         <div class="d-flex w-100">
-                            <field name="priority" widget="priority" class="me-3" readonly="1"/>
+                            <field name="priority" widget="priority" class="me-3" />
                             <field name="name" class="o_task_name text-truncate w-100 w-md-75 pe-2" placeholder="Task Title..."/>
                         </div>
-                        <field name="kanban_state" widget="state_selection" readonly="1"/>
+                        <field name="kanban_state" widget="state_selection" />
                     </h1>
                 </div>
                 <group>
@@ -134,14 +135,12 @@
                             placeholder="e.g. Product Launch"
                             context="{'default_project_id': project_id if not parent_id or not display_project_id else display_project_id}"
                             attrs="{'invisible': ['|', ('project_id', '=', False), ('allow_milestones', '=', False)]}"
-                            readonly="1"
                         />
                         <field name="user_ids"
                             class="o_task_user_field"
                             options="{'no_open': True, 'no_quick_create': True}"
                             widget="many2many_avatar_user"
-                            domain="[('share', '=', False), ('active', '=', True)]"
-                            readonly="1"/>
+                        />
                         <field name="use_sprint" invisible="1" />
                         <field
                             name="sprint_id"
@@ -152,7 +151,7 @@
                         <field name="active" invisible="1"/>
                         <field name="create_uid" widget="many2one_avatar_user"/>
                         <field name="create_date"/>
-                        <field name="date_deadline" attrs="{'invisible': [('is_closed', '=', True)]}" readonly="1"/>
+                        <field name="date_deadline" attrs="{'invisible': [('is_closed', '=', True)]}" />
                         <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" context="{'project_id': project_id}" />
                     </group>
                 </group>
@@ -162,9 +161,9 @@
                     </page>
                     <page name="origin_page" string="Origin">
                         <group>
-                            <field name="origin_url" readonly="1" force_save="1" widget="url" string="URL"/>
-                            <field name="origin_db" readonly="1" force_save="1" string="DataBase"/>
-                            <field name="origin_name" readonly="1" force_save="1" string="Record name"/>
+                            <field name="origin_url" force_save="1" widget="url" string="URL"/>
+                            <field name="origin_db" force_save="1" string="DataBase"/>
+                            <field name="origin_name" force_save="1" string="Record name"/>
                         </group>
                     </page>
                 </notebook>
@@ -333,7 +332,6 @@
         <field name="act_window_id" ref="action_view_all_task"/>
     </record>
 
-
     <menuitem
         name="Tasks"
         id="menu_my_tasks"
@@ -362,6 +360,20 @@
             <xpath expr="//field[@name='email']/.." position="inside">
                 <field name="cross_connect_client_id" />
             </xpath>
+        </field>
+    </record>
+
+     <record model="ir.ui.view" id="view_task_form2">
+         <field name="name">project.task.form</field>
+         <field name="model">project.task</field>
+         <field name="inherit_id" ref="project.view_task_form2" />
+         <field name="arch" type="xml">
+             <field name="company_id" position="after" >
+                <field name="cross_connect_client_id" invisible="1"/>
+            </field>
+            <field name="user_ids" position="attributes" >
+                <attribute name="domain"></attribute>
+            </field>
         </field>
     </record>
 

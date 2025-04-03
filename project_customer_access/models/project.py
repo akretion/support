@@ -19,6 +19,8 @@ class ProjectTask(models.Model):
     origin_url = fields.Char()
     origin_db = fields.Char()
     origin_name = fields.Char()
+    cross_connect_client_id = fields.Many2one("cross.connect.client", related="project_id.cross_connect_client_id", store=True)
+    user_ids = fields.Many2many(domain="[('cross_connect_client_id', 'in', [False, cross_connect_client_id])]")
 
     def _get_customer_access_view_ids(self):
         form_id = self.env.ref("project_customer_access.view_task_form")
@@ -30,7 +32,7 @@ class ProjectTask(models.Model):
         return ["name", "description"]
 
     def _get_editable_fields_manager(self):
-        return ["name", "description", "tag_ids", "stage_id", "project_id"]
+        return ["name", "description", "tag_ids", "stage_id", "project_id", "user_ids"]
 
     def _get_readonly_value(self, field):
         field_name = field.attrib.get("name")
