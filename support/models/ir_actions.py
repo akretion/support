@@ -12,7 +12,7 @@ class IrActions(models.Model):
     def get_bindings(self, model_name):
         """Add support action to every model"""
         res = super().get_bindings(model_name)
-        support_server = self.env.ref("support.akretion_erp", raise_if_not_found=False) or self.env["cross.connect.server"]
+        support_server = self.env.ref("support.support_server", raise_if_not_found=False) or self.env["cross.connect.server"]
         support_groups = self.env.user.groups_id & support_server.group_ids
         if support_groups:
             action_id = "support.cross_connect_support"
