@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
   Copyright 2025 Akretion (http://www.akretion.com).
   @author Florian Mounier <florian.mounier@akretion.com>
   License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 -->
 <odoo>
-
-  <record id="support.support_server" model="cross.connect.server">
-    <field name="server_url">https://erp-fr.akretion.com/api-support</field>
-  </record>
-
+    <record id="support.support_server" model="cross.connect.server">
+        <field name="server_url">https://erp-fr.akretion.com/api-support</field>
+    </record>
 </odoo>

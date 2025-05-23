@@ -1,27 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
   Copyright 2025 Akretion (http://www.akretion.com).
   @author Florian Mounier <florian.mounier@akretion.com>
   License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 -->
 <odoo>
-
-  <record id="akretion_erp_group_customer" model="res.groups">
-    <field name="name">Support: Support User</field>
-    <field name="cross_connect_server_id" ref="support.support_server" />
-    <field name="cross_connect_server_group_id" eval="194" />
-  </record>
-  <record id="akretion_erp_group_manager" model="res.groups">
-    <field name="name">Support: Support Manager</field>
-    <field name="cross_connect_server_id" ref="support.support_server" />
-    <field name="cross_connect_server_group_id" eval="195" />
-    <field name="implied_ids" eval="[(4, ref('akretion_erp_group_customer'))]" />
-  </record>
-  <record id="akretion_erp_group_budget" model="res.groups">
-    <field name="name">Support: Support Budget Access</field>
-    <field name="cross_connect_server_id" ref="support.support_server" />
-    <field name="cross_connect_server_group_id" eval="198" />
-    <field name="implied_ids" eval="[(4, ref('akretion_erp_group_customer'))]" />
-  </record>
-
+    <record id="akretion_erp_group_customer" model="res.groups">
+        <field name="name">Support: Support User</field>
+        <field name="cross_connect_server_id" ref="support.support_server" />
+        <field name="cross_connect_server_group_id" eval="194" />
+    </record>
+    <record id="akretion_erp_group_manager" model="res.groups">
+        <field name="name">Support: Support Manager</field>
+        <field name="cross_connect_server_id" ref="support.support_server" />
+        <field name="cross_connect_server_group_id" eval="195" />
+        <field name="implied_ids" eval="[(4, ref('akretion_erp_group_customer'))]" />
+    </record>
+    <record id="akretion_erp_group_budget" model="res.groups">
+        <field name="name">Support: Support Budget Access</field>
+        <field name="cross_connect_server_id" ref="support.support_server" />
+        <field name="cross_connect_server_group_id" eval="198" />
+        <field name="implied_ids" eval="[(4, ref('akretion_erp_group_customer'))]" />
+    </record>
 </odoo>
