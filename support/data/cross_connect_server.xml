@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2025 Akretion (http://www.akretion.com).
+  @author Florian Mounier <florian.mounier@akretion.com>
+  License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+-->
+<odoo noupdate="1">
+
+  <record id="support_server" model="cross.connect.server">
+    <field name="name">Support</field>
+    <field name="server_url">your-server-url/api-support</field>
+    <field name="api_key">Paste remote api key here</field>
+    <field name="web_icon_data" type="base64" file="support/static/img/icon.png" />
+  </record>
+
+</odoo>
