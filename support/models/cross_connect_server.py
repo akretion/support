@@ -2,9 +2,9 @@
 # @author Florian Mounier <florian.mounier@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import re
+from urllib.parse import urlencode, urlparse
 
 from odoo import api, models
-from urllib.parse import urlencode, urlparse
 
 AKRETION_EMAILS_RE = re.compile(r"^(.*@akretion\.com(\.br)?)$")
 
@@ -67,9 +67,7 @@ class CrossConnectServer(models.Model):
 
         # Akretion users specific case
         if self.env.user.email and AKRETION_EMAILS_RE.match(self.env.user.email):
-            redirect_params["action"] = (
-                "project.action_view_task"
-            )
+            redirect_params["action"] = "project.action_view_task"
             server_url = urlparse(server.server_url)
             server_url = server_url._replace(
                 path="/web",
