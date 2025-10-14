@@ -30,7 +30,7 @@ class CrossConnectServer(models.Model):
         )
         if res_model and res_id:
             record = self.env[res_model].browse(res_id)
-            params["origin_name"] = record.name_get()[0][1]
+            params["origin_name"] = record.display_name
 
             url_params = {
                 "view_type": "form",
