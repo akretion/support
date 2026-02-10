@@ -24,16 +24,21 @@
                 <field name="tag_ids" />
                 <field
                     name="user_ids"
+                    string="External Assignees"
                     filter_domain="[('user_ids.name', 'ilike', self), ('user_ids.active', 'in', [True, False])]"
                 />
-                <field name="milestone_id" groups="project.group_project_milestone" />
+                <field
+                    name="customer_user_ids"
+                    string="Internal Assignees"
+                    filter_domain="[('customer_user_ids.name', 'ilike', self), ('customer_user_ids.active', 'in', [True, False])]"
+                />
                 <field name="stage_id" />
                 <field name="partner_id" operator="child_of" />
                 <field name="description" />
                 <filter
                     string="My Tasks"
                     name="my_tasks"
-                    domain="[('user_ids', 'in', uid)]"
+                    domain="[('customer_user_ids', 'in', uid)]"
                 />
                 <filter
                     string="Followed Tasks"
@@ -41,7 +46,12 @@
                     domain="[('message_is_follower', '=', True)]"
                 />
                 <filter
-                    string="Unassigned"
+                    string="Unassigned (internal)"
+                    name="unassigned"
+                    domain="[('customer_user_ids', '=', False)]"
+                />
+                <filter
+                    string="Unassigned (external)"
                     name="unassigned"
                     domain="[('user_ids', '=', False)]"
                 />
@@ -78,12 +88,6 @@
                     domain="[('priority', '=', 0)]"
                 />
                 <separator />
-                <filter
-                    string="Late Milestones"
-                    name="late_milestone"
-                    domain="[('is_closed', '=', False), ('has_late_and_unreached_milestone', '=', True)]"
-                    groups="project.group_project_milestone"
-                />
                 <filter
                     string="Late Tasks"
                     name="late"
@@ -134,15 +138,14 @@
                         context="{'group_by': 'stage_id'}"
                     />
                     <filter
-                        string="Assignees"
+                        string="External Assignees"
                         name="user"
                         context="{'group_by': 'user_ids'}"
                     />
                     <filter
-                        string="Milestone"
-                        name="milestone"
-                        context="{'group_by': 'milestone_id'}"
-                        groups="project.group_project_milestone"
+                        string="Internal Assignees"
+                        name="user_customer"
+                        context="{'group_by': 'customer_user_ids'}"
                     />
                     <filter
                         string="Customer"
@@ -207,7 +210,6 @@
                 js_class="project_task_form"
             >
                 <field name="is_closed" invisible="1" />
-                <field name="allow_milestones" invisible="1" />
                 <field name="parent_id" invisible="1" />
                 <field name="company_id" invisible="1" />
                 <header>
@@ -267,32 +269,37 @@
                                 domain="[('active', '=', True), ('company_id', '=', company_id)]"
                                 attrs="{'invisible': [('parent_id', '!=', False)]}"
                                 required="1"
+                                options="{'no_open': True, 'no_create': True}"
                             />
                             <field
                                 name="display_project_id"
                                 string="Project"
                                 attrs="{'invisible': [('parent_id', '=', False)]}"
                                 domain="[('active', '=', True), ('company_id', '=', company_id)]"
+                                options="{'no_open': True, 'no_create': True}"
                             />
+                            <field name="cross_connect_client_id" invisible="1"/>
                             <field
-                                name="milestone_id"
-                                placeholder="e.g. Product Launch"
-                                context="{'default_project_id': project_id if not parent_id or not display_project_id else display_project_id}"
-                                attrs="{'invisible': ['|', ('project_id', '=', False), ('allow_milestones', '=', False)]}"
-                                readonly="1"
-                            />
-                            <field
-                                name="user_ids"
+                                name="customer_user_ids"
+                                string="Internal Assignees"
                                 class="o_task_user_field"
                                 options="{'no_open': True, 'no_quick_create': True}"
                                 widget="many2many_avatar_user"
-                                domain="[('share', '=', False), ('active', '=', True)]"
+                            />
+                            <field
+                                name="user_ids"
+                                string="External assignees"
+                                class="o_task_user_field"
+                                options="{'no_open': True, 'no_quick_create': True}"
+                                widget="many2many_avatar_user"
+                                domain="[('share', '=', False), ('active', '=', True), '|', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]"
                                 readonly="1"
                             />
                             <field name="use_sprint" invisible="1" />
                             <field
                                 name="sprint_id"
                                 attrs="{'invisible': [('use_sprint', '=', False)]}"
+                                options="{'no_open': True, 'no_create': True}"
                             />
                         </group>
                         <group>
@@ -389,8 +396,6 @@
                 <field name="legend_blocked" />
                 <field name="legend_normal" />
                 <field name="legend_done" />
-                <field name="has_late_and_unreached_milestone" />
-                <field name="allow_milestones" />
                 <progressbar
                     field="kanban_state"
                     colors='{"done": "success", "blocked": "danger", "normal": "200"}'
@@ -424,16 +429,6 @@
                                             <br />
                                             <field
                                                 name="project_id"
-                                                options="{'no_open': True}"
-                                            />
-                                        </span>
-                                        <span
-                                            t-if="record.allow_milestones.raw_value and record.milestone_id.raw_value"
-                                            t-attf-class="{{record.has_late_and_unreached_milestone.raw_value ? 'text-danger' : ''}}"
-                                        >
-                                            <br />
-                                            <field
-                                                name="milestone_id"
                                                 options="{'no_open': True}"
                                             />
                                         </span>
@@ -564,7 +559,6 @@
                 decoration-danger="is_urgent"
             >
                 <field name="is_closed" invisible="1" />
-                <field name="allow_milestones" invisible="1" />
                 <field name="is_urgent" widget="boolean_toggle" />
                 <field name="priority" widget="priority" optional="show" nolabel="1" />
                 <field name="id" optional="hide" />
@@ -574,12 +568,6 @@
                     optional="show"
                     readonly="1"
                     options="{'no_open': 1}"
-                />
-                <field
-                    name="milestone_id"
-                    attrs="{'invisible': [('allow_milestones', '=', False)]}"
-                    context="{'default_project_id': project_id}"
-                    groups="project.group_project_milestone"
                 />
                 <field name="use_sprint" invisible="1" />
                 <field
@@ -636,7 +624,7 @@
         <field name="name">Tasks</field>
         <field name="res_model">project.task</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{'search_default_open_tasks': 1}</field>
+        <field name="context">{'search_default_open_tasks': 1, 'default_user_ids': []}</field>
         <field name="search_view_id" ref="view_task_search_form" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -694,6 +682,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='date']/.." position="after">
                 <field name="cross_connect_client_id" />
+                <field name="is_default_support_project" attrs="{'invisible': [('cross_connect_client_id', '=', False)]}" />
             </xpath>
         </field>
     </record>
@@ -707,6 +696,24 @@
             <xpath expr="//field[@name='email']/.." position="inside">
                 <label for="cross_connect_client_id" />
                 <field name="cross_connect_client_id" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_task_form2" model="ir.ui.view">
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_ids']" position="after">
+                <field name="cross_connect_client_id" invisible="1"/>
+                <field name="customer_user_ids"
+                    string="External Assignees"
+                    class="o_task_user_field"
+                    options="{'no_open': True, 'no_quick_create': True}"
+                    widget="many2many_avatar_user"/>
+            </xpath>
+            <xpath expr="//field[@name='user_ids']" position="attributes">
+                <attribute name="domain">[('share', '=', False), ('active', '=', True), '|', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]</attribute>
             </xpath>
         </field>
     </record>
