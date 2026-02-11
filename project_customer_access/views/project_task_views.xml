@@ -240,28 +240,20 @@
                         bg_color="bg-danger"
                         attrs="{'invisible': [('active', '=', True)]}"
                     />
-                    <div class="oe_title pe-0">
-                        <h1 class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex w-100">
-                                <field
-                                    name="priority"
-                                    widget="priority"
-                                    class="me-3"
-                                    readonly="1"
-                                />
-                                <field
-                                    name="name"
-                                    class="o_task_name text-truncate w-100 w-md-75 pe-2"
-                                    placeholder="Task Title..."
-                                />
-                            </div>
-                            <field
-                                name="kanban_state"
-                                widget="state_selection"
-                                readonly="1"
-                            />
-                        </h1>
-                    </div>
+                        <div class="oe_title pe-0" style="max-width: 100%; width: 100%;">
+    <h1 class="d-flex align-items-center w-100">
+        <field name="priority" widget="priority" class="me-3" modifiers='{"readonly": true}'/>
+
+        <div class="d-flex align-items-center flex-grow-1">
+            <span class="text-nowrap">N: </span>
+            <field name="id" class="ms-1 me-2" modifiers='{"readonly": true}'/>
+            <span class="me-2">-</span>
+            <field name="name" placeholder="Titre de la tâche..." default_focus="1" class="flex-grow-1" modifiers='{"required": true, "readonly": false}'/>
+        </div>
+
+        <field name="kanban_state" widget="state_selection" class="ms-2" modifiers='{"required": true, "readonly": true}' invisible="1"/>
+    </h1>
+</div>
                     <group>
                         <group>
                             <field
@@ -381,6 +373,7 @@
                 sample="1"
             >
                 <field name="color" />
+                <field name="id" />
                 <field name="priority" />
                 <field name="is_urgent" />
                 <field
@@ -411,12 +404,14 @@
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
                                             <s t-if="!record.active.raw_value">
+                                                <field name="id" /><br />
                                                 <field
                                                     name="name"
                                                     widget="name_with_subtask_count"
                                                 />
                                             </s>
                                             <t t-else="">
+                                                <field name="id" /><br />
                                                 <field
                                                     name="name"
                                                     widget="name_with_subtask_count"
@@ -433,31 +428,7 @@
                                             />
                                         </span>
                                         <br />
-                                        <t t-if="record.partner_id.value">
-                                            <span
-                                                t-if="!record.partner_is_company.raw_value"
-                                                t-attf-title="#{record.commercial_partner_id.value}"
-                                            >
-                                                <field
-                                                    name="commercial_partner_id"
-                                                    class="text-truncate d-block"
-                                                />
-                                            </span>
-                                            <span
-                                                t-else=""
-                                                t-attf-title="#{record.partner_id.value}"
-                                            >
-                                                <field
-                                                    name="partner_id"
-                                                    class="text-truncate d-block"
-                                                />
-                                            </span>
-                                        </t>
-                                        <t t-else="record.email_from.raw_value">
-                                            <span>
-                                                <field name="email_from" />
-                                            </span>
-                                        </t>
+                                        <small><field name="create_date" widget="date" /></small>
                                     </div>
                                     <div
                                         class="o_dropdown_kanban dropdown"
@@ -561,7 +532,7 @@
                 <field name="is_closed" invisible="1" />
                 <field name="is_urgent" widget="boolean_toggle" />
                 <field name="priority" widget="priority" optional="show" nolabel="1" />
-                <field name="id" optional="hide" />
+                <field name="id" optional="show" />
                 <field name="name" widget="name_with_subtask_count" />
                 <field
                     name="project_id"
