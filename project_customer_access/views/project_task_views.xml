@@ -311,8 +311,8 @@
                             <field
                                 name="tag_ids"
                                 widget="many2many_tags"
+                                domain="['|', (not project_id and 1 or 0, '=', 1), ('project_ids', 'in', project_id)]"
                                 options="{'color_field': 'color', 'no_create_edit': True}"
-                                context="{'project_id': project_id}"
                             />
                         </group>
                     </group>
