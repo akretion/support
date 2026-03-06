@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record model="res.groups" id="group_support_rest_api">
+        <field name="name">Technical Group for support rest api</field>
+        <field
+            name="implied_ids"
+            eval="[(4, ref('fastapi.group_fastapi_endpoint_runner'))]"
+        />
+    </record>
+</odoo>

@@ -3,7 +3,7 @@
     <record id="project_1_auth_api_key" model="auth.api.key">
         <field name="name">Adaptoo API KEY</field>
         <field name="key">12345</field>
-        <field name="user_id" ref="base.user_demo" />
+        <field name="user_id" ref="project_api.user_support" />
     </record>
 
     <record id="partner_customer_help_desk" model="res.partner">
@@ -15,4 +15,9 @@
         <field name="country_id" ref="base.fr" />
         <field name="project_auth_api_key_id" ref="project_1_auth_api_key" />
     </record>
+
+    <function model="fastapi.endpoint" name="action_sync_registry">
+        <value eval="[ref('project_api.fastapi_endpoint_support')]"/>
+    </function>
+
 </odoo>

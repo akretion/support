@@ -3,21 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models, tools
-
-
-class ProjectProject(models.Model):
-    _inherit = "project.project"
-
-    customer_project_name = fields.Char(
-        help="Name that will appear on customer support menu", index=True
-    )
-    subscribe_assigned_only = fields.Boolean(
-        string="Subscribe assigned only",
-        help="When a user get assigned, unscubscribe automaticaly other users",
-    )
-
-    def _get_customer_project_name(self):
-        return self.customer_project_name or self.name
+from odoo.fields import first
 
 
 class ProjectTask(models.Model):
@@ -37,9 +23,8 @@ class ProjectTask(models.Model):
     partner_id = fields.Many2one(
         related="project_id.partner_id", readonly=True, store=True
     )
-    user_id = fields.Many2one(default=False)
     assignee_supplier_id = fields.Many2one(
-        "res.partner", related="user_id.partner_id", store=True
+        "res.partner", related="user_ids.partner_id", store=True
     )
     assignee_customer_id = fields.Many2one(
         "res.partner", string="Assigned Customer", tracking=True
@@ -117,28 +102,38 @@ class ProjectTask(models.Model):
             if stages:
                 task.stage_id = stages[0].id
 
-    @api.returns("self", lambda value: value.id)
+    @api.returns("mail.message", lambda value: value.id)
     def message_post(
         self,
         *,
         body="",
         subject=None,
         message_type="notification",
-        email_from=None, author_id=None, parent_id=False,
-        subtype_xmlid=None, subtype_id=False, partner_ids=None, channel_ids=None,
-        attachments=None, attachment_ids=None,
-        add_sign=True, record_name=False, **kwargs
+        email_from=None,
+        author_id=None,
+        parent_id=False,
+        subtype_xmlid=None,
+        subtype_id=False,
+        partner_ids=None,
+        attachments=None,
+        attachment_ids=None,
+        **kwargs
     ):
-        if self._context.get("force_message_author_id"):
-            author_id = self._context["force_message_author_id"]
+        if self.env.context.get("force_message_author_id"):
+            author_id = self.env.context["force_message_author_id"]
         return super().message_post(
-        body=body,
-        subject=subject,
-        message_type=message_type,
-        email_from=email_from, author_id=author_id, parent_id=parent_id,
-        subtype_xmlid=subtype_xmlid, subtype_id=subtype_id, partner_ids=partner_ids, channel_ids=channel_ids,
-        attachments=attachments, attachment_ids=attachment_ids,
-        add_sign=add_sign, record_name=record_name, **kwargs
+            body=body,
+            subject=subject,
+            message_type=message_type,
+            email_from=email_from,
+            author_id=author_id,
+            parent_id=parent_id,
+            subtype_xmlid=subtype_xmlid,
+            subtype_id=subtype_id,
+            partner_ids=partner_ids,
+            attachments=attachments,
+            attachment_ids=attachment_ids,
+            **kwargs
         )
 
     @api.model_create_multi
@@ -149,18 +144,21 @@ class ProjectTask(models.Model):
 
     def write(self, vals):
         vals.pop("partner_id", None)  # readonly
-        if "user_id" in vals and self.project_id.subscribe_assigned_only:
+        if "user_ids" in vals and self.project_id.subscribe_assigned_only:
             followers = self.message_follower_ids.mapped("partner_id")
-            unsubscribe_users = self.env["res.users"].search(
-                [("partner_id", "in", followers.ids), ("id", "!=", vals["user_id"])]
-            )
-            partner_ids = [user.partner_id.id for user in unsubscribe_users]
-            self.message_unsubscribe(partner_ids=partner_ids)
+            if len(vals["user_ids"]) == 1 and vals["user_ids"][0][0] == 6:
+                user_ids = vals["user_ids"][0][2]
+                unsubscribe_users = self.env["res.users"].search(
+                    [("partner_id", "in", followers.ids), ("id", "not in", user_ids)]
+                )
+                partner_ids = [user.partner_id.id for user in unsubscribe_users]
+                self.message_unsubscribe(partner_ids=partner_ids)
         return super().write(vals)
 
-    def _message_auto_subscribe(self, updated_values, followers_existing_policy='skip'):
+    def _message_auto_subscribe(self, updated_values, followers_existing_policy="skip"):
         res = super()._message_auto_subscribe(
-            updated_values, followers_existing_policy=followers_existing_policy)
+            updated_values, followers_existing_policy=followers_existing_policy
+        )
         if updated_values.get("author_id"):
             self.message_subscribe([updated_values["author_id"]])
         if updated_values.get("assignee_customer_id"):

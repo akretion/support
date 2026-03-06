@@ -162,7 +162,10 @@ class ExternalTask(models.Model):
                 "lazy": lazy,
             },
         )
-        if self._context.get("no_empty_stage") and ["stage_id"] == groupby:
+        for item in res:
+            if "project_id" in item:
+                item["project_id"] = item["project_id"] and item["project_id"][0]
+        if  "stage_id" in groupby and self._context.get("no_empty_stage"):
             return [item for item in res if item["stage_id_count"] > 0]
         return res
 
