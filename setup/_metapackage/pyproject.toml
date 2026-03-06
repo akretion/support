@@ -1,8 +1,9 @@
 [project]
 name = "odoo-addons-akretion-support"
-version = "18.0.20260306.0"
+version = "18.0.20260306.1"
 dependencies = [
     "odoo-addon-support==18.0.*",
+    "odoo-addon-support_akretion==18.0.*",
 ]
 classifiers=[
     "Programming Language :: Python",
