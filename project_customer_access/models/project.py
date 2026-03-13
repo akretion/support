@@ -75,6 +75,7 @@ class ProjectTask(models.Model):
             "project_id",
             "sprint_id",
             "is_urgent",
+            "priority",
             "customer_user_ids",
         ]
 
