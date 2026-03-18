@@ -1,13 +1,13 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
-from odoo import api, fields, models
+from odoo import api, models
 
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    @api.depends('user_ids.cross_connect_client_id')
+    @api.depends("user_ids.cross_connect_client_id")
     def _compute_display_name(self):
         return super()._compute_display_name()
 

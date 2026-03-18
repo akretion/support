@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="rule_project_customer_access_tasks" model="ir.rule">
         <field name="name">Project Customer Access: Tasks</field>
         <field name="model_id" ref="project.model_project_task" />
@@ -63,5 +62,4 @@
         </field>
         <field name="groups" eval="[(4,ref('project_customer_access.group_budget'))]" />
     </record>
-
 </odoo>

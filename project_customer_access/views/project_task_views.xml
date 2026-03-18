@@ -2,7 +2,6 @@
 <!-- Copyright 2024 Akretion
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
-
     <menuitem
         id="menu_project_customer_root"
         name="Customer Project"
@@ -240,20 +239,41 @@
                         bg_color="bg-danger"
                         attrs="{'invisible': [('active', '=', True)]}"
                     />
-                        <div class="oe_title pe-0" style="max-width: 100%; width: 100%;">
-    <h1 class="d-flex align-items-center w-100">
-        <field name="priority" widget="priority" class="me-3" modifiers='{"readonly": true}'/>
+                    <div class="oe_title pe-0" style="max-width: 100%; width: 100%;">
+                        <h1 class="d-flex align-items-center w-100">
+                            <field
+                                name="priority"
+                                widget="priority"
+                                class="me-3"
+                                modifiers='{"readonly": true}'
+                            />
 
-        <div class="d-flex align-items-center flex-grow-1">
-            <span class="text-nowrap">N: </span>
-            <field name="id" class="ms-1 me-2" modifiers='{"readonly": true}'/>
-            <span class="me-2">-</span>
-            <field name="name" placeholder="Titre de la tâche..." default_focus="1" class="flex-grow-1" modifiers='{"required": true, "readonly": false}'/>
-        </div>
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <span class="text-nowrap">N: </span>
+                                <field
+                                    name="id"
+                                    class="ms-1 me-2"
+                                    modifiers='{"readonly": true}'
+                                />
+                                <span class="me-2">-</span>
+                                <field
+                                    name="name"
+                                    placeholder="Titre de la tâche..."
+                                    default_focus="1"
+                                    class="flex-grow-1"
+                                    modifiers='{"required": true, "readonly": false}'
+                                />
+                            </div>
 
-        <field name="kanban_state" widget="state_selection" class="ms-2" modifiers='{"required": true, "readonly": true}' invisible="1"/>
-    </h1>
-</div>
+                            <field
+                                name="kanban_state"
+                                widget="state_selection"
+                                class="ms-2"
+                                modifiers='{"required": true, "readonly": true}'
+                                invisible="1"
+                            />
+                        </h1>
+                    </div>
                     <group>
                         <group>
                             <field
@@ -270,7 +290,7 @@
                                 domain="[('active', '=', True), ('company_id', '=', company_id)]"
                                 options="{'no_open': True, 'no_create': True}"
                             />
-                            <field name="cross_connect_client_id" invisible="1"/>
+                            <field name="cross_connect_client_id" invisible="1" />
                             <field
                                 name="customer_user_ids"
                                 string="Internal Assignees"
@@ -404,14 +424,16 @@
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
                                             <s t-if="!record.active.raw_value">
-                                                <field name="id" /><br />
+                                                <field name="id" />
+                                                <br />
                                                 <field
                                                     name="name"
                                                     widget="name_with_subtask_count"
                                                 />
                                             </s>
                                             <t t-else="">
-                                                <field name="id" /><br />
+                                                <field name="id" />
+                                                <br />
                                                 <field
                                                     name="name"
                                                     widget="name_with_subtask_count"
@@ -428,7 +450,9 @@
                                             />
                                         </span>
                                         <br />
-                                        <small><field name="create_date" widget="date" /></small>
+                                        <small>
+                                            <field name="create_date" widget="date" />
+                                        </small>
                                     </div>
                                     <div
                                         class="o_dropdown_kanban dropdown"
@@ -595,14 +619,16 @@
         <field name="name">Tasks</field>
         <field name="res_model">project.task</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{'search_default_open_tasks': 1, 'default_user_ids': []}</field>
+        <field
+            name="context"
+        >{'search_default_open_tasks': 1, 'default_user_ids': []}</field>
         <field name="search_view_id" ref="view_task_search_form" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No tasks found. Let's create one!
             </p>
             <p> Keep track of the progress of your tasks from creation to completion.<br
-                />
+            />
                 Collaborate efficiently by chatting in real-time or via email. </p>
         </field>
     </record>
@@ -626,7 +652,6 @@
         <field name="act_window_id" ref="action_view_all_task" />
     </record>
 
-
     <menuitem
         name="Tasks"
         id="menu_my_tasks"
@@ -645,7 +670,6 @@
         groups="project_customer_access.group_budget"
     />
 
-
     <record id="edit_project" model="ir.ui.view">
         <field name="name">project.project.form in project_customer_access</field>
         <field name="model">project.project</field>
@@ -653,7 +677,10 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='date']/.." position="after">
                 <field name="cross_connect_client_id" />
-                <field name="is_default_support_project" attrs="{'invisible': [('cross_connect_client_id', '=', False)]}" />
+                <field
+                    name="is_default_support_project"
+                    attrs="{'invisible': [('cross_connect_client_id', '=', False)]}"
+                />
             </xpath>
         </field>
     </record>
@@ -676,17 +703,20 @@
         <field name="inherit_id" ref="project.view_task_form2" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='user_ids']" position="after">
-                <field name="cross_connect_client_id" invisible="1"/>
-                <field name="customer_user_ids"
+                <field name="cross_connect_client_id" invisible="1" />
+                <field
+                    name="customer_user_ids"
                     string="External Assignees"
                     class="o_task_user_field"
                     options="{'no_open': True, 'no_quick_create': True}"
-                    widget="many2many_avatar_user"/>
+                    widget="many2many_avatar_user"
+                />
             </xpath>
             <xpath expr="//field[@name='user_ids']" position="attributes">
-                <attribute name="domain">[('share', '=', False), ('active', '=', True), '|', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]</attribute>
+                <attribute
+                    name="domain"
+                >[('share', '=', False), ('active', '=', True), '|', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]</attribute>
             </xpath>
         </field>
     </record>
-
 </odoo>

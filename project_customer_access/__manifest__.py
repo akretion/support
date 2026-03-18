@@ -7,7 +7,7 @@
     "version": "16.0.1.0.0",
     "license": "AGPL-3",
     "author": "Akretion",
-    "website": "http://akretion.com",
+    "website": "https://github.com/akretion/support",
     "depends": [
         "date_range",
         # https://github.com/akretion/ak-odoo-incubator

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <data>
-
         <record id="endpoint_1" model="fastapi.endpoint">
             <field name="name">Cross Connect Server Endpoint Demo</field>
             <field name="root_path">/api</field>
@@ -13,6 +12,5 @@
             <field name="endpoint_id" ref="endpoint_1" />
             <field name="api_key">server-api-key</field>
         </record>
-
     </data>
 </odoo>

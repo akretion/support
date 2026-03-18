@@ -6,7 +6,6 @@ import json
 from lxml import etree
 
 from odoo import _, api, exceptions, fields, models
-from odoo.fields import Command
 
 
 class ProjectProject(models.Model):
@@ -15,7 +14,10 @@ class ProjectProject(models.Model):
     @api.depends("cross_connect_client_id")
     def _compute_is_default_support_project(self):
         for project in self:
-            if not project.cross_connect_client_id and project.is_default_support_project:
+            if (
+                not project.cross_connect_client_id
+                and project.is_default_support_project
+            ):
                 project.is_default_support_project = False
 
     cross_connect_client_id = fields.Many2one("cross.connect.client")
@@ -24,16 +26,19 @@ class ProjectProject(models.Model):
         store=True,
         readonly=False,
         help="This project will be the one set by default when an external user "
-             "create a task"
+        "create a task",
     )
 
     @api.constrains("cross_connect_client_id", "is_default_support_project")
     def _check_unique_default_project(self):
         for cross_connect in self.cross_connect_client_id:
-            default_project = cross_connect.project_ids.filtered(lambda pr: pr.is_default_support_project)
+            default_project = cross_connect.project_ids.filtered(
+                lambda pr: pr.is_default_support_project
+            )
             if len(default_project) > 1:
-                raise exceptions.ValidationError(_("You can set only one default project per customer"))
-
+                raise exceptions.ValidationError(
+                    _("You can set only one default project per customer")
+                )
 
 
 class ProjectTask(models.Model):
@@ -43,19 +48,34 @@ class ProjectTask(models.Model):
     def default_get(self, fields):
         res = super().default_get(fields)
         if self.env.user.cross_connect_client_id:
-            default_project = self.env.user.cross_connect_client_id.project_ids.filtered(lambda pr: pr.is_default_support_project)
+            default_project = (
+                self.env.user.cross_connect_client_id.project_ids.filtered(
+                    lambda pr: pr.is_default_support_project
+                )
+            )
             if default_project:
                 res["project_id"] = default_project.id
             # Not sure yet if we want this, let's keep this as before for now
-#            res["customer_user_ids"] = [Command.link(self.env.user.id)]
+        #            res["customer_user_ids"] = [Command.link(self.env.user.id)]
         return res
 
     origin_url = fields.Char()
     origin_db = fields.Char()
     origin_name = fields.Char()
-    cross_connect_client_id = fields.Many2one(related="project_id.cross_connect_client_id")
-    user_ids = fields.Many2many(domain="[('share', '=', False), ('active', '=', True), |', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]")
-    customer_user_ids = fields.Many2many("res.users", relation='project_task_customer_user_rel', column1='task_id', column2='user_id', domain="[('cross_connect_client_id', '=', cross_connect_client_id)]", tracking=True)
+    cross_connect_client_id = fields.Many2one(
+        related="project_id.cross_connect_client_id"
+    )
+    user_ids = fields.Many2many(
+        domain="[('share', '=', False), ('active', '=', True), |', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]"
+    )
+    customer_user_ids = fields.Many2many(
+        "res.users",
+        relation="project_task_customer_user_rel",
+        column1="task_id",
+        column2="user_id",
+        domain="[('cross_connect_client_id', '=', cross_connect_client_id)]",
+        tracking=True,
+    )
 
     def _get_customer_access_view_ids(self):
         form_id = self.env.ref("project_customer_access.view_task_form")
@@ -90,7 +110,10 @@ class ProjectTask(models.Model):
                 return [("create_date", "!=", False)]
             elif field_name in self._get_editable_fields_customer():
                 # Allows the customers who are not manager to modify only their tasks
-                return [("create_date", "!=", False), ("create_uid", "!=", self.env.user.id)]
+                return [
+                    ("create_date", "!=", False),
+                    ("create_uid", "!=", self.env.user.id),
+                ]
             else:
                 return True
 
