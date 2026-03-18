@@ -1,11 +1,15 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 
-from odoo import models
+from odoo import api, models
 
 
 class ResUsers(models.Model):
     _inherit = "res.users"
+
+    @api.depends("cross_connect_client_id")
+    def _compute_display_name(self):
+        return super()._compute_display_name()
 
     def name_get(self):
         result = []

@@ -1,7 +1,6 @@
 # Copyright 2024 Akretion
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-import json
 
 from lxml import etree
 
@@ -66,7 +65,12 @@ class ProjectTask(models.Model):
         related="project_id.cross_connect_client_id"
     )
     user_ids = fields.Many2many(
-        domain="[('share', '=', False), ('active', '=', True), |', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]"
+        domain="["
+        "('share', '=', False), "
+        "('active', '=', True), "
+        "'|', ('cross_connect_client_id', '=', False), "
+        "('cross_connect_client_id', '=', cross_connect_client_id)"
+        "]"
     )
     customer_user_ids = fields.Many2many(
         "res.users",
@@ -107,13 +111,10 @@ class ProjectTask(models.Model):
         elif self.env.user.has_group("project_customer_access.group_customer"):
             if field_name == "project_id":
                 # project_id must be readonly only after creation
-                return [("create_date", "!=", False)]
+                return "create_date != False"
             elif field_name in self._get_editable_fields_customer():
                 # Allows the customers who are not manager to modify only their tasks
-                return [
-                    ("create_date", "!=", False),
-                    ("create_uid", "!=", self.env.user.id),
-                ]
+                return f"create_date != False and create_uid != {self.env.user.id}"
             else:
                 return True
 
@@ -128,13 +129,12 @@ class ProjectTask(models.Model):
             doc = etree.XML(res["arch"])
             if view_type in ["form", "kanban"]:
                 for field in doc.xpath("//field[@name][not(ancestor::field)]"):
-                    modifiers = json.loads(
-                        field.attrib.get("modifiers", '{"readonly": false}')
-                    )
-                    if modifiers.get("readonly") is not True:
-                        modifiers["readonly"] = self._get_readonly_value(field)
-
-                    field.attrib["modifiers"] = json.dumps(modifiers)
+                    readonly = field.attrib.get("readonly")
+                    if not readonly or readonly == "0" or readonly == "False":
+                        value = self._get_readonly_value(field)
+                        field.attrib["readonly"] = (
+                            str(value) if isinstance(value, bool) else value
+                        )
 
             # List all accessible projects in filters for customers project users
 

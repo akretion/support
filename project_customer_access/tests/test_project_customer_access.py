@@ -3,7 +3,8 @@
 
 from odoo import Command
 from odoo.exceptions import AccessError
-from odoo.tests.common import Form, TransactionCase, new_test_user
+from odoo.tests import Form
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 class TestProjectCustomerAccess(TransactionCase):
@@ -28,14 +29,6 @@ class TestProjectCustomerAccess(TransactionCase):
         self.tag = self.env.ref("project.project_tags_00")
         self.stage = self.env.ref("project.project_stage_3")
 
-        self.task_customer = self.env["project.task"].create(
-            {
-                "name": "Test",
-                "project_id": self.project1.id,
-                "user_ids": [Command.link(self.customer.id)],
-            }
-        )
-
         # Cross connection made by other module
         self.endpoint = self.env["fastapi.endpoint"].create(
             {
@@ -55,6 +48,18 @@ class TestProjectCustomerAccess(TransactionCase):
             {"cross_connect_client_id": self.client.id}
         )
         self.project_ids.write({"cross_connect_client_id": self.client.id})
+
+        self.task_customer = (
+            self.env["project.task"]
+            .with_user(self.customer)
+            .create(
+                {
+                    "name": "Test",
+                    "project_id": self.project1.id,
+                    "user_ids": [Command.link(self.customer.id)],
+                }
+            )
+        )
 
     def test_visible_projects(self):
         customer_proj = self.env["project.project"].with_user(self.customer).search([])
@@ -123,5 +128,8 @@ class TestProjectCustomerAccess(TransactionCase):
     def test_create_task_customer_no_project(self):
         f = Form(self.env["project.task"].with_user(self.customer), view=self.form_view)
         f.name = "New"
-        with self.assertRaisesRegex(AssertionError, "project_id is a required field"):
-            task_id = f.save()
+        with self.assertRaisesRegex(
+            AccessError,
+            "Uh-oh! Looks like you have stumbled upon some top-secret records.",
+        ):
+            f.save()
