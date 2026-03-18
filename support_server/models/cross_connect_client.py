@@ -4,6 +4,7 @@
 from urllib.parse import urlencode
 
 from odoo import models
+from odoo.http import request
 
 
 class CrossConnectClient(models.Model):
@@ -19,14 +20,16 @@ class CrossConnectClient(models.Model):
             redirect_params["action"] = "project_customer_access.action_view_all_task"
 
         if params.get("intent") == "new":
+            session = params.get("session") or request.session
+            if session:
+                session.support_default_params = {
+                    field: params.get(field)
+                    for field in ("origin_db", "origin_name", "origin_url")
+                }
+
             redirect_params.update(
                 {
                     "view_type": "form",
-                    **{
-                        f"project.task_default_{field}": params.get(field)
-                        for field in ("origin_db", "origin_name", "origin_url")
-                    },
                 }
             )
-
         return f"{url}#{urlencode(redirect_params)}"
