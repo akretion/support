@@ -285,7 +285,7 @@
                                     invisible="not display_in_project or not show_display_in_project"
                                 />
                             </div>
-                            <field name="cross_connect_client_id" />
+                            <field name="cross_connect_client_id" invisible="1" />
                             <field
                                 name="customer_user_ids"
                                 string="Internal Assignees"
@@ -392,6 +392,7 @@
                 <field name="allow_milestones" />
                 <field name="state" />
                 <field name="subtask_count" />
+                <field name="is_urgent" />
                 <progressbar
                     field="state"
                     colors='{"1_done": "success-done", "1_canceled": "danger", "03_approved": "success", "02_changes_requested": "warning", "04_waiting_normal": "info", "01_in_progress": "200" }'
@@ -427,6 +428,7 @@
                             t-att-class="['1_done', '1_canceled'].includes(record.state.raw_value) ? 'opacity-50' : ''"
                             t-attf-style="{{record.is_urgent.raw_value ? 'background-color: #f8d7da !important; border-color: #f5c2c7 !important' : ''}}"
                         >
+                            <field name="id" class="fw-bold" />
                             <field name="name" class="fw-bold fs-5" />
                             <div class="text-muted d-flex flex-column">
                                 <field
@@ -439,7 +441,9 @@
                                     name="project_id"
                                     options="{'no_open': True}"
                                 />
-                                <field name="partner_id" />
+                                <div t-if="record.create_date.raw_value" class="small">
+                                    <field name="create_date" widget="date" />
+                                </div>
                                 <field
                                     t-if="record.allow_milestones.raw_value and record.milestone_id.raw_value"
                                     t-att-class="record.has_late_and_unreached_milestone.raw_value and !record.state.raw_value.startsWith('1_') ? 'text-danger' : ''"
