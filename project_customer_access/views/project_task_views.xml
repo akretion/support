@@ -298,6 +298,15 @@
                             <field name="active" invisible="1" />
                             <field name="create_uid" widget="many2one_avatar_user" />
                             <field name="create_date" />
+                            <field
+                                    name="origin_url"
+                                    readonly="1"
+                                    force_save="1"
+                                    widget="url"
+                                    string="URL"
+                                    attrs="{'invisible': [('origin_url', '=', False)]}"
+                                />
+
                             <field name="estimate_step_id" readonly="1" />
                             <field
                                 name="date_deadline"
