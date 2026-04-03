@@ -36,4 +36,16 @@
             eval="[(4, ref('project_customer_access.group_customer'))]"
         />
     </record>
+
+    <record id="group_developper" model="res.groups">
+        <field name="name">Support Developper Access</field>
+        <field
+            name="category_id"
+            ref="project_customer_access.project_access_category"
+        />
+        <field
+            name="implied_ids"
+            eval="[(4, ref('project_customer_access.group_customer'))]"
+        />
+    </record>
 </odoo>

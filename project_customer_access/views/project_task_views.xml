@@ -307,6 +307,12 @@
                                 invisible="not use_sprint"
                                 options="{'no_open': True, 'no_create': True}"
                             />
+                            <field
+                                name="gitlab_merge_request_ids"
+                                widget="many2many_merge_requests"
+                                readonly="1"
+                                groups="project_customer_access.group_developper"
+                            />
                         </group>
                         <group>
                             <field name="create_uid" widget="many2one_avatar_user" />

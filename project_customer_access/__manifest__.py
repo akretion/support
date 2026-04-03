@@ -14,6 +14,7 @@
         "project_sprint",
         "project_task_urgency",
         "project_budget_subcontractor",
+        "gitlab_integration",
         # https://github.com/OCA/server-backend
         "base_group_backend",
         # https://github.com/OCA/server-auth
