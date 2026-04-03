@@ -284,7 +284,7 @@
                                 class="o_task_user_field"
                                 options="{'no_open': True, 'no_quick_create': True}"
                                 widget="many2many_avatar_user"
-                                domain="[('share', '=', False), ('active', '=', True), '|', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]"
+                                domain="[('share', '=', False), ('active', '=', True), ('cross_connect_client_id', '=', False)]"
                                 readonly="1"
                             />
                             <field name="use_sprint" invisible="1" />
