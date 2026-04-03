@@ -6,7 +6,7 @@ import json
 from lxml import etree
 
 from odoo import _, api, exceptions, fields, models
-from odoo.fields import Command
+from odoo.fields import Command, first
 
 
 class ProjectProject(models.Model):
@@ -43,11 +43,10 @@ class ProjectTask(models.Model):
     def default_get(self, fields):
         res = super().default_get(fields)
         if self.env.user.cross_connect_client_id:
-            default_project = self.env.user.cross_connect_client_id.project_ids.filtered(lambda pr: pr.is_default_support_project)
+            default_project = self.env.user.cross_connect_client_id.project_ids.filtered(lambda pr: pr.is_default_support_project) or first(self.env.user.cross_connect_client_id.project_ids)
             if default_project:
                 res["project_id"] = default_project.id
-            # Not sure yet if we want this, let's keep this as before for now
-#            res["customer_user_ids"] = [Command.link(self.env.user.id)]
+                res["stage_id"] = self.stage_find(default_project.id, [('fold', '=', False)])
         return res
 
     origin_url = fields.Char()
