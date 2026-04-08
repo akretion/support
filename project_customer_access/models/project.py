@@ -171,3 +171,11 @@ class ProjectTask(models.Model):
             self.env = self.sudo().env
 
         return super().write(values)
+
+    def export_data(self, fields_to_export):
+        # Allow manager to export the list view to excel
+        # TODO we couuld add a check on the fields_to_export list to check there are
+        # no critical field
+        if self.env.user.has_group("project_customer_access.group_manager"):
+            return super(ProjectTask, self.sudo()).export_data(fields_to_export)
+        return super().export_data(fields_to_export)

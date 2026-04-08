@@ -20,6 +20,11 @@
         # https://github.com/OCA/server-auth
         "cross_connect_server",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "project_customer_access/static/src/js/export_all_patch.esm.js",
+        ],
+    },
     "data": [
         "data/res_groups.xml",
         "security/ir.model.access.csv",
