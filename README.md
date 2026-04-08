@@ -23,6 +23,7 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [support](support/) | 18.0.1.0.0 |  | Provide cross connect support integration
 [support_akretion](support_akretion/) | 18.0.1.0.0 |  | Provide Akretion cross connect support integration
+[support_server](support_server/) | 18.0.1.0.0 |  | Provide cross connect server support integration
 
 [//]: # (end addons)
 
