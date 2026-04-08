@@ -242,7 +242,7 @@
                     />
                         <div class="oe_title pe-0" style="max-width: 100%; width: 100%;">
     <h1 class="d-flex align-items-center w-100">
-        <field name="priority" widget="priority" class="me-3" modifiers='{"readonly": true}'/>
+        <field name="priority" widget="priority" class="me-3"/>
 
         <div class="d-flex align-items-center flex-grow-1">
             <span class="text-nowrap">N: </span>
@@ -284,7 +284,7 @@
                                 class="o_task_user_field"
                                 options="{'no_open': True, 'no_quick_create': True}"
                                 widget="many2many_avatar_user"
-                                domain="[('share', '=', False), ('active', '=', True), '|', ('cross_connect_client_id', '=', False), ('cross_connect_client_id', '=', cross_connect_client_id)]"
+                                domain="[('share', '=', False), ('active', '=', True), ('cross_connect_client_id', '=', False)]"
                                 readonly="1"
                             />
                             <field name="use_sprint" invisible="1" />
@@ -293,11 +293,27 @@
                                 attrs="{'invisible': [('use_sprint', '=', False)]}"
                                 options="{'no_open': True, 'no_create': True}"
                             />
+                            <field
+                                name="gitlab_merge_request_ids"
+                                widget="many2many_merge_requests"
+                                readonly="1"
+                                groups="project_customer_access.group_developper"
+                            />
                         </group>
                         <group>
                             <field name="active" invisible="1" />
                             <field name="create_uid" widget="many2one_avatar_user" />
                             <field name="create_date" />
+                            <field
+                                    name="origin_url"
+                                    readonly="1"
+                                    force_save="1"
+                                    widget="url"
+                                    string="URL"
+                                    attrs="{'invisible': [('origin_url', '=', False)]}"
+                                />
+
+                            <field name="estimate_step_id" readonly="1" />
                             <field
                                 name="date_deadline"
                                 attrs="{'invisible': [('is_closed', '=', True)]}"
@@ -487,7 +503,6 @@
                                         <field
                                             name="priority"
                                             widget="priority"
-                                            readonly="1"
                                         />
                                     </div>
                                     <div
