@@ -56,6 +56,7 @@ class ProjectTask(models.Model):
             )
             if default_project:
                 res["project_id"] = default_project.id
+                res["company_id"] = default_project.company_id.id
                 res["stage_id"] = self.stage_find(
                     default_project.id, [("fold", "=", False)]
                 )
