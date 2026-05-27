@@ -679,7 +679,7 @@
         <field name="model">project.project</field>
         <field name="inherit_id" ref="project.edit_project" />
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='date']/.." position="after">
+            <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="cross_connect_client_id" />
                 <field
                     name="is_default_support_project"
