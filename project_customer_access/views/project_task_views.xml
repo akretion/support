@@ -335,6 +335,7 @@
                                 name="is_urgent"
                                 widget="boolean_toggle"
                                 readonly="is_closed"
+                                invisible="not show_urgent"
                             />
                             <field
                                 name="tag_ids"
@@ -564,7 +565,11 @@
                 js_class="project_task_list"
                 decoration-danger="is_urgent"
             >
-                <field name="is_urgent" widget="boolean_toggle" />
+                <field
+                    name="is_urgent"
+                    widget="boolean_toggle"
+                    invisible="not show_urgent"
+                />
                 <field name="priority" widget="priority" optional="show" nolabel="1" />
                 <field name="id" optional="show" />
                 <field name="name" widget="name_with_subtask_count" />
