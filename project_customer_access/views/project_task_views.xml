@@ -2,6 +2,29 @@
 <!-- Copyright 2024 Akretion
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
+    <record id="task_form" model="ir.ui.view">
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='task_properties']" position="after">
+                <group>
+                    <field
+                        name="origin_url"
+                        readonly="1"
+                        invisible="not origin_url"
+                        widget="url"
+                    />
+                    <field name="origin_db" readonly="1" invisible="not origin_db" />
+                    <field
+                        name="origin_name"
+                        readonly="1"
+                        invisible="not origin_name"
+                    />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
     <menuitem
         id="menu_project_customer_root"
         name="Customer Project"
