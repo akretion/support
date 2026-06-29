@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Copyright 2025 Akretion (http://www.akretion.com).
+  @author Florian Mounier <florian.mounier@akretion.com>
+  License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="cross_connect_support" model="ir.actions.server">
+        <field name="name">Créer un ticket support</field>
+        <field name="model_id" ref="cross_connect_client.model_cross_connect_server" />
+        <field name="group_ids" eval="[(4, ref('base.group_user'))]" />
+        <field name="state">code</field>
+        <field name="code">action = model.redirect_to_support()</field>
+    </record>
+</odoo>
