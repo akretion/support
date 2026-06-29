@@ -8,7 +8,7 @@
     <record id="cross_connect_support" model="ir.actions.server">
         <field name="name">Créer un ticket support</field>
         <field name="model_id" ref="cross_connect_client.model_cross_connect_server" />
-        <field name="groups_id" eval="[(4, ref('base.group_user'))]" />
+        <field name="group_ids" eval="[(4, ref('base.group_user'))]" />
         <field name="state">code</field>
         <field name="code">action = model.redirect_to_support()</field>
     </record>

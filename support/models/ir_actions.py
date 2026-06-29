@@ -16,7 +16,7 @@ class IrActions(models.Model):
             self.sudo().env.ref("support.support_server", raise_if_not_found=False)
             or self.env["cross.connect.server"].sudo()
         )
-        support_groups = self.env.user.groups_id & support_server.group_ids
+        support_groups = self.env.user.group_ids & support_server.group_ids
         if support_groups:
             action_id = "support.cross_connect_support"
             if "action" in res:
