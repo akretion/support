@@ -228,9 +228,14 @@
         <field name="arch" type="xml">
             <form
                 string="Task"
-                class="o_form_project_tasks"
+                class="o_form_project_tasks o_hide_log_note"
                 js_class="project_task_form"
             >
+                <style>
+                .o_hide_log_note .o-mail-Chatter-logNote {
+                    display: none !important;
+                }
+            </style>
                 <header>
                     <field
                         name="stage_id"
@@ -407,6 +412,18 @@
         </field>
     </record>
 
+    <record id="quick_create_task_form_customer_access" model="ir.ui.view">
+        <field name="name">project.task.form.quick_create.customer.access</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.quick_create_task_form" />
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
     <record id="view_task_kanban" model="ir.ui.view">
         <field name="name">project.task.kanban (in project_customer_access)</field>
         <field name="model">project.task</field>
@@ -416,7 +433,7 @@
                 default_group_by="stage_id"
                 class="o_kanban_small_column o_kanban_project_tasks"
                 on_create="quick_create"
-                quick_create_view="project.quick_create_task_form"
+                quick_create_view="project_customer_access.quick_create_task_form_customer_access"
                 examples="project"
                 js_class="project_task_kanban"
                 sample="1"
