@@ -13,7 +13,10 @@ class ProjectTask(models.Model):
     @api.model
     def default_get(self, fields_list):
         defaults = super().default_get(fields_list)
-        session = request.session
-        if session and session.get("support_default_params"):
-            defaults.update(session.pop("support_default_params"))
+        # request is not bound outside of an HTTP request (tests, import
+        # scripts, cron jobs...): `bool(request)` is False in that case.
+        if request:
+            params = request.session.pop("support_default_params", None)
+            if params:
+                defaults.update(params)
         return defaults
