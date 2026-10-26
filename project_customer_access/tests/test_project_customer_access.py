@@ -133,3 +133,28 @@ class TestProjectCustomerAccess(TransactionCase):
             "Uh-oh! Looks like you have stumbled upon some top-secret records.",
         ):
             f.save()
+
+    def test_visible_partners(self):
+        """Customer users see the members of their company, the users working on
+        their projects and the partners of these projects."""
+        colleague = new_test_user(
+            self.env,
+            login="test_colleague",
+            groups="project_customer_access.group_customer",
+        )
+        colleague.cross_connect_client_id = self.client
+        support_user = new_test_user(
+            self.env, login="test_support_user", groups="base.group_user"
+        )
+        self.task.user_ids = [Command.link(support_user.id)]
+        other_partner = self.env["res.partner"].create({"name": "Other Company"})
+
+        partners = self.env["res.partner"].with_user(self.customer).search([])
+        self.assertIn(self.customer.partner_id, partners)
+        self.assertIn(colleague.partner_id, partners)
+        self.assertIn(support_user.partner_id, partners)
+        self.assertNotIn(other_partner, partners)
+        with self.assertRaises(AccessError):
+            other_partner.with_user(self.customer).read(["name"])
+        # a user without cross-connect client is not restricted
+        self.assertIn(other_partner, self.env["res.partner"].search([]))
