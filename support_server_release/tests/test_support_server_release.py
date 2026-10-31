@@ -52,6 +52,22 @@ class ReleaseCaseMixin:
     def _payload(self, environment, version, tickets):
         return {"environment": environment, "version": version, "tickets": tickets}
 
+    def _client_user(self, email):
+        """A portal user of the client, the recipient of the release mail."""
+        return (
+            self.env["res.users"]
+            .with_context(no_reset_password=True)
+            .create(
+                {
+                    "name": "Customer user",
+                    "login": email,
+                    "email": email,
+                    "cross_connect_client_id": self.client.id,
+                    "groups_id": [(6, 0, [self.env.ref("base.group_portal").id])],
+                }
+            )
+        )
+
 
 class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
     @classmethod
@@ -156,6 +172,44 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(release.task_ids, task)
         self.assertEqual(release.partner_id, self.partner)
         self.assertGreaterEqual(release.preprod_deployed_at, deployed_at)
+
+    def test_prod_notifies_the_client_users(self):
+        task = self._task()
+        task.description = "<p>The content of the ticket</p>"
+        self._client_user("customer@example.com")
+        self.env["mail.mail"].search([]).unlink()
+        release = self.Release._process(
+            self.client, self._payload("prod", "14.0.1.0", [task.id])
+        )
+        mail = self.env["mail.mail"].search(
+            [("model", "=", "support.server.release"), ("res_id", "=", release.id)]
+        )
+        self.assertEqual(len(mail), 1)
+        self.assertEqual(mail.email_to, "customer@example.com")
+        self.assertIn("14.0.1.0", mail.subject)
+        self.assertIn(task.name, mail.body_html)
+        self.assertIn("The content of the ticket", mail.body_html)
+        self.assertIn("<details>", mail.body_html)
+        self.assertNotIn("mail/unfollow", mail.body_html)
+        self.assertIn(
+            f"/odoo/action-project.action_view_task/{task.id}", mail.body_html
+        )
+
+    def test_preprod_sends_no_mail(self):
+        task = self._task()
+        self._client_user("customer@example.com")
+        self.env["mail.mail"].search([]).unlink()
+        self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
+        self.assertFalse(self.env["mail.mail"].search([]))
+
+    def test_prod_without_client_user_sends_no_mail(self):
+        task = self._task()
+        self.env["mail.mail"].search([]).unlink()
+        release = self.Release._process(
+            self.client, self._payload("prod", "14.0.1.0", [task.id])
+        )
+        self.assertTrue(release.prod_deployed_at)
+        self.assertFalse(self.env["mail.mail"].search([]))
 
 
 @tagged("post_install", "-at_install")
