@@ -8,5 +8,5 @@ from pydantic import BaseModel, Field
 
 class ReleasePayload(BaseModel):
     environment: Literal["preprod", "prod"]
-    version: str
+    version: str = Field(min_length=1)
     tickets: list[int] = Field(default_factory=list)

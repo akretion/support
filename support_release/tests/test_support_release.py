@@ -3,8 +3,9 @@
 
 from unittest.mock import patch
 
+from requests import exceptions as requests_exceptions
+
 from odoo import tools
-from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
 
@@ -24,49 +25,52 @@ class TestSupportRelease(TransactionCase):
         return patch.object(type(self.Server), "_request")
 
     def test_register_next(self):
-        release = self.Release._register_deployment("next", [42, 12, 42])
+        release = self.Release._register_deployment("next", [42, 12])
         self.assertEqual(release.version, "next")
         self.assertFalse(release.is_sent)
-        self.assertEqual(release._get_ticket_ids(), [12, 42])
+        self.assertEqual(release.tickets, [42, 12])
 
-    def test_register_same_version_merges_tickets(self):
+    def test_register_same_version_replaces_tickets(self):
         self.Release._register_deployment("next", [1])
         release = self.Release._register_deployment("next", [2])
         self.assertEqual(self.Release.search_count([("version", "=", "next")]), 1)
-        self.assertEqual(release._get_ticket_ids(), [1, 2])
+        self.assertEqual(release.tickets, [2])
 
     def test_register_same_version_keeps_is_sent(self):
         release = self.Release._register_deployment("next", [1])
         release.is_sent = True
         release = self.Release._register_deployment("next", [2])
         self.assertTrue(release.is_sent)
-        self.assertEqual(release._get_ticket_ids(), [1, 2])
+        self.assertEqual(release.tickets, [2])
 
-    def test_version_absorbs_next(self):
+    def test_numbered_version_removes_next(self):
         self.Release._register_deployment("next", [1, 2])
-        release = self.Release._register_deployment("14.0.1.0", [2, 3])
+        release = self.Release._register_deployment("14.0.1.0", [3])
         self.assertFalse(self.Release.search([("version", "=", "next")]))
         self.assertEqual(release.version, "14.0.1.0")
-        self.assertEqual(release._get_ticket_ids(), [1, 2, 3])
+        self.assertEqual(release.tickets, [3])
 
-    def test_next_recreated_after_absorption(self):
+    def test_next_recreated_after_removal(self):
         self.Release._register_deployment("next", [1])
         self.Release._register_deployment("14.0.1.0", [1])
         release = self.Release._register_deployment("next", [2])
         self.assertEqual(release.version, "next")
-        self.assertEqual(release._get_ticket_ids(), [2])
+        self.assertEqual(release.tickets, [2])
 
     def test_next_is_case_insensitive(self):
         self.Release._register_deployment("Next", [1])
         self.assertEqual(self.Release.search_count([("version", "=", "next")]), 1)
 
-    def test_empty_version_is_ignored(self):
-        self.assertFalse(self.Release._register_deployment("", [1]))
-        self.assertEqual(self.Release.search_count([]), 0)
+    def test_empty_version_raises(self):
+        with self.assertRaises(ValueError):
+            self.Release._register_deployment("", [1])
+        self.assertFalse(self.Release.search_count([]))
 
-    def test_non_integer_tickets_are_ignored(self):
-        release = self.Release._register_deployment("next", [1, "abc", None])
-        self.assertEqual(release._get_ticket_ids(), [1])
+    def test_tickets_must_be_a_list_of_ids(self):
+        for tickets in ("1, 2", [1, "2"], None):
+            with self.assertRaises(ValueError):
+                self.Release._register_deployment("next", tickets)
+        self.assertFalse(self.Release.search_count([]))
 
     def test_environment(self):
         for environment in ("dev", "ci", "test"):
@@ -84,7 +88,7 @@ class TestSupportRelease(TransactionCase):
                 {
                     "environment": "preprod",
                     "version": "14.0.1.0",
-                    "tickets": [1, 3],
+                    "tickets": [3, 1],
                 },
             )
 
@@ -120,24 +124,11 @@ class TestSupportRelease(TransactionCase):
             self.Release._cron_push_releases()
         request.assert_not_called()
 
-    def test_failed_push_keeps_release_pending(self):
+    def test_failed_push_raises_and_keeps_release_pending(self):
         release = self.Release._register_deployment("14.0.1.0", [1])
         with _set_running_env("preprod"), self._patch_request() as request:
-            request.side_effect = Exception("boom")
-            self.Release._cron_push_releases()
+            request.side_effect = requests_exceptions.ConnectionError("boom")
+            with self.assertRaises(requests_exceptions.ConnectionError):
+                self.Release._cron_push_releases()
         self.assertFalse(release.is_sent)
         self.assertEqual(self.Release._next_release_to_send(), release)
-
-    def test_button_pushes_all_pending(self):
-        first = self.Release._register_deployment("14.0.1.0", [1])
-        second = self.Release._register_deployment("14.0.2.0", [2])
-        with _set_running_env("prod"), self._patch_request() as request:
-            self.Release.action_push_pending()
-        self.assertEqual(request.call_count, 2)
-        self.assertTrue(first.is_sent)
-        self.assertTrue(second.is_sent)
-
-    def test_button_requires_an_environment(self):
-        with _set_running_env("dev"):
-            with self.assertRaises(UserError):
-                self.Release.action_push_pending()

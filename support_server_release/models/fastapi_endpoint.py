@@ -12,5 +12,5 @@ class FastapiEndpoint(models.Model):
     def _get_fastapi_routers(self):
         routers = super()._get_fastapi_routers()
         if self.app == "cross_connect":
-            routers += [release_router]
+            routers.append(release_router)
         return routers
