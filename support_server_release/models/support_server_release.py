@@ -9,6 +9,8 @@ _logger = logging.getLogger(__name__)
 
 NEXT_VERSION = "next"
 STAGE_PARAMETER = "support_server_release.stage_%s_id"
+TASK_ACTION_XMLID = "project.action_view_task"
+RELEASE_IN_PROD_TEMPLATE = "support_server_release.mail_template_release_in_prod"
 DEPLOYED_FIELDS = {
     "preprod": "preprod_deployed_at",
     "prod": "prod_deployed_at",
@@ -128,6 +130,31 @@ class SupportServerRelease(models.Model):
             )
         next_release.unlink()
 
+    def _get_task_url(self, task):
+        """URL opening the ticket form in the web client of this database."""
+        return f"{self.get_base_url()}/odoo/action-{TASK_ACTION_XMLID}/{task.id}"
+
+    def _get_notification_emails(self):
+        """Emails of the users of the client, the recipients of the release mail."""
+        users = self.cross_connect_client_id.user_ids.filtered(
+            lambda user: user.active and user.email
+        )
+        return ", ".join(sorted(set(users.mapped("email"))))
+
+    def _notify_prod_release(self):
+        """Tell the users of the client that the release reached production."""
+        self.ensure_one()
+        if not self._get_notification_emails():
+            _logger.info(
+                "No user to notify for release %s of %s",
+                self.version,
+                self.cross_connect_client_id.name,
+            )
+            return
+        template = self.env.ref(RELEASE_IN_PROD_TEMPLATE, raise_if_not_found=False)
+        if template:
+            template.send_mail(self.id, force_send=False)
+
     @api.model
     def _process(self, client, payload):
         """Handle a release payload received from a client."""
@@ -173,4 +200,6 @@ class SupportServerRelease(models.Model):
             release._apply_stages(stage)
         if version != NEXT_VERSION:
             release._absorb_next_release()
+        if environment == "prod":
+            release._notify_prod_release()
         return release

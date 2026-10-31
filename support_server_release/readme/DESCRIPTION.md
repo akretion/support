@@ -6,3 +6,6 @@ The core is a single POST route added to the existing `cross_connect`
 endpoint, authenticated by the same `api-key` as the support feature. There is
 no git logic here: the ticket ids are given by the payload, and the partner of
 the release is the one of the projects of the tickets.
+
+When a release reaches production, the mail template *Support Release: release
+in production* notifies the users of the client with the tickets it ships.

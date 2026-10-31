@@ -451,3 +451,36 @@ Deux points d'exploitation découverts à cette occasion, à retenir pour le pil
   préprod, `is_sent` arrive à vrai et la prod ne pousse rien. C'est le comportement
   voulu (`is_sent` n'est jamais remis à faux), mais il faut le savoir avant un
   rafraîchissement de base.
+
+---
+
+## 17. Notification e-mail de mise en production
+
+Ajout demandé après la première livraison. À la réception d'un payload `prod`, et
+seulement après l'absorption de `next` (pour que la liste des tickets soit complète), le
+central envoie le template `mail_template_release_in_prod` :
+
+- destinataires : les `user_ids` du `cross.connect.client`, c'est-à-dire les
+  utilisateurs portail créés par la connexion croisée, filtrés sur `active` et sur la
+  présence d'un `email`, dédoublonnés. Aucun champ ajouté au modèle, aucun nouveau
+  réglage : une liste vide signifie aucun envoi, avec une ligne de log ;
+- contenu : les titres des tickets, chacun pointant vers
+  `/odoo/action-project.action_view_task/<id>` construit depuis `get_base_url()`, et la
+  description du ticket repliée dans un `<details>` ;
+- envoi : `send_mail(force_send=False)`, donc un `mail.mail` en file, expédié par la
+  cron de la file de mails. Une panne SMTP ne fait jamais échouer la réception de la
+  release ;
+- le template est un vrai `mail.template` éditable dans l'interface : rien du contenu
+  n'est en dur dans le code, à part les deux helpers `_get_notification_emails()` et
+  `_get_task_url()`.
+
+Pas de layout de notification Odoo : `mail.mail_notification_light` et
+`mail_notification_layout` ajoutent un lien _Unfollow_ sans jeton, qui ne veut rien dire
+pour un utilisateur portail, et un « Powered by Odoo » inutile chez le client. Le corps
+du template est donc envoyé tel quel.
+
+**Vérifié** : 31 tests verts, dont trois sur le mail (envoi en prod avec destinataire,
+aucun envoi en préprod, aucun envoi sans utilisateur). Rendu réel contrôlé sur la base
+du banc après `-u` : sujet `E2E client: version next in production`, liens absolus
+`https://erp-fr.akretion.com/odoo/action-project.action_view_task/2`, `<details>` et
+description HTML du ticket préservés, aucun lien `mail/unfollow`.
