@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Akretion (http://www.akretion.com).
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.support.release</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    data-string="Support Releases"
+                    string="Support Releases"
+                    name="support_server_release"
+                    data-key="support_server_release"
+                    groups="base.group_system"
+                >
+                    <block title="Ticket stages" id="release_stages">
+                        <setting
+                            id="release_stage_preprod"
+                            string="Preprod stage"
+                            help="Stage applied to the tickets when a release is received from preprod."
+                        >
+                            <field name="support_server_release_stage_preprod_id" />
+                        </setting>
+                        <setting
+                            id="release_stage_prod"
+                            string="Prod stage"
+                            help="Stage applied to the tickets when a release is received from prod."
+                        >
+                            <field name="support_server_release_stage_prod_id" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

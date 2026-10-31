@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Akretion (http://www.akretion.com).
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="support_server_release_view_list" model="ir.ui.view">
+        <field name="model">support.server.release</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-warning="message">
+                <field name="version" />
+                <field name="cross_connect_client_id" />
+                <field name="partner_id" />
+                <field name="preprod_deployed_at" optional="show" />
+                <field name="prod_deployed_at" optional="show" />
+                <field name="message" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="support_server_release_view_form" model="ir.ui.view">
+        <field name="model">support.server.release</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="version" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="cross_connect_client_id" />
+                            <field name="partner_id" />
+                        </group>
+                        <group>
+                            <field name="preprod_deployed_at" />
+                            <field name="prod_deployed_at" />
+                        </group>
+                    </group>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not message"
+                    >
+                        <field name="message" />
+                    </div>
+                    <notebook>
+                        <page string="Tickets" name="tickets">
+                            <field name="task_ids" widget="many2many_tags" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="support_server_release_view_search" model="ir.ui.view">
+        <field name="model">support.server.release</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="version" />
+                <field name="cross_connect_client_id" />
+                <field name="partner_id" />
+                <field name="task_ids" string="Ticket" />
+                <filter name="next" string="Next" domain="[('version', '=', 'next')]" />
+                <filter
+                    name="prod"
+                    string="In prod"
+                    domain="[('prod_deployed_at', '!=', False)]"
+                />
+                <group expand="0" string="Group By">
+                    <filter
+                        name="group_client"
+                        string="Client"
+                        context="{'group_by': 'cross_connect_client_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="support_server_release_action" model="ir.actions.act_window">
+        <field name="name">Releases</field>
+        <field name="res_model">support.server.release</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="support_server_release_menu"
+        name="Releases"
+        parent="project.menu_main_pm"
+        action="support_server_release_action"
+        sequence="100"
+    />
+</odoo>
