@@ -20,7 +20,13 @@ class ReleaseCaseMixin:
         cls.other_project = cls.env["project.project"].create(
             {"name": "Other project", "partner_id": cls.other_partner.id}
         )
+        cls.project_without_partner = cls.env["project.project"].create(
+            {"name": "Anonymous project"}
+        )
         projects = (cls.project | cls.other_project).ids
+        cls.stage_new = cls.env["project.task.type"].create(
+            {"name": "New", "sequence": 1, "project_ids": [(6, 0, projects)]}
+        )
         cls.stage_preprod = cls.env["project.task.type"].create(
             {
                 "name": "To release",
@@ -96,22 +102,24 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(release.task_ids, task)
         self.assertTrue(release.preprod_deployed_at)
         self.assertFalse(release.prod_deployed_at)
+        self.assertFalse(release.message)
         self.assertEqual(task.stage_id, self.stage_preprod)
         self.assertEqual(task.release_ids, release)
 
-    def test_unknown_ticket_is_ignored(self):
+    def test_unknown_ticket_is_reported(self):
         release = self.Release._process(
             self.client, self._payload("preprod", "next", [99999999])
         )
         self.assertTrue(release)
         self.assertFalse(release.task_ids)
+        self.assertIn("99999999", release.message)
 
-    def test_numbered_version_absorbs_next(self):
+    def test_numbered_version_removes_next(self):
         first = self._task()
         second = self._task()
         self.Release._process(self.client, self._payload("preprod", "next", [first.id]))
         release = self.Release._process(
-            self.client, self._payload("preprod", "14.0.1.0", [second.id])
+            self.client, self._payload("preprod", "14.0.1.0", [first.id, second.id])
         )
         self.assertFalse(self.Release.search([("version", "=", "next")]))
         self.assertEqual(release.version, "14.0.1.0")
@@ -136,10 +144,22 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertFalse(release.preprod_deployed_at)
         self.assertEqual(task.stage_id, self.stage_prod)
 
-    def test_stage_never_goes_back(self):
+    def test_stage_is_applied_without_condition(self):
         task = self._task(stage=self.stage_prod)
         self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
-        self.assertEqual(task.stage_id, self.stage_prod)
+        self.assertEqual(task.stage_id, self.stage_preprod)
+
+    def test_stage_missing_from_project_is_attached(self):
+        stage = self.env["project.task.type"].create(
+            {"name": "Shipped", "sequence": 30}
+        )
+        self.env["ir.config_parameter"].sudo().set_param(
+            "support_server_release.stage_preprod_id", stage.id
+        )
+        task = self._task()
+        self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
+        self.assertEqual(task.stage_id, stage)
+        self.assertIn(stage, self.project.type_ids)
 
     def test_no_stage_configured(self):
         self.env["ir.config_parameter"].sudo().set_param(
@@ -151,16 +171,28 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         )
         self.assertTrue(release)
         self.assertEqual(task.stage_id, self.stage_preprod)
+        self.assertIn("No stage configured", release.message)
 
-    def test_foreign_partner_ticket_is_ignored(self):
+    def test_foreign_partner_ticket_is_not_linked(self):
         task = self._task()
-        foreign = self._task(project=self.other_project)
+        foreign = self._task(stage=self.stage_new, project=self.other_project)
         release = self.Release._process(
             self.client, self._payload("preprod", "next", [task.id, foreign.id])
         )
         self.assertEqual(release.task_ids, task)
         self.assertEqual(release.partner_id, self.partner)
-        self.assertEqual(foreign.stage_id, self.stage_preprod)
+        self.assertEqual(foreign.stage_id, self.stage_new)
+        self.assertIn(str(foreign.id), release.message)
+
+    def test_no_partner_links_no_ticket(self):
+        task = self._task(project=self.project_without_partner)
+        release = self.Release._process(
+            self.client, self._payload("preprod", "next", [task.id])
+        )
+        self.assertFalse(release.task_ids)
+        self.assertFalse(release.partner_id)
+        self.assertIn("No partner", release.message)
+        self.assertEqual(task.stage_id, self.stage_preprod)
 
     def test_second_payload_is_idempotent(self):
         task = self._task()
@@ -210,6 +242,7 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         )
         self.assertTrue(release.prod_deployed_at)
         self.assertFalse(self.env["mail.mail"].search([]))
+        self.assertIn("No user with an email", release.message)
 
 
 @tagged("post_install", "-at_install")
@@ -282,5 +315,14 @@ class TestSupportServerReleaseRouter(ReleaseCaseMixin, FastAPITransactionCase):
                 "/cross_connect/release",
                 headers={"api-key": "release-api-key"},
                 json=self._payload("dev", "next", []),
+            )
+        self.assertEqual(response.status_code, 422)
+
+    def test_post_release_empty_version(self):
+        with self._create_test_client(raise_server_exceptions=False) as test_client:
+            response = test_client.post(
+                "/cross_connect/release",
+                headers={"api-key": "release-api-key"},
+                json=self._payload("preprod", "", []),
             )
         self.assertEqual(response.status_code, 422)

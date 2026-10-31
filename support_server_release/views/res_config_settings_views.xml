@@ -15,61 +15,22 @@
                     data-key="support_server_release"
                     groups="base.group_system"
                 >
-                    <div
-                        class="app_settings_block"
-                        data-string="Support Releases"
-                        string="Support Releases"
-                        data-key="support_server_release"
-                        groups="base.group_system"
-                    >
-                        <block title="Ticket stages" id="release_stages">
-                            <div
-                                class="row mt16 o_settings_container"
-                                id="release_stages_container"
-                            >
-                                <div
-                                    class="col-12 col-lg-6 o_setting_box"
-                                    id="release_stage_preprod"
-                                >
-                                    <div class="o_setting_right_pane">
-                                        <label
-                                            for="support_server_release_stage_preprod_id"
-                                        />
-                                        <div class="text-muted">
-                                            Stage applied to the tickets when a
-                                            release is received from preprod
-                                        </div>
-                                        <div class="content-group">
-                                            <field
-                                                name="support_server_release_stage_preprod_id"
-                                                class="o_light_label"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="col-12 col-lg-6 o_setting_box"
-                                    id="release_stage_prod"
-                                >
-                                    <div class="o_setting_right_pane">
-                                        <label
-                                            for="support_server_release_stage_prod_id"
-                                        />
-                                        <div class="text-muted">
-                                            Stage applied to the tickets when a
-                                            release is received from prod
-                                        </div>
-                                        <div class="content-group">
-                                            <field
-                                                name="support_server_release_stage_prod_id"
-                                                class="o_light_label"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </block>
-                    </div>
+                    <block title="Ticket stages" id="release_stages">
+                        <setting
+                            id="release_stage_preprod"
+                            string="Preprod stage"
+                            help="Stage applied to the tickets when a release is received from preprod."
+                        >
+                            <field name="support_server_release_stage_preprod_id" />
+                        </setting>
+                        <setting
+                            id="release_stage_prod"
+                            string="Prod stage"
+                            help="Stage applied to the tickets when a release is received from prod."
+                        >
+                            <field name="support_server_release_stage_prod_id" />
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

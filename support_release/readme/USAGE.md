@@ -19,8 +19,15 @@ The guard on the model presence keeps a database where this module is not
 installed from failing its module update.
 
 Releases are then pushed by the cron *Support Release: push pending releases*
-(every 10 minutes, one release per run, oldest first), or immediately with the
-*Push pending releases* button.
+(every 10 minutes, one release per run, oldest first).
+
+Every deployment sends the complete list of tickets of the release, so
+registering the same version again replaces its tickets instead of completing
+them. A call with a version or a ticket list that cannot be used raises: a
+broken generated migration must be visible in the log, not silently ignored.
+
+A release is only marked as sent once the support server accepted it, so a
+failed push is retried by the next run.
 
 The push only happens when `running_env` is `preprod` or `prod`: it is set by
 `server_environment` from the `RUNNING_ENV` environment variable, so there is

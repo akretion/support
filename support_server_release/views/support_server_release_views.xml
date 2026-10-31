@@ -5,12 +5,13 @@
     <record id="support_server_release_view_list" model="ir.ui.view">
         <field name="model">support.server.release</field>
         <field name="arch" type="xml">
-            <list create="0">
+            <list create="0" decoration-warning="message">
                 <field name="version" />
                 <field name="cross_connect_client_id" />
                 <field name="partner_id" />
                 <field name="preprod_deployed_at" optional="show" />
                 <field name="prod_deployed_at" optional="show" />
+                <field name="message" optional="hide" />
             </list>
         </field>
     </record>
@@ -35,6 +36,13 @@
                             <field name="prod_deployed_at" />
                         </group>
                     </group>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not message"
+                    >
+                        <field name="message" />
+                    </div>
                     <notebook>
                         <page string="Tickets" name="tickets">
                             <field name="task_ids" widget="many2many_tags" />
