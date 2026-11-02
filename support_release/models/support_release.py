@@ -54,7 +54,7 @@ class SupportRelease(models.Model):
             version = NEXT_VERSION
         if not version:
             raise ValueError("a release needs a version")
-        if not isinstance(tickets, list | tuple) or not all(
+        if not isinstance(tickets, (list, tuple)) or not all(
             isinstance(ticket, int) for ticket in tickets
         ):
             raise ValueError("tickets must be a list of ticket ids")
