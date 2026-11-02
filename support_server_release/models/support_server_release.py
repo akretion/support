@@ -97,26 +97,36 @@ class SupportServerRelease(models.Model):
         return partners
 
     @api.model
-    def _filter_tickets(self, client, ticket_ids):
-        """Keep the tickets of the projects of the client, report the others."""
+    def _filter_tickets(self, partner, ticket_ids):
+        """Keep the tickets of the partner of the client, report the others.
+
+        The tickets of an internal project have no cross connect client but
+        share the partner of the customer, so they belong to the release too.
+        """
         tasks = self.env["project.task"].browse(ticket_ids).exists()
         messages = []
         unknown = sorted(set(ticket_ids) - set(tasks.ids))
         if unknown:
             messages.append(_("Unknown tickets: %s", unknown))
-        kept = tasks.filtered(
-            lambda task: task.project_id.cross_connect_client_id == client
-        )
+        if not partner:
+            if tasks:
+                messages.append(
+                    _("No partner on the projects of the client, no ticket linked.")
+                )
+            return self.env["project.task"], messages
+        kept = tasks.filtered(lambda task: task.project_id.partner_id == partner)
         dropped = tasks - kept
         if dropped:
-            messages.append(_("Tickets of another client, not linked: %s", dropped.ids))
+            messages.append(
+                _("Tickets of another partner, not linked: %s", dropped.ids)
+            )
         return kept, messages
 
-    def _prepare_release_vals(self, client, environment, tasks, messages):
+    def _prepare_release_vals(self, partner, environment, tasks, messages):
         return {
             DEPLOYED_FIELDS[environment]: fields.Datetime.now(),
             "message": "\n".join(messages) or False,
-            "partner_id": self._get_client_partner(client).id,
+            "partner_id": partner.id,
             "task_ids": [Command.set(tasks.ids)],
         }
 
@@ -142,14 +152,14 @@ class SupportServerRelease(models.Model):
         return f"{self.get_base_url()}/odoo/action-{TASK_ACTION_XMLID}/{task.id}"
 
     def _get_notification_emails(self):
-        """Emails of the users of the client, the recipients of the release mail."""
-        users = self.cross_connect_client_id.user_ids.filtered(
+        """Emails of the users to notify, set on the partner of the release."""
+        users = self.partner_id.support_release_notification_user_ids.filtered(
             lambda user: user.active and user.email
         )
         return ", ".join(sorted(set(users.mapped("email"))))
 
     def _notify_prod_release(self):
-        """Tell the users of the client that the release reached production."""
+        """Tell the users of the customer that the release reached production."""
         self.ensure_one()
         if not self._get_notification_emails():
             self._add_message(
@@ -165,8 +175,9 @@ class SupportServerRelease(models.Model):
         if release.prod_deployed_at:
             return release
         environment = payload["environment"]
-        tasks, messages = self._filter_tickets(client, payload.get("tickets") or [])
-        release.write(self._prepare_release_vals(client, environment, tasks, messages))
+        partner = self._get_client_partner(client)
+        tasks, messages = self._filter_tickets(partner, payload.get("tickets") or [])
+        release.write(self._prepare_release_vals(partner, environment, tasks, messages))
         stage = self._get_stage(environment)
         if stage:
             release._apply_stages(stage)

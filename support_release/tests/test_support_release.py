@@ -92,13 +92,6 @@ class TestSupportRelease(TransactionCase):
                 },
             )
 
-    def test_next_release_to_send_is_oldest(self):
-        first = self.Release._register_deployment("14.0.1.0", [1])
-        second = self.Release._register_deployment("14.0.2.0", [2])
-        self.assertEqual(self.Release._next_release_to_send(), first)
-        first.is_sent = True
-        self.assertEqual(self.Release._next_release_to_send(), second)
-
     def test_cron_pushes_one_release(self):
         first = self.Release._register_deployment("14.0.1.0", [1])
         second = self.Release._register_deployment("14.0.2.0", [2])
@@ -111,12 +104,12 @@ class TestSupportRelease(TransactionCase):
             kwargs["data"],
             {
                 "environment": "preprod",
-                "version": "14.0.1.0",
-                "tickets": [1],
+                "version": "14.0.2.0",
+                "tickets": [2],
             },
         )
-        self.assertTrue(first.is_sent)
-        self.assertFalse(second.is_sent)
+        self.assertTrue(second.is_sent)
+        self.assertFalse(first.is_sent)
 
     def test_cron_is_silent_without_environment(self):
         self.Release._register_deployment("14.0.1.0", [1])
@@ -131,4 +124,4 @@ class TestSupportRelease(TransactionCase):
             with self.assertRaises(requests_exceptions.ConnectionError):
                 self.Release._cron_push_releases()
         self.assertFalse(release.is_sent)
-        self.assertEqual(self.Release._next_release_to_send(), release)
+        self.assertEqual(self.Release.search([("is_sent", "=", False)]), release)

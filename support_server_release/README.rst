@@ -60,8 +60,11 @@ appear in their kanban.
 A client owns the projects whose *Cross Connect Client* is set to it.
 The partner of the release is the partner of those projects; if they
 carry several partners, the module raises and the reception fails, since
-the client must be one customer. A ticket is linked only when its
-project belongs to the client sending the payload.
+the client must be one customer. A ticket is linked when its project
+carries that partner, so the tickets of the internal projects
+(maintenance done for the customer, without a cross connect client) are
+linked too, while a ticket of another partner is reported in the
+*Message* field and left untouched.
 
 Each payload replaces the tickets of the release: a ticket removed from
 the release is unlinked, so the production mail never announces it.
@@ -82,11 +85,13 @@ user to notify. Nothing is dropped silently.
 Production notification
 -----------------------
 
-When a release reaches production, the users of its client (the portal
-users attached to the ``cross.connect.client``, the ones the connection
-creates) get an email listing the tickets of the release: every title
-links to the ticket, and the description of the ticket is folded under a
-*Description* summary.
+When a release reaches production, the users listed in *Release
+notification users* on the partner of the release get an email listing
+the tickets of the release: every title links to the ticket, and the
+description of the ticket is folded under a *Description* summary. That
+list is set on the customer, so the same people are notified for every
+release of that customer, and a customer with no user listed simply gets
+no mail.
 
 The mail is queued like any other Odoo mail and sent by the mail queue,
 so a mail server problem never fails the release. A client without a

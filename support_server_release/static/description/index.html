@@ -414,8 +414,11 @@ appear in their kanban.</p>
 <p>A client owns the projects whose <em>Cross Connect Client</em> is set to it.
 The partner of the release is the partner of those projects; if they
 carry several partners, the module raises and the reception fails, since
-the client must be one customer. A ticket is linked only when its
-project belongs to the client sending the payload.</p>
+the client must be one customer. A ticket is linked when its project
+carries that partner, so the tickets of the internal projects
+(maintenance done for the customer, without a cross connect client) are
+linked too, while a ticket of another partner is reported in the
+<em>Message</em> field and left untouched.</p>
 <p>Each payload replaces the tickets of the release: a ticket removed from
 the release is unlinked, so the production mail never announces it.</p>
 <p>Once a release has a production deployment date, any further payload for
@@ -430,11 +433,13 @@ a project of another client, no stage configured for the environment, no
 user to notify. Nothing is dropped silently.</p>
 <div class="section" id="production-notification">
 <h2><a class="toc-backref" href="#toc-entry-2">Production notification</a></h2>
-<p>When a release reaches production, the users of its client (the portal
-users attached to the <tt class="docutils literal">cross.connect.client</tt>, the ones the connection
-creates) get an email listing the tickets of the release: every title
-links to the ticket, and the description of the ticket is folded under a
-<em>Description</em> summary.</p>
+<p>When a release reaches production, the users listed in <em>Release
+notification users</em> on the partner of the release get an email listing
+the tickets of the release: every title links to the ticket, and the
+description of the ticket is folded under a <em>Description</em> summary. That
+list is set on the customer, so the same people are notified for every
+release of that customer, and a customer with no user listed simply gets
+no mail.</p>
 <p>The mail is queued like any other Odoo mail and sent by the mail queue,
 so a mail server problem never fails the release. A client without a
 user having an email address simply gets no mail.</p>

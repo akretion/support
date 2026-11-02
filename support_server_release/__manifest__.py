@@ -19,6 +19,7 @@
         "data/mail_template.xml",
         "views/support_server_release_views.xml",
         "views/project_task_views.xml",
+        "views/res_partner_views.xml",
         "views/res_config_settings_views.xml",
     ],
     "installable": True,

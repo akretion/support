@@ -63,7 +63,8 @@ The guard on the model presence keeps a database where this module is
 not installed from failing its module update.
 
 Releases are then pushed by the cron *Support Release: push pending
-releases* (every 10 minutes, one release per run, oldest first).
+releases* (every 10 minutes, one release per run, in the default order
+of the model, so the most recently registered pending one first).
 
 Every deployment sends the complete list of tickets of the release, so
 registering the same version again replaces its tickets instead of

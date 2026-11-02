@@ -49,7 +49,15 @@ class ReleaseCaseMixin:
         cls.anonymous_project = cls.env["project.project"].create(
             {"name": "Anonymous project", "cross_connect_client_id": cls.client.id}
         )
-        projects = (cls.project | cls.other_project | cls.anonymous_project).ids
+        cls.internal_project = cls.env["project.project"].create(
+            {"name": "Internal maintenance", "partner_id": cls.partner.id}
+        )
+        projects = (
+            cls.project
+            | cls.other_project
+            | cls.anonymous_project
+            | cls.internal_project
+        ).ids
         cls.stage_new = cls.env["project.task.type"].create(
             {"name": "New", "sequence": 1, "project_ids": [(6, 0, projects)]}
         )
@@ -76,9 +84,9 @@ class ReleaseCaseMixin:
     def _payload(self, environment, version, tickets):
         return {"environment": environment, "version": version, "tickets": tickets}
 
-    def _client_user(self, email):
-        """A portal user of the client, the recipient of the release mail."""
-        return (
+    def _notification_user(self, email):
+        """A user notified when a release of the partner reaches production."""
+        user = (
             self.env["res.users"]
             .with_context(no_reset_password=True)
             .create(
@@ -86,11 +94,12 @@ class ReleaseCaseMixin:
                     "name": "Customer user",
                     "login": email,
                     "email": email,
-                    "cross_connect_client_id": self.client.id,
                     "groups_id": [(6, 0, [self.env.ref("base.group_portal").id])],
                 }
             )
         )
+        self.partner.support_release_notification_user_ids = [(4, user.id)]
+        return user
 
 
 class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
@@ -169,7 +178,7 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(task.stage_id, self.stage_preprod)
         self.assertIn("No stage configured", release.message)
 
-    def test_ticket_of_another_client_is_not_linked(self):
+    def test_ticket_of_another_partner_is_not_linked(self):
         task = self._task()
         foreign = self._task(stage=self.stage_new, project=self.other_project)
         release = self.Release._process(
@@ -180,13 +189,24 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(foreign.stage_id, self.stage_new)
         self.assertIn(str(foreign.id), release.message)
 
-    def test_project_without_partner_is_still_linked(self):
+    def test_ticket_of_internal_project_is_linked(self):
+        internal = self._task(stage=self.stage_new, project=self.internal_project)
+        release = self.Release._process(
+            self.client, self._payload("preprod", "next", [internal.id])
+        )
+        self.assertEqual(release.task_ids, internal)
+        self.assertEqual(release.partner_id, self.partner)
+        self.assertFalse(release.message)
+
+    def test_ticket_of_project_without_partner_is_not_linked(self):
         task = self._task(project=self.anonymous_project)
         release = self.Release._process(
             self.client, self._payload("preprod", "next", [task.id])
         )
-        self.assertEqual(release.task_ids, task)
+        self.assertFalse(release.task_ids)
         self.assertEqual(release.partner_id, self.partner)
+        self.assertIn(str(task.id), release.message)
+        self.assertEqual(task.stage_id, self.stage_preprod)
 
     def test_several_partners_raise(self):
         self.env["project.project"].create(
@@ -226,10 +246,10 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(release.partner_id, self.partner)
         self.assertGreaterEqual(release.preprod_deployed_at, deployed_at)
 
-    def test_prod_notifies_the_client_users(self):
+    def test_prod_notifies_the_notification_users(self):
         task = self._task()
         task.description = "<p>The content of the ticket</p>"
-        self._client_user("customer@example.com")
+        self._notification_user("customer@example.com")
         self.env["mail.mail"].search([]).unlink()
         release = self.Release._process(
             self.client, self._payload("prod", "14.0.1.0", [task.id])
@@ -250,7 +270,7 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
 
     def test_prod_mail_is_sent_once(self):
         task = self._task()
-        self._client_user("customer@example.com")
+        self._notification_user("customer@example.com")
         self.env["mail.mail"].search([]).unlink()
         payload = self._payload("prod", "14.0.1.0", [task.id])
         self.Release._process(self.client, dict(payload))
@@ -259,12 +279,12 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
 
     def test_preprod_sends_no_mail(self):
         task = self._task()
-        self._client_user("customer@example.com")
+        self._notification_user("customer@example.com")
         self.env["mail.mail"].search([]).unlink()
         self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
         self.assertFalse(self.env["mail.mail"].search([]))
 
-    def test_prod_without_client_user_sends_no_mail(self):
+    def test_prod_without_notification_user_sends_no_mail(self):
         task = self._task()
         self.env["mail.mail"].search([]).unlink()
         release = self.Release._process(
