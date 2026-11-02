@@ -268,6 +268,28 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
             f"/odoo/action-project.action_view_task/{task.id}", mail.body_html
         )
 
+    def test_prod_mail_is_sent_in_the_language_of_the_customer(self):
+        self.env["res.lang"]._activate_lang("fr_FR")
+        self.env.ref("base.module_support_server_release")._update_translations(
+            ["fr_FR"]
+        )
+        self.env.invalidate_all()
+        template = self.env.ref("support_server_release.mail_template_release_in_prod")
+        self.assertIn("en production", template.with_context(lang="fr_FR").subject)
+        task = self._task()
+        self._notification_user("customer@example.com")
+        self.partner.lang = "fr_FR"
+        self.env["mail.mail"].search([]).unlink()
+        release = self.Release._process(
+            self.client, self._payload("prod", "14.0.1.0", [task.id])
+        )
+        mail = self.env["mail.mail"].search(
+            [("model", "=", "support.server.release"), ("res_id", "=", release.id)]
+        )
+        self.assertIn("version 14.0.1.0 en production", mail.subject)
+        self.assertIn("Bonjour", mail.body_html)
+        self.assertIn("Cordialement", mail.body_html)
+
     def test_prod_mail_is_sent_once(self):
         task = self._task()
         self._notification_user("customer@example.com")
