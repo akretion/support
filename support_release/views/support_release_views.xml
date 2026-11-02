@@ -17,15 +17,7 @@
     <record id="support_release_view_form" model="ir.ui.view">
         <field name="model">support.release</field>
         <field name="arch" type="xml">
-            <form create="0" edit="0">
-                <header>
-                    <button
-                        name="action_push_pending"
-                        type="object"
-                        string="Push pending releases"
-                        class="btn-primary"
-                    />
-                </header>
+            <form create="0" edit="0" delete="0">
                 <sheet>
                     <group>
                         <field name="version" />
@@ -60,8 +52,9 @@
 
     <menuitem
         id="support_release_menu"
-        parent="base.menu_custom"
+        parent="base.menu_administration"
         action="support_release_action"
+        groups="base.group_system"
         sequence="100"
     />
 </odoo>
