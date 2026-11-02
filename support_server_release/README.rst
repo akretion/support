@@ -53,12 +53,22 @@ Support Releases*:
 The stage of the environment is applied to every ticket of the release,
 without comparing it with the current one: the payload describes the
 state after the deployment, and a release received out of order corrects
-the previous one. If the stage is not linked to the project of a ticket,
-it is linked first, otherwise the web client would silently replace it.
+the previous one. The stage is not added to the projects: the two
+configured stages have to be linked to the projects of the client to
+appear in their kanban.
 
-Once a release has a production deployment date, a payload coming from
-preprod for the same version is ignored, so a preprod redeployment
-cannot reopen tickets that are already closed.
+A client owns the projects whose *Cross Connect Client* is set to it.
+The partner of the release is the partner of those projects; if they
+carry several partners, the module raises and the reception fails, since
+the client must be one customer. A ticket is linked only when its
+project belongs to the client sending the payload.
+
+Each payload replaces the tickets of the release: a ticket removed from
+the release is unlinked, so the production mail never announces it.
+
+Once a release has a production deployment date, any further payload for
+that version is ignored, whether it comes from preprod or from prod: a
+timeout that replays the payload cannot send the mail twice.
 
 The ``next`` release of a client is deleted when the first numbered
 version arrives for that client, its tickets being part of the new
@@ -66,8 +76,8 @@ payload.
 
 Whatever could not be applied is written on the release, in the
 *Message* field shown when it is not empty: unknown tickets, tickets of
-another partner or of a project without partner, no stage configured for
-the environment, no user to notify. Nothing is dropped silently.
+a project of another client, no stage configured for the environment, no
+user to notify. Nothing is dropped silently.
 
 Production notification
 -----------------------

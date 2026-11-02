@@ -12,6 +12,7 @@
     "depends": [
         "cross_connect_server",
         "project",
+        "project_customer_access",
     ],
     "data": [
         "security/ir.model.access.csv",

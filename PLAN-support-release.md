@@ -120,24 +120,24 @@ Trois règles :
 
 ## 5. Décisions
 
-| #   | Décision                                                                                                                                                                                                                                   | Raison                                                                                                                                                                       |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | Deux modules dans akretion/support : `support_release` (client) et `support_server_release` (serveur), avec des modèles aux noms distincts (`support.release` / `support.server.release`).                                                 | Réponse utilisateur ; aucun risque de fusion de modèle.                                                                                                                      |
-| D2  | L'information entre par une migration générée qui appelle `env["support.release"]._register_deployment(version=..., tickets=[...])`, sous `if "support.release" not in env`.                                                               | Seul mécanisme disponible au moment de la mise à jour, sans git ni réseau ; la garde évite de casser une base où le module manque.                                           |
-| D3  | La version est la clé d'idempotence, `next` quand il n'y a pas de numéro ; chaque payload porte la liste complète des tickets, donc la première version numérotée supprime simplement `next` (le serveur fait de même).                    | Réponse utilisateur ; rejouable, aucun ticket compté deux fois, aucune fusion à maintenir.                                                                                   |
-| D4  | Environnement = `tools.config.get("running_env")`, sans paramètre de module ; seuls `preprod` et `prod` déclenchent un envoi.                                                                                                              | Réponse utilisateur ; `server_environment` fournit déjà la valeur.                                                                                                           |
-| D5  | Envoi par cron (10 min), une release par tick, la plus ancienne non envoyée ; `is_sent` posé seulement en cas de succès, jamais invalidé ; un échec remonte dans la cron au lieu d'être avalé.                                             | Réponse utilisateur ; aucun état d'erreur à maintenir, l'exception reste visible.                                                                                            |
-| D6  | Transport par `cross.connect.server._request()` sur `/cross_connect/release`, route ajoutée à l'endpoint `api-support` existant.                                                                                                           | Infrastructure en place : ni authentification ni endpoint nouveau.                                                                                                           |
-| D7  | Le serveur ne dépend ni de GitLab ni de `project_customer_access` : manifeste `cross_connect_server` + `project`.                                                                                                                          | Réponse utilisateur ; le partenaire venant des projets des tickets, plus rien n'a besoin du lien client → projets, et `gitlab_integration` sort de la chaîne de dépendances. |
-| D8  | La release n'a pas de `project_id` ; elle porte le `cross_connect_client_id` (issu de la clé d'API) et le `partner_id` **déduit du projet des tickets liés** ; les tickets dont le projet pointe un autre partenaire ne sont pas liés.     | Réponse utilisateur : le partenaire vient du projet de la task, pas de la configuration du client.                                                                           |
-| D9  | Deux étapes globales paramétrables (préprod, prod) dans les Réglages, appliquées à chaque réception sans comparaison avec l'étape courante, avec rattachement de l'étape au projet si besoin.                                              | Réponse utilisateur (« on applique la release et on met à jour l'état sans condition »), plus le piège du calcul de `stage_id`.                                              |
-| D10 | Préprod ignorée pour une version déjà en prod.                                                                                                                                                                                             | Réponse utilisateur.                                                                                                                                                         |
-| D11 | Les horodatages de déploiement sont posés par le central à la réception et écrasés à chaque réception.                                                                                                                                     | Le client n'envoie pas de dates, l'heure du central est la seule fiable.                                                                                                     |
-| D12 | Versions non validées en format ; `next` normalisé en minuscules.                                                                                                                                                                          | Les versions en usage ont cinq segments.                                                                                                                                     |
-| D13 | Pas de backport.                                                                                                                                                                                                                           | Réponse utilisateur.                                                                                                                                                         |
-| D14 | Tri des releases du central sur `id desc` : la version est une `Char`, un tri `version desc` placerait `14.0.2610.9.0` avant `14.0.2610.26.0`.                                                                                             | Revue de la PR 84.                                                                                                                                                           |
-| D15 | Ce qui ne peut pas être appliqué est écrit dans un champ `message` visible sur la release (tickets inconnus, autre partenaire, aucun partenaire, étape non configurée, aucun destinataire) : aucun avertissement silencieux dans les logs. | Revue de la PR 84 (« jamais de choses silencieuses »).                                                                                                                       |
-| D16 | Droits : lecture/écriture pour les internes côté central, lecture/écriture pour `base.group_system` côté client, jamais de création ni de suppression depuis l'interface.                                                                  | Revue de la PR 84 : seul le code crée les releases, et supprimer effacerait la seule trace du déploiement.                                                                   |
+| #   | Décision                                                                                                                                                                                                                                                                                          | Raison                                                                                                                                                                                                                     |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Deux modules dans akretion/support : `support_release` (client) et `support_server_release` (serveur), avec des modèles aux noms distincts (`support.release` / `support.server.release`).                                                                                                        | Réponse utilisateur ; aucun risque de fusion de modèle.                                                                                                                                                                    |
+| D2  | L'information entre par une migration générée qui appelle `env["support.release"]._register_deployment(version=..., tickets=[...])`, sous `if "support.release" not in env`.                                                                                                                      | Seul mécanisme disponible au moment de la mise à jour, sans git ni réseau ; la garde évite de casser une base où le module manque.                                                                                         |
+| D3  | La version est la clé d'idempotence, `next` quand il n'y a pas de numéro ; chaque payload porte la liste complète des tickets, donc la première version numérotée supprime simplement `next` (le serveur fait de même).                                                                           | Réponse utilisateur ; rejouable, aucun ticket compté deux fois, aucune fusion à maintenir.                                                                                                                                 |
+| D4  | Environnement = `tools.config.get("running_env")`, sans paramètre de module ; seuls `preprod` et `prod` déclenchent un envoi.                                                                                                                                                                     | Réponse utilisateur ; `server_environment` fournit déjà la valeur.                                                                                                                                                         |
+| D5  | Envoi par cron (10 min), une release par tick, la plus ancienne non envoyée ; `is_sent` posé seulement en cas de succès, jamais invalidé ; un échec remonte dans la cron au lieu d'être avalé.                                                                                                    | Réponse utilisateur ; aucun état d'erreur à maintenir, l'exception reste visible.                                                                                                                                          |
+| D6  | Transport par `cross.connect.server._request()` sur `/cross_connect/release`, route ajoutée à l'endpoint `api-support` existant.                                                                                                                                                                  | Infrastructure en place : ni authentification ni endpoint nouveau.                                                                                                                                                         |
+| D7  | Le serveur ne porte aucune logique GitLab, mais dépend de `project_customer_access` pour savoir quels projets appartiennent à un client (`project.project.cross_connect_client_id`).                                                                                                              | Revue de la PR 84 (02/11) : le filtrage par projet du client remplace le filtrage par partenaire, qui laissait passer les tickets des projets sans partenaire. `project_customer_access` est déjà installé sur le central. |
+| D8  | La release n'a pas de `project_id` ; elle porte le `cross_connect_client_id` (issu de la clé d'API) et le `partner_id` des **projets de ce client** ; un client dont les projets portent plusieurs partenaires fait lever une erreur. Un ticket n'est lié que si son projet appartient au client. | Revue de la PR 84 (02/11) : le client identifie l'émetteur _et_ le propriétaire des tickets ; plusieurs partenaires sur ses projets sont une incohérence de configuration, pas un cas à arbitrer en silence.               |
+| D9  | Deux étapes globales paramétrables (préprod, prod) dans les Réglages, appliquées à chaque réception sans comparaison avec l'étape courante et sans rattacher l'étape au projet.                                                                                                                   | Réponse utilisateur (« on applique la release et on met à jour l'état sans condition », puis « pas besoin d'ajouter le stage au projet »).                                                                                 |
+| D10 | Tout payload reçu pour une version déjà déployée en prod est ignoré, préprod comme prod : plus de second mail, plus de second déplacement.                                                                                                                                                        | Revue de la PR 84 (02/11) : un payload rejoué après un timeout renvoyait un second mail de mise en production.                                                                                                             |
+| D11 | Les horodatages de déploiement sont posés par le central à la réception et écrasés à chaque réception.                                                                                                                                                                                            | Le client n'envoie pas de dates, l'heure du central est la seule fiable.                                                                                                                                                   |
+| D12 | Versions non validées en format ; `next` normalisé en minuscules.                                                                                                                                                                                                                                 | Les versions en usage ont cinq segments.                                                                                                                                                                                   |
+| D13 | Pas de backport.                                                                                                                                                                                                                                                                                  | Réponse utilisateur.                                                                                                                                                                                                       |
+| D14 | Tri des releases du central sur `id desc` : la version est une `Char`, un tri `version desc` placerait `14.0.2610.9.0` avant `14.0.2610.26.0`.                                                                                                                                                    | Revue de la PR 84.                                                                                                                                                                                                         |
+| D15 | Ce qui ne peut pas être appliqué est écrit dans un champ `message` visible sur la release (tickets inconnus, autre partenaire, aucun partenaire, étape non configurée, aucun destinataire) : aucun avertissement silencieux dans les logs.                                                        | Revue de la PR 84 (« jamais de choses silencieuses »).                                                                                                                                                                     |
+| D16 | Droits : lecture/écriture pour les internes côté central, lecture/écriture pour `base.group_system` côté client, jamais de création ni de suppression depuis l'interface.                                                                                                                         | Revue de la PR 84 : seul le code crée les releases, et supprimer effacerait la seule trace du déploiement.                                                                                                                 |
 
 ---
 
@@ -251,15 +251,15 @@ tickets.
 
 ### `support.server.release` (`_rec_name = "version"`)
 
-| Champ                     | Type                           | Rôle                                    |
-| ------------------------- | ------------------------------ | --------------------------------------- |
-| `version`                 | Char, requis, indexé           | unique par client                       |
-| `cross_connect_client_id` | Many2one, requis, indexé       | client propriétaire                     |
-| `partner_id`              | Many2one `res.partner`, indexé | `partner_id` du projet des tickets liés |
-| `task_ids`                | Many2many `project.task`       | tickets liés, tous projets confondus    |
-| `preprod_deployed_at`     | Datetime                       | dernière réception préprod              |
-| `prod_deployed_at`        | Datetime                       | dernière réception prod                 |
-| `message`                 | Text, lecture seule            | ce qui n'a pas pu être appliqué (D15)   |
+| Champ                     | Type                           | Rôle                                  |
+| ------------------------- | ------------------------------ | ------------------------------------- |
+| `version`                 | Char, requis, indexé           | unique par client                     |
+| `cross_connect_client_id` | Many2one, requis, indexé       | client propriétaire                   |
+| `partner_id`              | Many2one `res.partner`, indexé | partenaire des projets du client      |
+| `task_ids`                | Many2many `project.task`       | tickets liés, tous projets confondus  |
+| `preprod_deployed_at`     | Datetime                       | dernière réception préprod            |
+| `prod_deployed_at`        | Datetime                       | dernière réception prod               |
+| `message`                 | Text, lecture seule            | ce qui n'a pas pu être appliqué (D15) |
 
 Ordre par défaut : `id desc`, donc la dernière release reçue en tête (D14).
 
@@ -281,15 +281,15 @@ Contrainte SQL : unicité (`cross_connect_client_id`, `version`). `project.task`
 
 1. `_get_release(client, version)` : `search` sur (`cross_connect_client_id`,
    `version`), sinon `create` ;
-2. si `environment == "preprod"` et que la release a déjà un `prod_deployed_at`, on
-   s'arrête là : rien n'est modifié, pas même le champ `message` ;
-3. `_filter_tickets(release, ticket_ids)` : résout les ids (`browse().exists()`), met
-   dans `message` les ids inconnus, garde les tickets dont le projet porte le partenaire
-   de la release (ou le premier partenaire trouvé si la release n'en a pas encore) et
-   met dans `message` ceux d'un autre partenaire ; si aucun projet n'a de partenaire,
-   aucun ticket n'est lié et `message` l'indique ;
-4. `_release_vals(...)` : horodatage de l'environnement à `now()` (écrasé), `message`,
-   `task_ids` liés et `partner_id` ;
+2. si la release a déjà un `prod_deployed_at`, on s'arrête là : rien n'est modifié, ni
+   horodatage, ni tickets, ni étape, ni mail (D10) ;
+3. `_filter_tickets(client, ticket_ids)` : résout les ids (`browse().exists()`), met
+   dans `message` les ids inconnus, garde les tickets dont le projet porte ce
+   `cross_connect_client_id` et met dans `message` ceux d'un autre client ;
+4. `_prepare_release_vals(client, environment, tasks, messages)` : horodatage de
+   l'environnement à `now()` (écrasé), `message`, `partner_id` des projets du client
+   (`_get_client_partner`, qui lève si ces projets portent plusieurs partenaires) et
+   `task_ids` **remplacés** par `Command.set(tasks.ids)` ;
 5. `_apply_stages(stage)` puis, si aucune étape n'est configurée, une ligne dans
    `message` ;
 6. `_remove_next_release()` si la version n'est pas `next` ;
@@ -300,14 +300,13 @@ Contrainte SQL : unicité (`cross_connect_client_id`, `version`). `project.task`
 `_apply_stages(stage)` :
 
 - cible = `support_server_release.stage_preprod_id` ou `.stage_prod_id` ;
-- l'étape est écrite sur **chaque** ticket, sans comparaison avec l'étape courante ;
-- si la cible n'est pas dans `task.project_id.type_ids`, elle y est rattachée
-  (`Command.link`) pour que la colonne existe dans le kanban et que le calcul de
-  `stage_id` ne la remplace pas ;
-- écriture en `sudo()`, une entrée de chatter par ticket (`stage_id` est
-  `tracking=True`) ;
-- aucune gestion d'erreur par ticket : une écriture impossible fait échouer la
-  réception, ce qui est visible et rejoué par le client.
+- l'étape est écrite sur **chaque** ticket, sans comparaison avec l'étape courante, en
+  une seule écriture (`self.task_ids.sudo().stage_id = stage`) ;
+- l'étape n'est pas rattachée au projet : les étapes configurées doivent déjà figurer
+  dans les projets concernés pour apparaître dans le kanban ;
+- une entrée de chatter par ticket (`stage_id` est `tracking=True`) ;
+- aucune gestion d'erreur : une écriture impossible fait échouer la réception, ce qui
+  est visible et rejoué par le client.
 
 ### Paramétrage
 
@@ -473,8 +472,8 @@ Deux points d'exploitation découverts à cette occasion, à retenir pour le pil
 ## 17. Notification e-mail de mise en production
 
 Ajout demandé après la première livraison. À la réception d'un payload `prod`, et
-seulement après l'absorption de `next` (pour que la liste des tickets soit complète), le
-central envoie le template `mail_template_release_in_prod` :
+seulement si la release n'a pas encore de `prod_deployed_at` (D10), le central envoie le
+template `mail_template_release_in_prod` :
 
 - destinataires : les `user_ids` du `cross.connect.client`, c'est-à-dire les
   utilisateurs portail créés par la connexion croisée, filtrés sur `active` et sur la
@@ -544,3 +543,35 @@ nouveaux cas : remplacement des tickets, `ValueError` sur version vide ou ticket
 invalides, étape appliquée en arrière, étape rattachée au projet, `message` rempli pour
 un ticket inconnu, un ticket d'un autre partenaire, un projet sans partenaire, une étape
 non configurée et l'absence de destinataire, `version` vide en 422.
+
+---
+
+## 19. Deuxième revue de la PR 84 (02/11)
+
+Trois points de `rob-beau`, dont deux confirmés et un laissé en attente d'arbitrage, et
+huit directives de `sebastienbeau`.
+
+| Commentaire                                                         | Traitement                                                                                                                         |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| le central ajoute les tickets, il ne les remplace pas               | `Command.set(tasks.ids)` : le payload fait foi, un ticket retiré n'est plus lié, donc plus annoncé dans le mail (D3)               |
+| le mail de prod repart à chaque payload                             | garde en tête de `_process` sur `release.prod_deployed_at`, quelle que soit l'environnement (D10) ; test avec deux payloads prod   |
+| les destinataires du mail (opt-in)                                  | rien de changé : arbitrage en cours côté utilisateur, le comportement actuel est documenté en §17                                  |
+| `_order` du client : `id desc`                                      | appliqué ; `_next_release_to_send()` garde un `order="id"` explicite pour continuer à envoyer la plus ancienne                     |
+| projets du client via `cross_connect_client_id`, puis le partenaire | `_get_client_partner()` lit `client.project_ids.partner_id` et lève si plusieurs partenaires                                       |
+| plusieurs `partner_id` → erreur                                     | `ValidationError`, donc réception en échec et cron cliente en échec, comme demandé                                                 |
+| filtrer sur les tickets qui existent et qui sont du bon client      | `_filter_tickets(client, ...)` garde les tickets dont le projet porte ce `cross_connect_client_id`, les autres vont dans `message` |
+| écraser les `task_ids`                                              | `Command.set`, y compris pour vider la liste                                                                                       |
+| pas besoin d'ajouter le stage au projet                             | bloc `type_ids` supprimé ; `_apply_stages` devient une seule écriture                                                              |
+| nommer la méthode `_prepare_release_vals`                           | renommée                                                                                                                           |
+| `release.task_ids.stage_id = stage`                                 | appliqué (`self.task_ids.sudo().stage_id = stage`)                                                                                 |
+
+Le manifeste gagne `project_customer_access`, seul propriétaire de
+`project.project.cross_connect_client_id` : c'est un renversement de D7, assumé, puisque
+le filtrage par projet du client remplace le filtrage par partenaire (D7 et D8 amendés).
+
+**Vérifié** : 34 tests verts sur le banc, cette fois avec `project_customer_access` et
+sa chaîne réellement installées (564 modules disponibles, dont `gitlab_integration`),
+donc sur le vrai champ `cross_connect_client_id`. Les cas ajoutés : payload qui rétrécit
+et détache le ticket retiré, ticket d'un autre client non lié et signalé, projet sans
+partenaire toujours lié, deux partenaires sur les projets du client qui lèvent, deux
+payloads `prod` qui ne produisent qu'un `mail.mail`.

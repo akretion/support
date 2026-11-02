@@ -1,6 +1,7 @@
 # Copyright 2026 Akretion (http://www.akretion.com).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.extendable_fastapi.tests.common import FastAPITransactionCase
@@ -14,32 +15,49 @@ class ReleaseCaseMixin:
         cls.Release = cls.env["support.server.release"]
         cls.partner = cls.env["res.partner"].create({"name": "Customer"})
         cls.other_partner = cls.env["res.partner"].create({"name": "Other customer"})
+        cls.endpoint = cls.env["fastapi.endpoint"].create(
+            {"name": "Support endpoint", "root_path": "/api", "app": "cross_connect"}
+        )
+        cls.client = cls.env["cross.connect.client"].create(
+            {
+                "name": "Test client",
+                "endpoint_id": cls.endpoint.id,
+                "api_key": "release-api-key",
+            }
+        )
+        cls.other_client = cls.env["cross.connect.client"].create(
+            {
+                "name": "Other client",
+                "endpoint_id": cls.endpoint.id,
+                "api_key": "other-api-key",
+            }
+        )
         cls.project = cls.env["project.project"].create(
-            {"name": "Ticket project", "partner_id": cls.partner.id}
+            {
+                "name": "Ticket project",
+                "partner_id": cls.partner.id,
+                "cross_connect_client_id": cls.client.id,
+            }
         )
         cls.other_project = cls.env["project.project"].create(
-            {"name": "Other project", "partner_id": cls.other_partner.id}
+            {
+                "name": "Other project",
+                "partner_id": cls.other_partner.id,
+                "cross_connect_client_id": cls.other_client.id,
+            }
         )
-        cls.project_without_partner = cls.env["project.project"].create(
-            {"name": "Anonymous project"}
+        cls.anonymous_project = cls.env["project.project"].create(
+            {"name": "Anonymous project", "cross_connect_client_id": cls.client.id}
         )
-        projects = (cls.project | cls.other_project).ids
+        projects = (cls.project | cls.other_project | cls.anonymous_project).ids
         cls.stage_new = cls.env["project.task.type"].create(
             {"name": "New", "sequence": 1, "project_ids": [(6, 0, projects)]}
         )
         cls.stage_preprod = cls.env["project.task.type"].create(
-            {
-                "name": "To release",
-                "sequence": 10,
-                "project_ids": [(6, 0, projects)],
-            }
+            {"name": "To release", "sequence": 10, "project_ids": [(6, 0, projects)]}
         )
         cls.stage_prod = cls.env["project.task.type"].create(
-            {
-                "name": "Closed",
-                "sequence": 20,
-                "project_ids": [(6, 0, projects)],
-            }
+            {"name": "Closed", "sequence": 20, "project_ids": [(6, 0, projects)]}
         )
         cls.env["ir.config_parameter"].sudo().set_param(
             "support_server_release.stage_preprod_id", cls.stage_preprod.id
@@ -80,16 +98,6 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls._setup_release_data()
-        cls.endpoint = cls.env["fastapi.endpoint"].create(
-            {"name": "Support endpoint", "root_path": "/api", "app": "cross_connect"}
-        )
-        cls.client = cls.env["cross.connect.client"].create(
-            {
-                "name": "Test client",
-                "endpoint_id": cls.endpoint.id,
-                "api_key": "release-api-key",
-            }
-        )
 
     def test_preprod_creates_release(self):
         task = self._task()
@@ -135,7 +143,7 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertFalse(release.preprod_deployed_at)
         self.assertEqual(task.stage_id, self.stage_prod)
 
-    def test_preprod_ignored_once_in_prod(self):
+    def test_payload_after_prod_is_ignored(self):
         task = self._task()
         self.Release._process(self.client, self._payload("prod", "14.0.1.0", [task.id]))
         release = self.Release._process(
@@ -149,18 +157,6 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
         self.assertEqual(task.stage_id, self.stage_preprod)
 
-    def test_stage_missing_from_project_is_attached(self):
-        stage = self.env["project.task.type"].create(
-            {"name": "Shipped", "sequence": 30}
-        )
-        self.env["ir.config_parameter"].sudo().set_param(
-            "support_server_release.stage_preprod_id", stage.id
-        )
-        task = self._task()
-        self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
-        self.assertEqual(task.stage_id, stage)
-        self.assertIn(stage, self.project.type_ids)
-
     def test_no_stage_configured(self):
         self.env["ir.config_parameter"].sudo().set_param(
             "support_server_release.stage_preprod_id", False
@@ -173,7 +169,7 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(task.stage_id, self.stage_preprod)
         self.assertIn("No stage configured", release.message)
 
-    def test_foreign_partner_ticket_is_not_linked(self):
+    def test_ticket_of_another_client_is_not_linked(self):
         task = self._task()
         foreign = self._task(stage=self.stage_new, project=self.other_project)
         release = self.Release._process(
@@ -184,15 +180,40 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(foreign.stage_id, self.stage_new)
         self.assertIn(str(foreign.id), release.message)
 
-    def test_no_partner_links_no_ticket(self):
-        task = self._task(project=self.project_without_partner)
+    def test_project_without_partner_is_still_linked(self):
+        task = self._task(project=self.anonymous_project)
         release = self.Release._process(
             self.client, self._payload("preprod", "next", [task.id])
         )
-        self.assertFalse(release.task_ids)
-        self.assertFalse(release.partner_id)
-        self.assertIn("No partner", release.message)
-        self.assertEqual(task.stage_id, self.stage_preprod)
+        self.assertEqual(release.task_ids, task)
+        self.assertEqual(release.partner_id, self.partner)
+
+    def test_several_partners_raise(self):
+        self.env["project.project"].create(
+            {
+                "name": "Second project of the client",
+                "partner_id": self.other_partner.id,
+                "cross_connect_client_id": self.client.id,
+            }
+        )
+        task = self._task()
+        with self.assertRaises(ValidationError):
+            self.Release._process(
+                self.client, self._payload("preprod", "next", [task.id])
+            )
+        self.assertFalse(self.Release.search([]))
+
+    def test_payload_replaces_tickets(self):
+        first = self._task()
+        second = self._task()
+        self.Release._process(
+            self.client, self._payload("preprod", "14.0.1.0", [first.id, second.id])
+        )
+        release = self.Release._process(
+            self.client, self._payload("preprod", "14.0.1.0", [first.id])
+        )
+        self.assertEqual(release.task_ids, first)
+        self.assertFalse(second.release_ids)
 
     def test_second_payload_is_idempotent(self):
         task = self._task()
@@ -227,6 +248,15 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
             f"/odoo/action-project.action_view_task/{task.id}", mail.body_html
         )
 
+    def test_prod_mail_is_sent_once(self):
+        task = self._task()
+        self._client_user("customer@example.com")
+        self.env["mail.mail"].search([]).unlink()
+        payload = self._payload("prod", "14.0.1.0", [task.id])
+        self.Release._process(self.client, dict(payload))
+        self.Release._process(self.client, dict(payload))
+        self.assertEqual(len(self.env["mail.mail"].search([])), 1)
+
     def test_preprod_sends_no_mail(self):
         task = self._task()
         self._client_user("customer@example.com")
@@ -251,20 +281,6 @@ class TestSupportServerReleaseRouter(ReleaseCaseMixin, FastAPITransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls._setup_release_data()
-        cls.endpoint = cls.env["fastapi.endpoint"].create(
-            {
-                "name": "Support Release Endpoint",
-                "root_path": "/api",
-                "app": "cross_connect",
-            }
-        )
-        cls.client = cls.env["cross.connect.client"].create(
-            {
-                "name": "Test Client",
-                "endpoint_id": cls.endpoint.id,
-                "api_key": "release-api-key",
-            }
-        )
         cls.endpoint_user = cls.env["res.users"].create(
             {
                 "name": "FastAPI Endpoint User",

@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.fields import Command
 
 NEXT_VERSION = "next"
@@ -35,7 +36,7 @@ class SupportServerRelease(models.Model):
     partner_id = fields.Many2one(
         "res.partner",
         index=True,
-        help="Partner of the projects of the tickets of this release.",
+        help="Partner of the projects of the client.",
     )
     task_ids = fields.Many2many(
         "project.task",
@@ -80,37 +81,44 @@ class SupportServerRelease(models.Model):
             return self.env["project.task.type"]
         return self.env["project.task.type"].browse(int(stage_id)).exists()
 
-    def _filter_tickets(self, release, ticket_ids):
-        """Keep the tickets of the partner of the release, report what is dropped."""
+    @api.model
+    def _get_client_partner(self, client):
+        """Partner of the projects of the client, which has to be unique."""
+        partners = client.project_ids.partner_id
+        if len(partners) > 1:
+            raise ValidationError(
+                _(
+                    "The projects of %(client)s belong to several partners: "
+                    "%(partners)s",
+                    client=client.name,
+                    partners=", ".join(partners.mapped("name")),
+                )
+            )
+        return partners
+
+    @api.model
+    def _filter_tickets(self, client, ticket_ids):
+        """Keep the tickets of the projects of the client, report the others."""
         tasks = self.env["project.task"].browse(ticket_ids).exists()
         messages = []
         unknown = sorted(set(ticket_ids) - set(tasks.ids))
         if unknown:
             messages.append(_("Unknown tickets: %s", unknown))
-        partner = release.partner_id or tasks.project_id.partner_id[:1]
-        if not partner:
-            if tasks:
-                messages.append(
-                    _("No partner on the projects of the tickets, no ticket linked.")
-                )
-            return self.env["project.task"], messages
-        kept = tasks.filtered(lambda task: task.project_id.partner_id == partner)
+        kept = tasks.filtered(
+            lambda task: task.project_id.cross_connect_client_id == client
+        )
         dropped = tasks - kept
         if dropped:
-            messages.append(
-                _("Tickets of another partner, not linked: %s", dropped.ids)
-            )
+            messages.append(_("Tickets of another client, not linked: %s", dropped.ids))
         return kept, messages
 
-    def _release_vals(self, environment, tasks, messages):
-        vals = {
+    def _prepare_release_vals(self, client, environment, tasks, messages):
+        return {
             DEPLOYED_FIELDS[environment]: fields.Datetime.now(),
             "message": "\n".join(messages) or False,
+            "partner_id": self._get_client_partner(client).id,
+            "task_ids": [Command.set(tasks.ids)],
         }
-        if tasks:
-            vals["task_ids"] = [Command.link(task.id) for task in tasks]
-            vals["partner_id"] = tasks.project_id.partner_id[:1].id
-        return vals
 
     def _add_message(self, message):
         self.ensure_one()
@@ -118,10 +126,7 @@ class SupportServerRelease(models.Model):
 
     def _apply_stages(self, stage):
         """Move the tickets of the release to the stage of the environment."""
-        for task in self.task_ids:
-            if stage not in task.project_id.type_ids:
-                task.project_id.sudo().write({"type_ids": [Command.link(stage.id)]})
-            task.sudo().write({"stage_id": stage.id})
+        self.task_ids.sudo().stage_id = stage
 
     def _remove_next_release(self):
         """Drop the pending 'next' release, the payload already carries its tickets."""
@@ -156,12 +161,12 @@ class SupportServerRelease(models.Model):
     @api.model
     def _process(self, client, payload):
         """Record a release received from a client and apply it."""
-        environment = payload["environment"]
         release = self._get_release(client, payload["version"])
-        if environment == "preprod" and release.prod_deployed_at:
+        if release.prod_deployed_at:
             return release
-        tasks, messages = self._filter_tickets(release, payload.get("tickets") or [])
-        release.write(self._release_vals(environment, tasks, messages))
+        environment = payload["environment"]
+        tasks, messages = self._filter_tickets(client, payload.get("tickets") or [])
+        release.write(self._prepare_release_vals(client, environment, tasks, messages))
         stage = self._get_stage(environment)
         if stage:
             release._apply_stages(stage)
