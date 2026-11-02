@@ -12,7 +12,7 @@ class SupportRelease(models.Model):
     _name = "support.release"
     _description = "Support Release"
     _rec_name = "version"
-    _order = "create_date, id"
+    _order = "id desc"
 
     version = fields.Char(
         required=True,
@@ -68,7 +68,8 @@ class SupportRelease(models.Model):
 
     @api.model
     def _next_release_to_send(self):
-        return self.search([("is_sent", "=", False)], limit=1)
+        """Oldest pending release first, whatever the default order is."""
+        return self.search([("is_sent", "=", False)], order="id", limit=1)
 
     def _build_payload(self):
         self.ensure_one()
