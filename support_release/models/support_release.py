@@ -66,11 +66,6 @@ class SupportRelease(models.Model):
             self.search([("version", "=", NEXT_VERSION)]).unlink()
         return release
 
-    @api.model
-    def _next_release_to_send(self):
-        """Oldest pending release first, whatever the default order is."""
-        return self.search([("is_sent", "=", False)], order="id", limit=1)
-
     def _build_payload(self):
         self.ensure_one()
         return {
@@ -89,9 +84,9 @@ class SupportRelease(models.Model):
 
     @api.model
     def _cron_push_releases(self):
-        """Push the oldest pending release, one per cron run."""
+        """Push one pending release per cron run, in the default model order."""
         if not self._get_environment():
             return
-        release = self._next_release_to_send()
+        release = self.search([("is_sent", "=", False)], limit=1)
         if release:
             release._push()

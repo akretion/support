@@ -412,7 +412,8 @@ project (usually <tt class="docutils literal">custom_all</tt>) at each deploymen
 <p>The guard on the model presence keeps a database where this module is
 not installed from failing its module update.</p>
 <p>Releases are then pushed by the cron <em>Support Release: push pending
-releases</em> (every 10 minutes, one release per run, oldest first).</p>
+releases</em> (every 10 minutes, one release per run, in the default order
+of the model, so the most recently registered pending one first).</p>
 <p>Every deployment sends the complete list of tickets of the release, so
 registering the same version again replaces its tickets instead of
 completing them. A call with a version or a ticket list that cannot be
