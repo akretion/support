@@ -9,6 +9,9 @@ NEXT_VERSION = "next"
 STAGE_PARAMETER = "support_server_release.stage_%s_id"
 TASK_ACTION_XMLID = "project.action_view_task"
 RELEASE_IN_PROD_TEMPLATE = "support_server_release.mail_template_release_in_prod"
+CUSTOMER_GROUP = "project_customer_access.group_customer"
+CUSTOMER_TASK_ACTION = "project_customer_access.action_view_all_task"
+UNGROUPED_TASK_LIST = "project.open_view_all_tasks_list_view"
 DEPLOYED_FIELDS = {
     "preprod": "preprod_deployed_at",
     "prod": "prod_deployed_at",
@@ -155,16 +158,44 @@ class SupportServerRelease(models.Model):
             release.task_count = len(release.task_ids)
 
     def action_open_tasks(self):
-        """Open the tickets linked to the release."""
+        """Open the tickets linked to the release.
+
+        The customers have their own views of the tasks, carried by the action
+        of project_customer_access, the default action of the project module
+        serves the others.
+        """
         self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Tickets"),
-            "res_model": "project.task",
-            "view_mode": "list,form",
-            "domain": [("id", "in", self.task_ids.ids)],
-            "context": {"create": False},
-        }
+        xmlid = (
+            CUSTOMER_TASK_ACTION
+            if self.env.user.has_group(CUSTOMER_GROUP)
+            else TASK_ACTION_XMLID
+        )
+        action = self.env["ir.actions.actions"]._for_xml_id(xmlid)
+        views = []
+        for view_id, view_mode in action.get("views") or []:
+            if view_mode not in ("list", "form"):
+                continue
+            if view_mode == "list" and not view_id:
+                # the default list of the tasks groups them by stage
+                view_id = self.env.ref(UNGROUPED_TASK_LIST).id
+            views.append((view_id, view_mode))
+        action.update(
+            {
+                "domain": [("id", "in", self.task_ids.ids)],
+                "context": {
+                    # a task created from here would not be linked to the release
+                    "create": False,
+                    # the favourites of the user are bound to the action we reuse,
+                    # so its default one would filter the tickets unasked
+                    "search_disable_custom_filters": True,
+                },
+                # the tickets of a release share the same stage, so the kanban
+                # of the source action would open on a single grouped column
+                "view_mode": "list,form",
+                "views": views,
+            }
+        )
+        return action
 
     def _get_task_url(self, task):
         """URL opening the ticket form in the web client of this database."""

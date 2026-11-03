@@ -7,7 +7,6 @@
         <field name="arch" type="xml">
             <list create="0" decoration-warning="message">
                 <field name="version" />
-                <field name="cross_connect_client_id" />
                 <field name="partner_id" />
                 <field name="preprod_deployed_at" optional="show" />
                 <field name="prod_deployed_at" optional="show" />
@@ -44,7 +43,6 @@
                     </div>
                     <group>
                         <group>
-                            <field name="cross_connect_client_id" />
                             <field name="partner_id" />
                         </group>
                         <group>

@@ -25,11 +25,20 @@ class ProjectTask(models.Model):
             task.latest_release_version = task.release_ids.sorted("id")[-1:].version
 
     def action_open_releases(self):
+        """Open the releases of the task, the form when there is only one."""
         self.ensure_one()
-        return {
+        action = {
             "type": "ir.actions.act_window",
             "name": _("Releases"),
             "res_model": "support.server.release",
-            "view_mode": "list,form",
-            "domain": [("id", "in", self.release_ids.ids)],
         }
+        if len(self.release_ids) == 1:
+            action.update({"view_mode": "form", "res_id": self.release_ids.id})
+        else:
+            action.update(
+                {
+                    "view_mode": "list,form",
+                    "domain": [("id", "in", self.release_ids.ids)],
+                }
+            )
+        return action

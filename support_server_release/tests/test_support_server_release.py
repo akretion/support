@@ -101,6 +101,27 @@ class ReleaseCaseMixin:
         self.partner.support_release_notification_user_ids = [(4, user.id)]
         return user
 
+    def _customer_user(self, login="release-customer@example.com"):
+        """A user of the support group of the client."""
+        return (
+            self.env["res.users"]
+            .with_context(no_reset_password=True)
+            .create(
+                {
+                    "name": "Customer user",
+                    "login": login,
+                    "groups_id": [
+                        (
+                            6,
+                            0,
+                            [self.env.ref("project_customer_access.group_customer").id],
+                        )
+                    ],
+                    "cross_connect_client_id": self.client.id,
+                }
+            )
+        )
+
 
 class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
     @classmethod
@@ -143,6 +164,25 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         action = release.action_open_tasks()
         self.assertEqual(action["res_model"], "project.task")
         self.assertEqual(action["domain"], [("id", "in", task.ids)])
+        # the default favourite of the user must not filter the release
+        self.assertTrue(action["context"]["search_disable_custom_filters"])
+        self.assertFalse(action["context"]["create"])
+        # the default list of the tasks opens grouped by stage, this one does not
+        self.assertEqual(
+            action["views"],
+            [
+                (self.env.ref("project.open_view_all_tasks_list_view").id, "list"),
+                (False, "form"),
+            ],
+        )
+        self.assertNotIn(
+            "default_group_by",
+            str(
+                self.env.ref(
+                    "project.open_view_all_tasks_list_view"
+                ).get_combined_arch()
+            ),
+        )
 
     def test_customer_sees_only_the_releases_of_its_client(self):
         task = self._task()
@@ -153,24 +193,7 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.Release._process(
             self.other_client, self._payload("preprod", "14.0.9.0", [other_task.id])
         )
-        user = (
-            self.env["res.users"]
-            .with_context(no_reset_password=True)
-            .create(
-                {
-                    "name": "Customer user",
-                    "login": "release-customer@example.com",
-                    "groups_id": [
-                        (
-                            6,
-                            0,
-                            [self.env.ref("project_customer_access.group_customer").id],
-                        )
-                    ],
-                    "cross_connect_client_id": self.client.id,
-                }
-            )
-        )
+        user = self._customer_user()
         menu = self.env.ref(
             "support_server_release.support_server_release_menu_customer"
         )
@@ -182,6 +205,51 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(releases.search([]).mapped("version"), ["14.0.1.0"])
         with self.assertRaises(AccessError):
             releases.search([]).write({"version": "tampered"})
+
+    def test_customer_opens_the_tickets_with_its_views(self):
+        task = self._task()
+        release = self.Release._process(
+            self.client, self._payload("preprod", "14.0.1.0", [task.id])
+        )
+        user = self._customer_user()
+        action = release.with_user(user).action_open_tasks()
+        self.assertEqual(action["domain"], [("id", "in", task.ids)])
+        self.assertEqual(action["res_model"], "project.task")
+        search_view = action["search_view_id"]
+        if isinstance(search_view, list | tuple):
+            search_view = search_view[0]
+        self.assertEqual(
+            search_view,
+            self.env.ref("project_customer_access.view_task_search_form").id,
+        )
+        # the kanban would open grouped by stage, on a single column
+        self.assertEqual(action["view_mode"], "list,form")
+        self.assertEqual(
+            [view[0] for view in action["views"]],
+            [
+                self.env.ref("project_customer_access.view_task_tree").id,
+                self.env.ref("project_customer_access.view_task_form").id,
+            ],
+        )
+
+    def test_release_opens_the_ticket_form_when_there_is_one(self):
+        task = self._task()
+        release = self.Release._process(
+            self.client, self._payload("preprod", "14.0.1.0", [task.id])
+        )
+        action = task.action_open_releases()
+        self.assertEqual(action["view_mode"], "form")
+        self.assertEqual(action["res_id"], release.id)
+
+    def test_task_opens_the_list_when_several_releases(self):
+        task = self._task()
+        for version in ("14.0.1.0", "14.0.2.0"):
+            self.Release._process(
+                self.client, self._payload("preprod", version, [task.id])
+            )
+        action = task.action_open_releases()
+        self.assertEqual(action["view_mode"], "list,form")
+        self.assertEqual(action["domain"], [("id", "in", task.release_ids.ids)])
 
     def test_unknown_ticket_is_reported(self):
         release = self.Release._process(
