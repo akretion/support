@@ -134,6 +134,16 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(task.release_ids.mapped("version"), ["14.0.1.0", "14.0.2.0"])
         self.assertEqual(task.latest_release_version, "14.0.2.0")
 
+    def test_release_opens_its_tickets(self):
+        task = self._task()
+        release = self.Release._process(
+            self.client, self._payload("preprod", "next", [task.id])
+        )
+        self.assertEqual(release.task_count, 1)
+        action = release.action_open_tasks()
+        self.assertEqual(action["res_model"], "project.task")
+        self.assertEqual(action["domain"], [("id", "in", task.ids)])
+
     def test_unknown_ticket_is_reported(self):
         release = self.Release._process(
             self.client, self._payload("preprod", "next", [99999999])

@@ -47,6 +47,7 @@ class SupportServerRelease(models.Model):
     )
     preprod_deployed_at = fields.Datetime()
     prod_deployed_at = fields.Datetime()
+    task_count = fields.Integer(compute="_compute_task_count")
     message = fields.Text(
         readonly=True,
         copy=False,
@@ -147,6 +148,23 @@ class SupportServerRelease(models.Model):
                 ("version", "=", NEXT_VERSION),
             ]
         ).unlink()
+
+    @api.depends("task_ids")
+    def _compute_task_count(self):
+        for release in self:
+            release.task_count = len(release.task_ids)
+
+    def action_open_tasks(self):
+        """Open the tickets linked to the release."""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Tickets"),
+            "res_model": "project.task",
+            "view_mode": "list,form",
+            "domain": [("id", "in", self.task_ids.ids)],
+            "context": {"create": False},
+        }
 
     def _get_task_url(self, task):
         """URL opening the ticket form in the web client of this database."""
