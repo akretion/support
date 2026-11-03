@@ -24,26 +24,37 @@
                     is now deployed in production. It contains the following
                     tickets:
                 </p>
-                <ul>
-                    <li
-                        t-foreach="object.task_ids"
-                        t-as="task"
-                        style="margin-bottom:10px;"
-                    >
-                        <a t-att-href="object._get_task_url(task)" t-out="task.name" />
-                        <div t-if="task.description">
-                            <details>
-                                <summary style="cursor:pointer;color:#666;">
-                                    Description
-                                </summary>
-                                <div
-                                    t-out="task.description"
-                                    style="border-left:3px solid #ddd;padding-left:8px;color:#555;"
-                                />
-                            </details>
-                        </div>
-                    </li>
-                </ul>
+                <t t-set="tasks" t-value="object._get_notified_tasks()" />
+                <div t-foreach="tasks.project_id" t-as="project">
+                    <h4
+                        t-out="project.name"
+                        style="margin:18px 0 4px 0;font-size:14px;"
+                    />
+                    <ul>
+                        <li
+                            t-foreach="tasks"
+                            t-as="task"
+                            t-if="task.project_id == project"
+                            style="margin-bottom:10px;"
+                        >
+                            <a
+                                t-att-href="object._get_task_url(task)"
+                                t-out="'[%s] %s' % (task.id, task.name)"
+                            />
+                            <div t-if="task.description">
+                                <details>
+                                    <summary style="cursor:pointer;color:#666;">
+                                        Description
+                                    </summary>
+                                    <div
+                                        t-out="task.description"
+                                        style="border-left:3px solid #ddd;padding-left:8px;color:#555;"
+                                    />
+                                </details>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
                 <p>Regards,</p>
             </div>
         </field>

@@ -260,12 +260,50 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(len(mail), 1)
         self.assertEqual(mail.email_to, "customer@example.com")
         self.assertIn("14.0.1.0", mail.subject)
-        self.assertIn(task.name, mail.body_html)
+        self.assertIn(self.project.name, mail.body_html)
+        self.assertIn(f"[{task.id}] {task.name}", mail.body_html)
         self.assertIn("The content of the ticket", mail.body_html)
         self.assertIn("<details>", mail.body_html)
         self.assertNotIn("mail/unfollow", mail.body_html)
         self.assertIn(
             f"/odoo/action-project.action_view_task/{task.id}", mail.body_html
+        )
+
+    def test_prod_mail_groups_the_tickets_by_project(self):
+        second_project = self.env["project.project"].create(
+            {
+                "name": "Second project",
+                "partner_id": self.partner.id,
+                "cross_connect_client_id": self.client.id,
+                "type_ids": [(6, 0, (self.stage_preprod | self.stage_prod).ids)],
+            }
+        )
+        task = self._task()
+        second_task = self._task(project=second_project)
+        internal_task = self._task(project=self.internal_project)
+        self._notification_user("customer@example.com")
+        self.env["mail.mail"].search([]).unlink()
+        release = self.Release._process(
+            self.client,
+            self._payload(
+                "prod", "14.0.1.0", [task.id, second_task.id, internal_task.id]
+            ),
+        )
+        mail = self.env["mail.mail"].search(
+            [("model", "=", "support.server.release"), ("res_id", "=", release.id)]
+        )
+        body = mail.body_html
+        # the internal ticket is linked to the release but kept out of the mail
+        self.assertIn(internal_task, release.task_ids)
+        self.assertNotIn(self.internal_project.name, body)
+        self.assertNotIn(f"[{internal_task.id}]", body)
+        # each ticket is listed under the block of its own project
+        self.assertIn(f"[{task.id}] {task.name}", body)
+        self.assertIn(f"[{second_task.id}] {second_task.name}", body)
+        self.assertLess(body.index(self.project.name), body.index(f"[{task.id}]"))
+        self.assertLess(body.index(f"[{task.id}]"), body.index(second_project.name))
+        self.assertLess(
+            body.index(second_project.name), body.index(f"[{second_task.id}]")
         )
 
     def test_prod_mail_is_sent_in_the_language_of_the_customer(self):
@@ -305,6 +343,18 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.env["mail.mail"].search([]).unlink()
         self.Release._process(self.client, self._payload("preprod", "next", [task.id]))
         self.assertFalse(self.env["mail.mail"].search([]))
+
+    def test_prod_without_customer_ticket_sends_no_mail(self):
+        internal_task = self._task(project=self.internal_project)
+        self._notification_user("customer@example.com")
+        self.env["mail.mail"].search([]).unlink()
+        release = self.Release._process(
+            self.client, self._payload("prod", "14.0.1.0", [internal_task.id])
+        )
+        # the internal ticket is linked, but there is nothing to announce
+        self.assertIn(internal_task, release.task_ids)
+        self.assertFalse(self.env["mail.mail"].search([]))
+        self.assertIn("No ticket of a customer project", release.message)
 
     def test_prod_without_notification_user_sends_no_mail(self):
         task = self._task()

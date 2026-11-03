@@ -101,7 +101,8 @@ class SupportServerRelease(models.Model):
         """Keep the tickets of the partner of the client, report the others.
 
         The tickets of an internal project have no cross connect client but
-        share the partner of the customer, so they belong to the release too.
+        share the partner of the customer, so they belong to the release too,
+        the mail leaving them out.
         """
         tasks = self.env["project.task"].browse(ticket_ids).exists()
         messages = []
@@ -158,12 +159,28 @@ class SupportServerRelease(models.Model):
         )
         return ", ".join(sorted(set(users.mapped("email"))))
 
+    def _get_notified_tasks(self):
+        """Tickets announced to the customer.
+
+        The projects without a cross connect client are internal maintenance,
+        invisible on the portal of the customer, so their tickets stay out of
+        the mail even when they are linked to the release.
+        """
+        return self.task_ids.filtered(
+            lambda task: task.project_id.cross_connect_client_id
+        )
+
     def _notify_prod_release(self):
         """Tell the users of the customer that the release reached production."""
         self.ensure_one()
         if not self._get_notification_emails():
             self._add_message(
                 _("No user with an email address to notify the production deployment.")
+            )
+            return
+        if not self._get_notified_tasks():
+            self._add_message(
+                _("No ticket of a customer project to announce in the release mail.")
             )
             return
         self.env.ref(RELEASE_IN_PROD_TEMPLATE).send_mail(self.id, force_send=False)
