@@ -7,7 +7,6 @@
         <field name="arch" type="xml">
             <tree create="0" delete="0">
                 <field name="version" />
-                <field name="tickets" />
                 <field name="is_sent" />
                 <field name="create_date" />
             </tree>
@@ -22,7 +21,6 @@
                     <group>
                         <field name="version" />
                         <field name="is_sent" />
-                        <field name="tickets" />
                     </group>
                 </sheet>
             </form>
