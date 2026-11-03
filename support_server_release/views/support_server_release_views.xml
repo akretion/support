@@ -45,7 +45,17 @@
                     </div>
                     <notebook>
                         <page string="Tickets" name="tickets">
-                            <field name="task_ids" widget="many2many_tags" />
+                            <field name="task_ids">
+                                <list>
+                                    <field name="name" />
+                                    <field name="project_id" />
+                                    <field name="stage_id" />
+                                    <field
+                                        name="user_ids"
+                                        widget="many2many_avatar_user"
+                                    />
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

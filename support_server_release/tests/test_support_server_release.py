@@ -123,6 +123,17 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertEqual(task.stage_id, self.stage_preprod)
         self.assertEqual(task.release_ids, release)
 
+    def test_task_shows_the_latest_release(self):
+        task = self._task()
+        self.Release._process(
+            self.client, self._payload("preprod", "14.0.1.0", [task.id])
+        )
+        self.Release._process(
+            self.client, self._payload("preprod", "14.0.2.0", [task.id])
+        )
+        self.assertEqual(task.release_ids.mapped("version"), ["14.0.1.0", "14.0.2.0"])
+        self.assertEqual(task.latest_release_version, "14.0.2.0")
+
     def test_unknown_ticket_is_reported(self):
         release = self.Release._process(
             self.client, self._payload("preprod", "next", [99999999])
