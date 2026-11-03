@@ -16,6 +16,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/support_server_release_security.xml",
         "data/mail_template.xml",
         "views/support_server_release_views.xml",
         "views/project_task_views.xml",

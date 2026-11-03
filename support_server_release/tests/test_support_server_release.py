@@ -1,7 +1,7 @@
 # Copyright 2026 Akretion (http://www.akretion.com).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.extendable_fastapi.tests.common import FastAPITransactionCase
@@ -143,6 +143,45 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         action = release.action_open_tasks()
         self.assertEqual(action["res_model"], "project.task")
         self.assertEqual(action["domain"], [("id", "in", task.ids)])
+
+    def test_customer_sees_only_the_releases_of_its_client(self):
+        task = self._task()
+        self.Release._process(
+            self.client, self._payload("preprod", "14.0.1.0", [task.id])
+        )
+        other_task = self._task(project=self.other_project)
+        self.Release._process(
+            self.other_client, self._payload("preprod", "14.0.9.0", [other_task.id])
+        )
+        user = (
+            self.env["res.users"]
+            .with_context(no_reset_password=True)
+            .create(
+                {
+                    "name": "Customer user",
+                    "login": "release-customer@example.com",
+                    "groups_id": [
+                        (
+                            6,
+                            0,
+                            [self.env.ref("project_customer_access.group_customer").id],
+                        )
+                    ],
+                    "cross_connect_client_id": self.client.id,
+                }
+            )
+        )
+        menu = self.env.ref(
+            "support_server_release.support_server_release_menu_customer"
+        )
+        self.assertEqual(
+            menu.parent_id,
+            self.env.ref("project_customer_access.menu_project_customer_root"),
+        )
+        releases = self.Release.with_user(user)
+        self.assertEqual(releases.search([]).mapped("version"), ["14.0.1.0"])
+        with self.assertRaises(AccessError):
+            releases.search([]).write({"version": "tampered"})
 
     def test_unknown_ticket_is_reported(self):
         release = self.Release._process(

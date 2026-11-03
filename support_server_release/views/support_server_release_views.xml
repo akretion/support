@@ -56,6 +56,7 @@
                         class="alert alert-warning"
                         role="alert"
                         invisible="not message"
+                        groups="!project_customer_access.group_customer"
                     >
                         <field name="message" />
                     </div>
@@ -116,5 +117,14 @@
         parent="project.menu_main_pm"
         action="support_server_release_action"
         sequence="100"
+    />
+
+    <menuitem
+        id="support_server_release_menu_customer"
+        name="Releases"
+        parent="project_customer_access.menu_project_customer_root"
+        action="support_server_release_action"
+        groups="project_customer_access.group_customer"
+        sequence="15"
     />
 </odoo>
