@@ -41,17 +41,6 @@
                                 t-att-href="object._get_task_url(task)"
                                 t-out="'[%s] %s' % (task.id, task.name)"
                             />
-                            <div t-if="task.description">
-                                <details>
-                                    <summary style="cursor:pointer;color:#666;">
-                                        Description
-                                    </summary>
-                                    <div
-                                        t-out="task.description"
-                                        style="border-left:3px solid #ddd;padding-left:8px;color:#555;"
-                                    />
-                                </details>
-                            </div>
                         </li>
                     </ul>
                 </div>

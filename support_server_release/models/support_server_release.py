@@ -198,8 +198,12 @@ class SupportServerRelease(models.Model):
         return action
 
     def _get_task_url(self, task):
-        """URL opening the ticket form in the web client of this database."""
-        return f"{self.get_base_url()}/odoo/action-{TASK_ACTION_XMLID}/{task.id}"
+        """URL opening the ticket, with the action of the customer.
+
+        The action of the project module is not open to the users of the
+        support group, so the link points to the one of project_customer_access.
+        """
+        return f"{self.get_base_url()}/odoo/action-{CUSTOMER_TASK_ACTION}/{task.id}"
 
     def _get_notification_emails(self):
         """Emails of the users to notify, set on the partner of the release."""

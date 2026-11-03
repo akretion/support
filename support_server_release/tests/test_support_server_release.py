@@ -390,12 +390,16 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         self.assertIn("14.0.1.0", mail.subject)
         self.assertIn(self.project.name, mail.body_html)
         self.assertIn(f"[{task.id}] {task.name}", mail.body_html)
-        self.assertIn("The content of the ticket", mail.body_html)
-        self.assertIn("<details>", mail.body_html)
         self.assertNotIn("mail/unfollow", mail.body_html)
+        # the description would be unreadable in the mail boxes, see the ticket
+        self.assertNotIn("The content of the ticket", mail.body_html)
+        self.assertNotIn("<details>", mail.body_html)
+        # the link opens the action the customer has access to
         self.assertIn(
-            f"/odoo/action-project.action_view_task/{task.id}", mail.body_html
+            f"/odoo/action-project_customer_access.action_view_all_task/{task.id}",
+            mail.body_html,
         )
+        self.assertNotIn("action-project.action_view_task", mail.body_html)
 
     def test_prod_mail_groups_the_tickets_by_project(self):
         second_project = self.env["project.project"].create(
