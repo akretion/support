@@ -105,6 +105,19 @@ and the iOS Mail application fold it; Gmail and Outlook drop it and show
 the description unfolded. Email has no reliable alternative, so the
 message stays readable everywhere.
 
+Release notes
+-------------
+
+Check *Release notes* in the settings of a project to add a *Release
+note* tab on its tickets. The note says what changes for the customer
+once the ticket is in production:
+
+- the customer users see it read-only in their form of the ticket, where
+  the tab is hidden while the note is empty;
+- the production mail shows it under the title of the ticket, and shows
+  nothing when the note is empty or the project does not use release
+  notes.
+
 Bug Tracker
 ===========
 

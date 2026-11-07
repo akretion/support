@@ -21,6 +21,19 @@
                     </div>
                 </button>
             </xpath>
+            <xpath expr="//page[@name='description_page']" position="after">
+                <page
+                    name="release_note"
+                    string="Release note"
+                    invisible="not use_release_note"
+                >
+                    <field name="use_release_note" invisible="1" />
+                    <field
+                        name="release_note"
+                        placeholder="What changes for the customer once in production..."
+                    />
+                </page>
+            </xpath>
         </field>
     </record>
     <record id="view_task_search_form_release" model="ir.ui.view">
@@ -70,6 +83,25 @@
                     </button>
                 </div>
             </xpath>
+            <xpath expr="//page[@name='description_page']" position="after">
+                <page
+                    name="release_note"
+                    string="Release note"
+                    invisible="not use_release_note or not release_note"
+                >
+                    <field name="use_release_note" invisible="1" />
+                    <field name="release_note" readonly="1" />
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="edit_project_release_note" model="ir.ui.view">
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project" />
+        <field name="arch" type="xml">
+            <group name="extra_settings" position="inside">
+                <field name="use_release_note" />
+            </group>
         </field>
     </record>
 </odoo>

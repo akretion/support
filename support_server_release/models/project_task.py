@@ -7,6 +7,12 @@ from odoo import _, api, fields, models
 class ProjectTask(models.Model):
     _inherit = "project.task"
 
+    use_release_note = fields.Boolean(related="project_id.use_release_note")
+    release_note = fields.Html(
+        copy=False,
+        help="What changes for the customer once the ticket is in production, "
+        "added to the production mail.",
+    )
     release_ids = fields.Many2many(
         "support.server.release",
         relation="support_server_release_project_task_rel",

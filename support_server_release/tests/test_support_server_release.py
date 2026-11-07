@@ -401,6 +401,39 @@ class TestSupportServerRelease(ReleaseCaseMixin, TransactionCase):
         )
         self.assertNotIn("action-project.action_view_task", mail.body_html)
 
+    def _prod_mail_body(self, task):
+        self._notification_user("customer@example.com")
+        self.env["mail.mail"].search([]).unlink()
+        release = self.Release._process(
+            self.client, self._payload("prod", "14.0.1.0", [task.id])
+        )
+        return (
+            self.env["mail.mail"]
+            .search(
+                [("model", "=", "support.server.release"), ("res_id", "=", release.id)]
+            )
+            .body_html
+        )
+
+    def test_prod_mail_shows_the_release_note(self):
+        self.project.use_release_note = True
+        task = self._task()
+        task.release_note = "<p>New button to print the labels</p>"
+        self.assertIn("New button to print the labels", self._prod_mail_body(task))
+
+    def test_prod_mail_hides_the_release_note_of_a_disabled_project(self):
+        task = self._task()
+        task.release_note = "<p>New button to print the labels</p>"
+        self.assertNotIn("New button to print the labels", self._prod_mail_body(task))
+
+    def test_prod_mail_hides_an_empty_release_note(self):
+        self.project.use_release_note = True
+        task = self._task()
+        task.release_note = "<p><br></p>"
+        body = self._prod_mail_body(task)
+        self.assertIn(f"[{task.id}] {task.name}", body)
+        self.assertNotIn("margin-top:4px", body)
+
     def test_prod_mail_groups_the_tickets_by_project(self):
         second_project = self.env["project.project"].create(
             {
