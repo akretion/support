@@ -1,0 +1,16 @@
+# Odoo addons that are neither on PyPI nor on the OCA wheelhouse
+# (https://wheelhouse.odoo-community.org), installed from their git repository.
+# They are required by project_customer_access.
+
+# https://github.com/akretion/ak-odoo-incubator (18.0 branch)
+odoo-addon-gitlab_integration @ git+https://github.com/akretion/ak-odoo-incubator@18.0#subdirectory=gitlab_integration
+odoo-addon-project_estimate_step @ git+https://github.com/akretion/ak-odoo-incubator@18.0#subdirectory=project_estimate_step
+odoo-addon-project_sprint @ git+https://github.com/akretion/ak-odoo-incubator@18.0#subdirectory=project_sprint
+odoo-addon-project_task_urgency @ git+https://github.com/akretion/ak-odoo-incubator@18.0#subdirectory=project_task_urgency
+odoo-addon-project_time_in_day @ git+https://github.com/akretion/ak-odoo-incubator@18.0#subdirectory=project_time_in_day
+
+# https://github.com/akretion/subcontractor (18.0 branch)
+odoo-addon-account_invoice_subcontractor @ git+https://github.com/akretion/subcontractor@18.0#subdirectory=account_invoice_subcontractor
+odoo-addon-account_move_line_project @ git+https://github.com/akretion/subcontractor@18.0#subdirectory=account_move_line_project
+odoo-addon-project_invoicing_subcontractor @ git+https://github.com/akretion/subcontractor@18.0#subdirectory=project_invoicing_subcontractor
+odoo-addon-project_budget_subcontractor @ git+https://github.com/akretion/subcontractor@18.0#subdirectory=project_budget_subcontractor
