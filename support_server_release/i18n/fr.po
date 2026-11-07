@@ -36,6 +36,7 @@ msgid ""
 "                    <ul>\n"
 "                        <li t-foreach=\"tasks\" t-as=\"task\" t-if=\"task.project_id == project\" style=\"margin-bottom:10px;\">\n"
 "                            <a t-att-href=\"object._get_task_url(task)\" t-out=\"'[%s] %s' % (task.id, task.name)\"/>\n"
+"                            <div t-if=\"task.use_release_note and not is_html_empty(task.release_note)\" t-out=\"task.release_note\" style=\"margin-top:4px;\"/>\n"
 "                        </li>\n"
 "                    </ul>\n"
 "                </div>\n"
@@ -59,6 +60,7 @@ msgstr ""
 "                    <ul>\n"
 "                        <li t-foreach=\"tasks\" t-as=\"task\" t-if=\"task.project_id == project\" style=\"margin-bottom:10px;\">\n"
 "                            <a t-att-href=\"object._get_task_url(task)\" t-out=\"'[%s] %s' % (task.id, task.name)\"/>\n"
+"                            <div t-if=\"task.use_release_note and not is_html_empty(task.release_note)\" t-out=\"task.release_note\" style=\"margin-top:4px;\"/>\n"
 "                        </li>\n"
 "                    </ul>\n"
 "                </div>\n"
@@ -79,3 +81,32 @@ msgid ""
 msgstr ""
 "{{ object.cross_connect_client_id.name }} : version {{ object.version }} en "
 "production"
+
+#. module: support_server_release
+#: model:ir.model.fields,field_description:support_server_release.field_project_project__use_release_note
+#: model:ir.model.fields,field_description:support_server_release.field_project_task__use_release_note
+msgid "Release notes"
+msgstr "Notes de mise en production"
+
+#. module: support_server_release
+#: model:ir.model.fields,field_description:support_server_release.field_project_task__release_note
+#: model_terms:ir.ui.view,arch_db:support_server_release.view_task_form_customer_release
+#: model_terms:ir.ui.view,arch_db:support_server_release.view_task_form_releases
+msgid "Release note"
+msgstr "Note de mise en production"
+
+#. module: support_server_release
+#: model:ir.model.fields,help:support_server_release.field_project_project__use_release_note
+#: model:ir.model.fields,help:support_server_release.field_project_task__use_release_note
+msgid "Add a release note on the tickets, written by the internal users, shown to the customer and added to the production mail."
+msgstr "Ajoute une note de mise en production sur les tickets, rédigée par les utilisateurs internes, visible par le client et ajoutée au mail de mise en production."
+
+#. module: support_server_release
+#: model:ir.model.fields,help:support_server_release.field_project_task__release_note
+msgid "What changes for the customer once the ticket is in production, added to the production mail."
+msgstr "Ce qui change pour le client une fois le ticket en production, ajouté au mail de mise en production."
+
+#. module: support_server_release
+#: model_terms:ir.ui.view,arch_db:support_server_release.view_task_form_releases
+msgid "What changes for the customer once in production..."
+msgstr "Ce qui change pour le client une fois en production..."

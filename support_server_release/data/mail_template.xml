@@ -41,6 +41,11 @@
                                 t-att-href="object._get_task_url(task)"
                                 t-out="'[%s] %s' % (task.id, task.name)"
                             />
+                            <div
+                                t-if="task.use_release_note and not is_html_empty(task.release_note)"
+                                t-out="task.release_note"
+                                style="margin-top:4px;"
+                            />
                         </li>
                     </ul>
                 </div>
