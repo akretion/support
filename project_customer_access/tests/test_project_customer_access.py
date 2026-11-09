@@ -125,11 +125,13 @@ class TestProjectCustomerAccess(TransactionCase):
         self.assertIn("New", str(task_id.description))
         self.assertEqual(task_id.project_id, self.project1)
 
-    def test_create_task_customer_no_project(self):
+    def test_create_task_customer_default_project(self):
+        # A customer creating a task without selecting a project gets the
+        # default project of his cross-connect client (see default_get)
+        self.project2.is_default_support_project = True
         f = Form(self.env["project.task"].with_user(self.customer), view=self.form_view)
         f.name = "New"
-        with self.assertRaisesRegex(
-            AccessError,
-            "Uh-oh! Looks like you have stumbled upon some top-secret records.",
-        ):
-            f.save()
+        task_id = f.save()
+
+        self.assertEqual(task_id.name, "New")
+        self.assertEqual(task_id.project_id, self.project2)
