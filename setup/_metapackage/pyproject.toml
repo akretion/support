@@ -1,0 +1,11 @@
+[project]
+name = "odoo-addons-akretion-support"
+version = "19.0.20261109.0"
+dependencies = [
+    "odoo-addon-support==19.0.*",
+]
+classifiers=[
+    "Programming Language :: Python",
+    "Framework :: Odoo",
+    "Framework :: Odoo :: 19.0",
+]
