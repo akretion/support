@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_support_server_release_user,support.server.release user,model_support_server_release,base.group_user,1,1,0,0
+access_support_server_release_customer,support.server.release customer,model_support_server_release,project_customer_access.group_customer,1,0,0,0
